@@ -14,18 +14,24 @@ const Billing = () => {
   const { activeBusiness } = useBusiness();
 
   const [items,       setItems]       = useState([]);
+  const [categories,  setCategories]  = useState([]);
   const [isLoading,   setIsLoading]   = useState(true);
   const [cart,        setCart]        = useState([]);
   const [showCheckout,setShowCheckout]= useState(false);
   const [isSubmitting,setIsSubmitting]= useState(false);
   const [search,      setSearch]      = useState('');
+  const [selectedCat, setSelectedCat] = useState('all');
 
   useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
 
   const fetchData = async () => {
     try {
-      const its = await apiCall(`/items?businessId=${activeBusiness.id}`, {}, sessionToken);
+      const [its, cats] = await Promise.all([
+        apiCall(`/items?businessId=${activeBusiness.id}`, {}, sessionToken),
+        apiCall(`/categories?businessId=${activeBusiness.id}`, {}, sessionToken)
+      ]);
       setItems(Array.isArray(its) ? its : []);
+      setCategories(Array.isArray(cats) ? cats : []);
     } catch (e) { console.error(e); }
     finally { setIsLoading(false); }
   };
@@ -58,7 +64,11 @@ const Billing = () => {
     finally { setIsSubmitting(false); }
   };
 
-  const filtered = items.filter(i => i.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = items.filter(i => {
+    const matchSearch = i.name.toLowerCase().includes(search.toLowerCase());
+    const matchCat = selectedCat === 'all' || i.categoryId === selectedCat;
+    return matchSearch && matchCat;
+  });
   const cartMap   = Object.fromEntries(cart.map(i => [i.id, i.qty]));
 
   return (
@@ -74,6 +84,25 @@ const Billing = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
+        </div>
+
+        {/* Category Chips */}
+        <div className="bl-cat-chips">
+          <button 
+            className={`bl-cat-chip ${selectedCat === 'all' ? 'active' : ''}`}
+            onClick={() => setSelectedCat('all')}
+          >
+            All Items
+          </button>
+          {categories.map(c => (
+            <button 
+              key={c.id} 
+              className={`bl-cat-chip ${selectedCat === c.id ? 'active' : ''}`}
+              onClick={() => setSelectedCat(c.id)}
+            >
+              {c.name}
+            </button>
+          ))}
         </div>
 
         {/* Product grid */}

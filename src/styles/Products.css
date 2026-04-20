@@ -25,19 +25,19 @@
 .pr-name { font-size: 14px; font-weight: 700; }
 
 /* Grid (for items, matching Billing) */
-.pr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.pr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .pr-product-card { padding: 12px; position: relative; overflow: hidden; }
 .pr-product-thumb {
   width: 100%; aspect-ratio: 1 / 0.85;
   background: var(--primary-light);
-  border-radius: var(--r-md); margin-bottom: 10px;
+  border-radius: var(--r-md); margin-bottom: 8px;
   display: flex; align-items: center; justify-content: center;
   color: var(--primary); overflow: hidden;
 }
 .pr-product-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.pr-product-name  { font-size: 13px; font-weight: 700; }
-.pr-product-price { font-size: 14px; font-weight: 800; color: var(--primary); margin-top: 2px; }
-.pr-product-sub   { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
+.pr-product-name  { font-size: 11px; font-weight: 700; line-height: 1.2; margin-bottom: 2px; }
+.pr-product-price { font-size: 12px; font-weight: 800; color: var(--primary); }
+.pr-product-sub   { font-size: 9px; color: var(--text-sub); margin-top: 2px; }
 
 /* Modal Image Upload */
 .pr-img-upload-box {
