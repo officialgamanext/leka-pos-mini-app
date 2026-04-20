@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import AppLayout from '../components/AppLayout';
 import ModalPortal from '../components/ModalPortal';
 import { useSession } from '@descope/react-sdk';
@@ -113,10 +114,16 @@ const Products = () => {
           </div>
         )}
 
-        {/* FAB */}
-        <button className="pr-fab" onClick={() => openModal(activeTab === 'items' ? 'item' : 'category')}>
-          <Plus size={24} />
-        </button>
+        {/* FAB — rendered at body level to bypass overflow clipping */}
+        {createPortal(
+          <button
+            className="pr-fab"
+            onClick={() => openModal(activeTab === 'items' ? 'item' : 'category')}
+          >
+            <Plus size={24} />
+          </button>,
+          document.body
+        )}
 
         {/* Modal — rendered at body level via Portal */}
         <AnimatePresence>
