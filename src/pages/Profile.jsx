@@ -15,7 +15,8 @@ import {
   Phone,
   MessageSquare,
   Globe,
-  Settings
+  Settings,
+  Receipt
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -30,8 +31,10 @@ const Profile = () => {
     {
       title: 'Management',
       items: [
-        { icon: <Tag size={18} />, label: 'Categories', sub: 'Manage product groups', path: '/products?tab=categories', color: '#10B981' },
-        { icon: <Package size={18} />, label: 'Items', sub: 'Manage your products', path: '/products?tab=items', color: '#3379A7' },
+        { icon: <Building2 size={18} />, label: 'Business', sub: 'Switch or manage outlets', action: () => navigate('/onboarding'), color: '#4A5568' },
+        { icon: <Package size={18} />, label: 'Items', sub: 'Manage products & prices', path: '/products?tab=items', color: '#3379A7' },
+        { icon: <Tag size={18} />, label: 'Categories', sub: 'Organize your catalog', path: '/products?tab=categories', color: '#10B981' },
+        { icon: <Receipt size={18} />, label: 'Tax', sub: 'GST & Invoice settings', path: '/tax-settings', color: '#F59E0B' },
       ]
     },
     {

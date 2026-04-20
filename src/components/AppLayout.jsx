@@ -27,7 +27,7 @@ const AppLayout = ({ children, title, backPath }) => {
         alignItems: 'center',
         justifyContent: 'space-between',
         position: 'relative',
-        zIndex: 50
+        zIndex: 1
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {backPath && (
@@ -70,7 +70,7 @@ const AppLayout = ({ children, title, backPath }) => {
         padding: '0 12px 100px',
         marginTop: '-20px',
         position: 'relative',
-        zIndex: 60
+        zIndex: 5
       }}>
         {children}
       </main>
@@ -87,7 +87,7 @@ const AppLayout = ({ children, title, backPath }) => {
         bottom: 0,
         width: '100%',
         left: 0,
-        zIndex: 100
+        zIndex: 10
       }}>
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
