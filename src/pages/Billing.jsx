@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import AppLayout from '../components/AppLayout';
 import ModalPortal from '../components/ModalPortal';
 import { useSession } from '@descope/react-sdk';
@@ -85,7 +86,7 @@ const Billing = () => {
             {filtered.map(item => (
               <motion.div
                 key={item.id}
-                className="card bl-product-card"
+                className={`card bl-product-card ${cartMap[item.id] ? 'selected' : ''}`}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => addToCart(item)}
               >
@@ -106,31 +107,34 @@ const Billing = () => {
           </div>
         )}
 
-        {/* Floating cart bar - inside layout, above content */}
-        <AnimatePresence>
-          {cart.length > 0 && (
-            <motion.div
-              className="bl-cart-bar"
-              initial={{ y: 80, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 80, opacity: 0 }}
-              transition={{ type: 'spring', damping: 24, stiffness: 280 }}
-            >
-              <button className="bl-cart-btn" onClick={() => setShowCheckout(true)}>
-                <div className="bl-cart-left">
-                  <div className="bl-cart-count-box">
-                    <ShoppingCart size={16} />
+        {/* Floating cart bar - portaled to body to escape transform context */}
+        {createPortal(
+          <AnimatePresence>
+            {cart.length > 0 && (
+              <motion.div
+                className="bl-cart-bar"
+                initial={{ y: 80, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 80, opacity: 0 }}
+                transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+              >
+                <button className="bl-cart-btn" onClick={() => setShowCheckout(true)}>
+                  <div className="bl-cart-left">
+                    <div className="bl-cart-count-box">
+                      <ShoppingCart size={16} />
+                    </div>
+                    <div>
+                      <div className="bl-cart-count">{cart.length} ITEMS</div>
+                      <div className="bl-cart-total">₹{total.toFixed(2)}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="bl-cart-count">{cart.length} ITEMS</div>
-                    <div className="bl-cart-total">₹{total.toFixed(2)}</div>
-                  </div>
-                </div>
-                <div className="bl-cart-cta">Checkout <ChevronRight size={16} /></div>
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  <div className="bl-cart-cta">Checkout <ChevronRight size={16} /></div>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
 
         {/* Checkout Modal — rendered at body level via Portal */}
         <AnimatePresence>
