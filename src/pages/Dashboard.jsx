@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   IndianRupee, TrendingUp, TrendingDown, Receipt,
   ShoppingBag, ArrowRight, Loader2, BarChart2,
-  PieChart as PieIcon, LineChart as LineIcon
+  PieChart as PieIcon, LineChart as LineIcon,
+  Banknote, QrCode, CreditCard
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
@@ -164,6 +165,30 @@ const Dashboard = () => {
               </div>
               <span style={{ fontSize:22, fontWeight:900, color:'var(--primary)' }}>{summary.totalBills || 0}</span>
             </motion.div>
+
+            {/* ── Payment Modes ── */}
+            {summary.paymentModes && (
+              <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }} className="db-stats-row">
+                <div className="card db-stat-card" style={{ padding: '12px', flex: 1 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6, color:'var(--text-sub)' }}>
+                    <Banknote size={14} /> <span style={{ fontSize:11, fontWeight:700 }}>Cash</span>
+                  </div>
+                  <span className="db-stat-value" style={{ marginTop:4, fontSize: 15 }}>₹{(summary.paymentModes.Cash||0).toLocaleString('en-IN')}</span>
+                </div>
+                <div className="card db-stat-card" style={{ padding: '12px', flex: 1 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6, color:'var(--text-sub)' }}>
+                    <QrCode size={14} /> <span style={{ fontSize:11, fontWeight:700 }}>UPI</span>
+                  </div>
+                  <span className="db-stat-value" style={{ marginTop:4, fontSize: 15 }}>₹{(summary.paymentModes.UPI||0).toLocaleString('en-IN')}</span>
+                </div>
+                <div className="card db-stat-card" style={{ padding: '12px', flex: 1 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6, color:'var(--text-sub)' }}>
+                    <CreditCard size={14} /> <span style={{ fontSize:11, fontWeight:700 }}>Card</span>
+                  </div>
+                  <span className="db-stat-value" style={{ marginTop:4, fontSize: 15 }}>₹{(summary.paymentModes.Card||0).toLocaleString('en-IN')}</span>
+                </div>
+              </motion.div>
+            )}
 
             {/* ── Area / Line Chart — Revenue vs Expenses ── */}
             {trendData.length > 0 && (
