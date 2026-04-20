@@ -44,6 +44,7 @@ export const billsApi = {
     method: 'POST', 
     body: JSON.stringify({ businessId, ...billData }) 
   }, token),
+  list: (businessId, token) => apiCall(`/bills?businessId=${businessId}`, {}, token),
 };
 
 export const reportsApi = {
