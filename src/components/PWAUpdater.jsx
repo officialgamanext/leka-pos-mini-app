@@ -52,7 +52,7 @@ const PWAUpdater = () => {
           display: 'flex',
           alignItems: 'center',
           gap: 6,
-          background: '#3379A7',
+          background: '#5F259F',
           color: 'white',
           border: 'none',
           borderRadius: '10px',

@@ -13,7 +13,7 @@ const ROLE_COLORS = {
   staff:   { bg: '#F0FDF4', color: '#10B981' },
 };
 
-const AVATAR_COLORS = ['#3379A7','#6366F1','#10B981','#F59E0B','#EF4444','#EC4899'];
+const AVATAR_COLORS = ['#5F259F','#6366F1','#10B981','#F59E0B','#EF4444','#EC4899'];
 
 const Staff = () => {
   const { sessionToken }   = useSession();

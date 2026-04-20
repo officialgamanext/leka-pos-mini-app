@@ -2,10 +2,10 @@
 
 /* ─── Design Tokens ─────────────────────────────────────────── */
 :root {
-  --primary:       #3379A7;
-  --primary-dark:  #255a7e;
-  --primary-light: #ddeef8;
-  --primary-fade:  rgba(51,121,167,0.08);
+  --primary:       #5F259F;
+  --primary-dark:  #4D1E82;
+  --primary-light: #F1E9FA;
+  --primary-fade:  rgba(95, 37, 159, 0.08);
 
   --green:  #10B981;
   --amber:  #F59E0B;
@@ -20,10 +20,10 @@
   --text-sub:     #5a7a93;
   --border:       #dce8f0;
 
-  --shadow-xs: 0 1px 3px rgba(51,121,167,.07);
-  --shadow-sm: 0 2px 8px rgba(51,121,167,.10);
-  --shadow-md: 0 6px 20px rgba(51,121,167,.14);
-  --shadow-lg: 0 12px 40px rgba(51,121,167,.18);
+  --shadow-xs: 0 1px 3px rgba(95, 37, 159, .07);
+  --shadow-sm: 0 2px 8px rgba(95, 37, 159, .10);
+  --shadow-md: 0 6px 20px rgba(95, 37, 159, .14);
+  --shadow-lg: 0 12px 40px rgba(95, 37, 159, .18);
 
   --r-sm: 10px;
   --r-md: 14px;

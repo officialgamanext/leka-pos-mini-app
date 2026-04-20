@@ -1,4 +1,4 @@
-/* ─── Login Page ─── design language: light, #3379A7 primary ─── */
+/* ─── Login Page ─── design language: light, #5F259F primary ─── */
 
 .lg-page {
   height: 100dvh;
@@ -14,7 +14,7 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 38%;
-  background: linear-gradient(170deg, #3379A7 0%, #255a7e 100%);
+  background: linear-gradient(170deg, #5F259F 0%, #4D1E82 100%);
   border-bottom-left-radius: 40px;
   border-bottom-right-radius: 40px;
   z-index: 0;

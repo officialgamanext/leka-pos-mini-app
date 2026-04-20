@@ -27,7 +27,7 @@ const FILTERS = [
 const CATEGORIES = ['Inventory','Rent','Utilities','Salary','Equipment','Marketing','Transport','Other'];
 
 const CAT_CONFIG = {
-  Inventory:  { color: '#3379A7', emoji: '📦' },
+  Inventory:  { color: '#5F259F', emoji: '📦' },
   Rent:       { color: '#6366F1', emoji: '🏠' },
   Utilities:  { color: '#F59E0B', emoji: '⚡' },
   Salary:     { color: '#10B981', emoji: '👥' },

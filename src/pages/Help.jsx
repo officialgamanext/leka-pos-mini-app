@@ -8,7 +8,7 @@ const Help = () => {
     { icon: <Phone size={20} />, label: 'Call Support', val: '+91 98765 43210', color: '#10B981' },
     { icon: <MessageSquare size={20} />, label: 'WhatsApp Support', val: 'Chat with us', color: '#25D366' },
     { icon: <Mail size={20} />, label: 'Email Support', val: 'support@lekapos.com', color: '#EF4444' },
-    { icon: <Globe size={20} />, label: 'Visit Website', val: 'www.lekapos.com', color: '#3379A7' },
+    { icon: <Globe size={20} />, label: 'Visit Website', val: 'www.lekapos.com', color: '#5F259F' },
   ];
 
   return (

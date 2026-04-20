@@ -30,7 +30,7 @@
   background: var(--primary);
   border-color: var(--primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(51,121,167,.25);
+  box-shadow: 0 4px 12px rgba(95, 37, 159, .25);
 }
 
 /* Overview Cards */

@@ -25,7 +25,7 @@ const sections = (setPrinter, navigate) => [
     title: 'Management',
     items: [
       { icon: Building2,    label: 'Business',    sub: 'Switch workspace',   color: '#4A5568', action: () => navigate('/onboarding') },
-      { icon: Package,      label: 'Items',       sub: 'Products & pricing', color: '#3379A7', action: () => navigate('/products?tab=items') },
+      { icon: Package,      label: 'Items',       sub: 'Products & pricing', color: '#5F259F', action: () => navigate('/products?tab=items') },
       { icon: Tag,          label: 'Categories',  sub: 'Organize catalog',   color: '#10B981', action: () => navigate('/products?tab=categories') },
       { icon: Receipt,      label: 'Tax & GST',   sub: 'Invoice settings',   color: '#F59E0B', action: () => navigate('/tax-settings') },
     ],

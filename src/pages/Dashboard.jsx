@@ -31,7 +31,7 @@ const RANGES = [
   { key: 'thisYear',  label: 'This Year'  },
 ];
 
-const COLORS = ['#3379A7','#10B981','#6366F1','#F59E0B','#EF4444','#EC4899','#14B8A6','#8B5CF6','#F97316','#06B6D4'];
+const COLORS = ['#5F259F','#10B981','#6366F1','#F59E0B','#EF4444','#EC4899','#14B8A6','#8B5CF6','#F97316','#06B6D4'];
 
 // ── Custom Tooltip ────────────────────────────────────────────────────────────
 const ChartTooltip = ({ active, payload, label }) => {
@@ -204,8 +204,8 @@ const Dashboard = () => {
                   <AreaChart data={trendData} margin={{ top:4, right:4, left:-20, bottom:0 }}>
                     <defs>
                       <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%"  stopColor="#3379A7" stopOpacity={0.18} />
-                        <stop offset="95%" stopColor="#3379A7" stopOpacity={0} />
+                        <stop offset="5%"  stopColor="#5F259F" stopOpacity={0.18} />
+                        <stop offset="95%" stopColor="#5F259F" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%"  stopColor="#EF4444" stopOpacity={0.14} />
@@ -216,7 +216,7 @@ const Dashboard = () => {
                     <XAxis dataKey="label" tick={{ fontSize:10, fill:'var(--text-sub)' }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                     <YAxis tick={{ fontSize:10, fill:'var(--text-sub)' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${v >= 1000 ? (v/1000).toFixed(0)+'k' : v}`} />
                     <Tooltip content={<ChartTooltip />} />
-                    <Area type="monotone" dataKey="revenue"  name="Revenue"  stroke="#3379A7" strokeWidth={2.5} fill="url(#revGrad)" dot={false} />
+                    <Area type="monotone" dataKey="revenue"  name="Revenue"  stroke="#5F259F" strokeWidth={2.5} fill="url(#revGrad)" dot={false} />
                     <Area type="monotone" dataKey="expenses" name="Expenses" stroke="#EF4444" strokeWidth={2}   fill="url(#expGrad)" dot={false} strokeDasharray="4 2" />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -239,8 +239,8 @@ const Dashboard = () => {
                     <XAxis dataKey="label" tick={{ fontSize:10, fill:'var(--text-sub)' }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                     <YAxis tick={{ fontSize:10, fill:'var(--text-sub)' }} tickLine={false} axisLine={false} tickFormatter={v => `₹${v >= 1000 ? (v/1000).toFixed(0)+'k' : v}`} />
                     <Tooltip content={<ChartTooltip />} />
-                    <Bar dataKey="revenue" name="Revenue" fill="#3379A7" radius={[5,5,0,0]}>
-                      {trendData.map((_, i) => <Cell key={i} fill={i === trendData.length - 1 ? '#255a7e' : '#3379A7'} />)}
+                    <Bar dataKey="revenue" name="Revenue" fill="#5F259F" radius={[5,5,0,0]}>
+                      {trendData.map((_, i) => <Cell key={i} fill={i === trendData.length - 1 ? '#4D1E82' : '#5F259F'} />)}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -306,7 +306,7 @@ const Dashboard = () => {
             <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:.24 }} className="card db-sales-card">
               <h3 style={{ marginBottom:12 }}>Quick Access</h3>
               {[
-                { label:'All Bills',  path:'/all-bills', icon:<Receipt size={15} />,      color:'#3379A7' },
+                { label:'All Bills',  path:'/all-bills', icon:<Receipt size={15} />,      color:'#5F259F' },
                 { label:'Expenses',   path:'/expenses',  icon:<TrendingDown size={15} />, color:'#EF4444' },
                 { label:'Staff',      path:'/staff',     icon:<ShoppingBag size={15} />,  color:'#6366F1' },
               ].map(l => (
