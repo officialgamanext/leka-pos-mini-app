@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import AppLayout from '../components/AppLayout';
 import ModalPortal from '../components/ModalPortal';
 import { useNavigate } from 'react-router-dom';
@@ -6,9 +6,17 @@ import { useDescope } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import {
   Tag, Package, Printer, HelpCircle, LogOut,
-  ChevronRight, Building2, Receipt, X, Cpu, RefreshCw
+  ChevronRight, Building2, Receipt, X, Cpu,
+  Bluetooth, BluetoothOff, Check, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  connectPrinter,
+  disconnectPrinter,
+  isPrinterConnected,
+  getPrinterName,
+  printText
+} from '../utils/bluetooth';
 import '../styles/Profile.css';
 
 const sections = (setPrinter, navigate) => [
@@ -24,13 +32,13 @@ const sections = (setPrinter, navigate) => [
   {
     title: 'Hardware',
     items: [
-      { icon: Printer,    label: 'Bluetooth Printer', sub: 'Thermal receipt setup',  color: '#6366F1', action: () => setPrinter(true) },
+      { icon: Printer, label: 'Bluetooth Printer', sub: 'Thermal receipt setup', color: '#6366F1', action: () => setPrinter(true) },
     ],
   },
   {
     title: 'Support',
     items: [
-      { icon: HelpCircle, label: 'Help Center',       sub: 'FAQs & customer care',  color: '#F59E0B', action: () => navigate('/help') },
+      { icon: HelpCircle, label: 'Help Center', sub: 'FAQs & customer care', color: '#F59E0B', action: () => navigate('/help') },
     ],
   },
 ];
@@ -39,12 +47,51 @@ const Profile = () => {
   const { logout }                         = useDescope();
   const { activeBusiness, logoutBusiness } = useBusiness();
   const navigate                           = useNavigate();
-  const [printerOpen, setPrinterOpen]      = useState(false);
-  const [scanning,    setScanning]         = useState(false);
+
+  const [printerOpen, setPrinterOpen] = useState(false);
+  const [btStatus,    setBtStatus]    = useState('idle'); // idle | connecting | connected | error
+  const [printerName, setPrinterName] = useState('');
+  const [btError,     setBtError]     = useState('');
+  const [testStatus,  setTestStatus]  = useState('');
 
   const handleLogout = () => { logoutBusiness(); logout(); navigate('/login'); };
-  const scan = () => { setScanning(true); setTimeout(() => setScanning(false), 3000); };
   const closePrinter = () => setPrinterOpen(false);
+
+  const handleConnect = useCallback(async () => {
+    setBtStatus('connecting');
+    setBtError('');
+    try {
+      const { name } = await connectPrinter();
+      setPrinterName(name);
+      setBtStatus('connected');
+    } catch (err) {
+      setBtError(err.message || 'Could not connect. Make sure Bluetooth is on and the printer is nearby.');
+      setBtStatus('error');
+    }
+  }, []);
+
+  const handleDisconnect = useCallback(async () => {
+    await disconnectPrinter();
+    setPrinterName('');
+    setBtStatus('idle');
+    setTestStatus('');
+  }, []);
+
+  const handleTestPrint = useCallback(async () => {
+    setTestStatus('printing');
+    try {
+      await printText(
+        `\n  === LEKA POS ===\n\n  Test Print\n  ${new Date().toLocaleString()}\n\n  Printer OK!\n\n`
+      );
+      setTestStatus('done');
+      setTimeout(() => setTestStatus(''), 3000);
+    } catch (err) {
+      setTestStatus('error');
+      setTimeout(() => setTestStatus(''), 3000);
+    }
+  }, []);
+
+  const isConnected = btStatus === 'connected';
 
   return (
     <AppLayout>
@@ -72,9 +119,15 @@ const Profile = () => {
                   </div>
                   <div className="pf-row-text">
                     <p className="pf-row-label">{label}</p>
-                    <p className="pf-row-sub">{sub}</p>
+                    <p className="pf-row-sub">
+                      {label === 'Bluetooth Printer' && isConnected
+                        ? `Connected: ${printerName}`
+                        : sub}
+                    </p>
                   </div>
-                  <ChevronRight size={15} className="pf-chevron" />
+                  {label === 'Bluetooth Printer' && isConnected
+                    ? <div style={{ width: 8, height: 8, borderRadius: 4, background: '#10B981' }} />
+                    : <ChevronRight size={15} className="pf-chevron" />}
                 </button>
               ))}
             </div>
@@ -87,7 +140,7 @@ const Profile = () => {
 
       </div>
 
-      {/* Printer Modal — rendered directly at document.body via Portal */}
+      {/* Printer Modal */}
       <AnimatePresence>
         {printerOpen && (
           <ModalPortal>
@@ -109,46 +162,106 @@ const Profile = () => {
 
                 <div className="modal-head">
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                    <div className="logo-box" style={{ background:'#EEF2FF', color:'#6366F1' }}>
-                      <Printer size={16} />
+                    <div className="logo-box" style={{ background: isConnected ? '#ECFDF5' : '#EEF2FF', color: isConnected ? '#10B981' : '#6366F1' }}>
+                      {isConnected ? <Bluetooth size={16} /> : <Printer size={16} />}
                     </div>
-                    <h2>Printer Setup</h2>
+                    <div>
+                      <h2>Bluetooth Printer</h2>
+                      {isConnected && <p style={{ fontSize: 11, color: '#10B981', fontWeight: 700, marginTop: 2 }}>● Connected</p>}
+                    </div>
                   </div>
                   <button className="modal-close" onClick={closePrinter}><X size={18} /></button>
                 </div>
 
                 <div className="modal-body">
-                  <div className="pf-printer-placeholder">
-                    {scanning ? (
+                  {/* Status Card */}
+                  <div className="pf-bt-status-card" style={{
+                    background: isConnected ? '#F0FDF4' : btStatus === 'error' ? '#FFF5F5' : 'var(--surface-alt)',
+                    border: `1px solid ${isConnected ? '#BBF7D0' : btStatus === 'error' ? '#FECACA' : 'var(--border)'}`,
+                    borderRadius: 'var(--r-md)',
+                    padding: '20px',
+                    textAlign: 'center',
+                    marginBottom: 16,
+                  }}>
+                    {btStatus === 'idle' && (
                       <>
-                        <div className="pf-scan-ring" />
-                        <p style={{ fontWeight:700, fontSize:13 }}>Scanning for devices…</p>
-                        <p style={{ fontSize:11, marginTop:4 }}>Keep Bluetooth enabled</p>
+                        <div style={{ width: 56, height: 56, borderRadius: 28, background: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                          <Bluetooth size={28} color="var(--text-sub)" />
+                        </div>
+                        <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>No printer connected</p>
+                        <p style={{ fontSize: 12, marginBottom: 18 }}>Tap the button below to find your printer</p>
+                        <button className="btn btn-primary" style={{ width: 'auto', padding: '0 28px' }} onClick={handleConnect}>
+                          <Bluetooth size={16} /> Connect Printer
+                        </button>
                       </>
-                    ) : (
+                    )}
+
+                    {btStatus === 'connecting' && (
                       <>
-                        <RefreshCw size={36} color="var(--border)" style={{ marginBottom:14 }} />
-                        <p style={{ fontWeight:700, fontSize:13, marginBottom:6 }}>No printer detected</p>
-                        <p style={{ fontSize:11, marginBottom:18 }}>Make sure your printer is powered on</p>
-                        <button className="btn btn-primary" style={{ width:'auto', padding:'0 28px' }} onClick={scan}>
-                          Scan for Printers
+                        <div className="pf-scan-ring" style={{ margin: '0 auto 14px' }} />
+                        <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>Searching for printer…</p>
+                        <p style={{ fontSize: 12 }}>Select your printer from the browser popup</p>
+                      </>
+                    )}
+
+                    {btStatus === 'connected' && (
+                      <>
+                        <div style={{ width: 56, height: 56, borderRadius: 28, background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                          <Check size={28} color="#10B981" />
+                        </div>
+                        <p style={{ fontWeight: 800, fontSize: 15, color: '#10B981', marginBottom: 4 }}>{printerName || 'Printer'}</p>
+                        <p style={{ fontSize: 12, marginBottom: 18 }}>Printer is ready to print receipts</p>
+
+                        <div style={{ display: 'flex', gap: 10 }}>
+                          <button
+                            className="btn btn-ghost"
+                            style={{ flex: 1 }}
+                            onClick={handleDisconnect}
+                          >
+                            <BluetoothOff size={15} /> Disconnect
+                          </button>
+                          <button
+                            className="btn btn-primary"
+                            style={{ flex: 1 }}
+                            onClick={handleTestPrint}
+                            disabled={testStatus === 'printing'}
+                          >
+                            {testStatus === 'printing' ? 'Printing…'
+                             : testStatus === 'done'    ? '✓ Printed!'
+                             : testStatus === 'error'   ? 'Print Failed'
+                             : 'Test Print'}
+                          </button>
+                        </div>
+                      </>
+                    )}
+
+                    {btStatus === 'error' && (
+                      <>
+                        <div style={{ width: 56, height: 56, borderRadius: 28, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                          <AlertCircle size={28} color="#EF4444" />
+                        </div>
+                        <p style={{ fontWeight: 700, fontSize: 14, color: '#EF4444', marginBottom: 6 }}>Connection Failed</p>
+                        <p style={{ fontSize: 11, marginBottom: 18, lineHeight: 1.5 }}>{btError}</p>
+                        <button className="btn btn-primary" style={{ width: 'auto', padding: '0 28px' }} onClick={handleConnect}>
+                          Retry
                         </button>
                       </>
                     )}
                   </div>
 
+                  {/* Info */}
                   <div className="pf-info-box">
                     <Cpu size={16} className="pf-info-icon" />
                     <div>
-                      <p className="pf-info-title">Auto-Configuration</p>
-                      <p style={{ fontSize:11, lineHeight:1.5 }}>
-                        Compatible with ESC/POS 58mm and 80mm Bluetooth thermal printers.
+                      <p className="pf-info-title">Compatibility</p>
+                      <p style={{ fontSize: 11, lineHeight: 1.5 }}>
+                        Works with ESC/POS BLE printers: Xprinter, GOOJPRT, Epoch, and most 58mm / 80mm Bluetooth thermal printers. Requires Chrome or Edge browser.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="modal-foot" style={{ gridTemplateColumns:'1fr' }}>
+                <div className="modal-foot" style={{ gridTemplateColumns: '1fr' }}>
                   <button className="btn btn-ghost" onClick={closePrinter}>Close</button>
                 </div>
               </motion.div>
