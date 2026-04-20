@@ -5,6 +5,7 @@ import { useBusiness } from '../App';
 import { catalogApi, apiCall } from '../api/client';
 import { Plus, Tag, Package, Loader2, Search, MoreVertical, X, IndianRupee } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import '../styles/Products.css';
 
 const Products = () => {
   const { sessionToken } = useSession();
@@ -19,7 +20,7 @@ const Products = () => {
   });
   
   const [showAddModal, setShowAddModal] = useState(false);
-  const [modalType, setModalType] = useState('item'); // 'item' or 'category'
+  const [modalType, setModalType] = useState('item'); 
   
   const [newItem, setNewItem] = useState({ name: '', price: '', categoryId: '' });
   const [newCategory, setNewCategory] = useState('');
@@ -75,52 +76,54 @@ const Products = () => {
 
   return (
     <AppLayout title="Inventory" backPath="/profile">
-      <div className="animate-fade-in">
-        {/* Modern Tabs */}
-        <div style={{ display: 'flex', background: 'white', borderRadius: '12px', padding: '4px', marginBottom: '20px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+      <div className="products-page">
+        {/* Tab Navigation */}
+        <div className="tabs-container">
           <button 
             onClick={() => setActiveTab('items')}
-            style={{ flex: 1, padding: '10px', fontSize: '13px', fontWeight: '700', border: 'none', borderRadius: '8px', background: activeTab === 'items' ? 'var(--primary)' : 'transparent', color: activeTab === 'items' ? 'white' : 'var(--text-muted)', transition: '0.2s' }}
+            className={`tab-btn ${activeTab === 'items' ? 'active' : ''}`}
           >
             Items ({items.length})
           </button>
           <button 
             onClick={() => setActiveTab('categories')}
-            style={{ flex: 1, padding: '10px', fontSize: '13px', fontWeight: '700', border: 'none', borderRadius: '8px', background: activeTab === 'categories' ? 'var(--primary)' : 'transparent', color: activeTab === 'categories' ? 'white' : 'var(--text-muted)', transition: '0.2s' }}
+            className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
           >
             Categories ({categories.length})
           </button>
         </div>
 
         {isLoading ? (
-          <div style={{ padding: '60px', textAlign: 'center' }}>
+          <div className="empty-state">
             <Loader2 className="animate-spin" size={32} color="var(--primary)" style={{ margin: '0 auto' }} />
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '10px' }}>
+          <div className="inventory-grid">
             {activeTab === 'items' ? (
               items.map((item) => (
-                <div key={item.id} className="card flex-between" style={{ padding: '12px 14px', marginBottom: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '42px', height: '42px', background: 'var(--primary-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                <div key={item.id} className="card inventory-item">
+                  <div className="item-main">
+                    <div className="item-icon-box">
                       <Package size={20} />
                     </div>
-                    <div>
-                      <h3 style={{ fontSize: '14px', fontWeight: '700' }}>{item.name}</h3>
-                      <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{categories.find(c => c.id === item.categoryId)?.name || 'General'}</p>
+                    <div className="item-info">
+                      <h3>{item.name}</h3>
+                      <p>{categories.find(c => c.id === item.categoryId)?.name || 'General'}</p>
                     </div>
                   </div>
-                  <div style={{ fontWeight: '800', color: 'var(--primary)', fontSize: '15px' }}>₹{item.price}</div>
+                  <div className="item-price">₹{item.price}</div>
                 </div>
               ))
             ) : (
               categories.map((cat) => (
-                <div key={cat.id} className="card flex-between" style={{ padding: '12px 14px', marginBottom: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '42px', height: '42px', background: 'var(--secondary)', color: 'white', opacity: 0.8, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div key={cat.id} className="card inventory-item">
+                  <div className="item-main">
+                    <div className="cat-icon-box">
                       <Tag size={20} />
                     </div>
-                    <h3 style={{ fontSize: '14px', fontWeight: '700' }}>{cat.name}</h3>
+                    <div className="item-info">
+                      <h3>{cat.name}</h3>
+                    </div>
                   </div>
                   <MoreVertical size={16} color="var(--border)" />
                 </div>
@@ -128,9 +131,9 @@ const Products = () => {
             )}
             
             {((activeTab === 'items' && items.length === 0) || (activeTab === 'categories' && categories.length === 0)) && (
-              <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--text-muted)' }}>
-                <Package size={48} style={{ opacity: 0.1, marginBottom: '16px' }} />
-                <p style={{ fontSize: '14px' }}>No {activeTab} defined yet.</p>
+              <div className="empty-state">
+                <Package size={48} className="empty-icon" />
+                <p>No {activeTab} added to this workspace yet.</p>
               </div>
             )}
           </div>
@@ -142,57 +145,56 @@ const Products = () => {
             setModalType(activeTab === 'items' ? 'item' : 'category');
             setShowAddModal(true);
           }}
-          style={{ position: 'fixed', right: '20px', bottom: '90px', width: '56px', height: '56px', borderRadius: '28px', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 30px rgba(51, 121, 167, 0.4)', border: 'none', zIndex: 50 }}
+          className="fab-btn"
         >
           <Plus size={28} />
         </button>
 
+        {/* Modal */}
         <AnimatePresence>
           {showAddModal && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay">
               <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="modal-content">
-                <div style={{ width: '40px', height: '4px', background: 'var(--border)', borderRadius: '2px', margin: '0 auto 20px' }} />
-                
-                <div className="flex-between" style={{ marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '20px' }}>Add {modalType === 'item' ? 'Inventory Item' : 'New Category'}</h2>
-                  <button onClick={() => setShowAddModal(false)} style={{ background: 'var(--primary-light)', border: 'none', padding: '6px', borderRadius: '8px', color: 'var(--primary)', display: 'flex' }}>
+                <div className="modal-header">
+                  <h2>Add {modalType === 'item' ? 'Item' : 'Category'}</h2>
+                  <button className="close-btn" onClick={() => setShowAddModal(false)}>
                     <X size={20} />
                   </button>
                 </div>
                 
                 <form onSubmit={modalType === 'item' ? handleCreateItem : handleCreateCategory}>
                   {modalType === 'item' ? (
-                    <div style={{ display: 'grid', gap: '16px' }}>
-                      <div className="input-group" style={{ marginBottom: 0 }}>
+                    <div className="modal-form-grid">
+                      <div>
                         <label className="input-label">PRODUCT NAME</label>
                         <input autoFocus className="input-field" placeholder="e.g. Cold Coffee" value={newItem.name} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required />
                       </div>
-                      <div className="input-group" style={{ marginBottom: 0 }}>
+                      <div>
                         <label className="input-label">SALE PRICE</label>
-                        <div style={{ position: 'relative' }}>
-                           <IndianRupee size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                        <div className="price-input-wrapper">
+                           <IndianRupee size={16} className="price-icon" />
                            <input className="input-field" type="number" placeholder="0.00" style={{ paddingLeft: '36px' }} value={newItem.price} onChange={(e) => setNewItem({...newItem, price: e.target.value})} required />
                         </div>
                       </div>
-                      <div className="input-group" style={{ marginBottom: 0 }}>
+                      <div>
                         <label className="input-label">CATEGORY</label>
-                        <select className="input-field" style={{ appearance: 'none' }} value={newItem.categoryId} onChange={(e) => setNewItem({...newItem, categoryId: e.target.value})}>
-                          <option value="">Select Category (Optional)</option>
+                        <select className="input-field" value={newItem.categoryId} onChange={(e) => setNewItem({...newItem, categoryId: e.target.value})}>
+                          <option value="">Select Category</option>
                           {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
                       </div>
                     </div>
                   ) : (
-                    <div className="input-group" style={{ marginBottom: 24 }}>
+                    <div>
                       <label className="input-label">CATEGORY NAME</label>
                       <input autoFocus className="input-field" placeholder="e.g. Beverages" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} required />
                     </div>
                   )}
                   
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px', marginTop: '32px' }}>
-                    <button type="button" className="btn" style={{ background: '#F1F5F9', color: '#64748B' }} onClick={() => setShowAddModal(false)}>Cancel</button>
+                  <div className="modal-actions">
+                    <button type="button" className="btn btn-ghost" onClick={() => setShowAddModal(false)}>Cancel</button>
                     <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                      {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : `Save ${modalType === 'item' ? 'Item' : 'Category'}`}
+                      {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : `Save ${modalType === 'item' ? 'To Catalog' : 'Category'}`}
                     </button>
                   </div>
                 </form>

@@ -1,0 +1,204 @@
+.billing-page {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.search-section {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.search-input {
+  padding-left: 48px;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding-bottom: 160px;
+}
+
+.product-card {
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.product-image-placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--primary-light);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.product-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.product-price {
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.floating-cart-bar {
+  position: fixed;
+  bottom: 80px;
+  left: 12px;
+  right: 12px;
+  z-index: var(--z-nav);
+}
+
+.cart-btn {
+  height: 60px;
+  padding: 0 20px;
+  justify-content: space-between;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(51, 121, 167, 0.4);
+}
+
+.cart-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cart-icon-box {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-summary {
+  text-align: left;
+}
+
+.cart-count {
+  font-size: 10px;
+  opacity: 0.8;
+  font-weight: 700;
+}
+
+.cart-total {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.cart-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+}
+
+/* Checkout Modal Specifics */
+.order-summary-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 24px;
+  padding-right: 4px;
+}
+
+.order-item-card {
+  padding: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.order-item-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--background);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--background);
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+
+.qty-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  display: flex;
+  padding: 4px;
+}
+
+.qty-val {
+  font-weight: 900;
+  font-size: 14px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.grand-total-section {
+  background: var(--primary-light);
+  border: none;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.total-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.total-val {
+  font-weight: 700;
+}
+
+.grand-total-row {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px dashed rgba(51, 121, 167, 0.2);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.grand-label {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.grand-val {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--primary);
+}

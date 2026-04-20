@@ -1,0 +1,143 @@
+.products-page {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.tabs-container {
+  display: flex;
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 4px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+.inventory-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.inventory-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.item-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-icon-box {
+  width: 44px;
+  height: 44px;
+  background: var(--primary-light);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.cat-icon-box {
+  width: 44px;
+  height: 44px;
+  background: var(--surface-muted);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.item-info h3 {
+  font-size: 15px;
+}
+
+.item-info p {
+  font-size: 12px;
+}
+
+.item-price {
+  font-weight: 800;
+  color: var(--primary);
+  font-size: 16px;
+}
+
+.fab-btn {
+  position: fixed;
+  right: 20px;
+  bottom: calc(90px + var(--safe-area-bottom));
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px rgba(51, 121, 167, 0.4);
+  border: none;
+  z-index: 100;
+  transition: transform 0.2s;
+}
+
+.fab-btn:active {
+  transform: scale(0.9);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  opacity: 0.1;
+  margin-bottom: 20px;
+}
+
+/* Modal Internal Specifics */
+.modal-form-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.price-input-wrapper {
+  position: relative;
+}
+
+.price-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+  margin-top: 32px;
+}

@@ -19,6 +19,7 @@ import {
   Package
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import '../styles/Billing.css';
 
 const Billing = () => {
   const { sessionToken } = useSession();
@@ -90,38 +91,38 @@ const Billing = () => {
   const filteredItems = items.filter(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <AppLayout title="POS Billing">
-      <div className="animate-fade-in">
-        {/* Search Bar */}
-        <div style={{ position: 'relative', marginBottom: '20px' }}>
-          <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+    <AppLayout title="Billing">
+      <div className="billing-page">
+        {/* Search Header */}
+        <div className="search-section">
+          <Search size={18} className="search-icon" />
           <input 
-            className="input-field" 
-            placeholder="Search products..." 
-            style={{ paddingLeft: '44px', background: 'white', border: '1px solid var(--border)',boxShadow: 'var(--shadow-sm)' }}
+            className="input-field search-input" 
+            placeholder="Search items to add..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
         {isLoading ? (
-          <div style={{ padding: '40px', textAlign: 'center' }}><Loader2 className="animate-spin" size={24} color="var(--primary)" /></div>
+          <div className="text-center" style={{ padding: '40px' }}>
+            <Loader2 className="animate-spin" size={24} color="var(--primary)" />
+          </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', paddingBottom: '160px' }}>
+          <div className="products-grid">
             {filteredItems.map(item => (
               <motion.div 
                 key={item.id} 
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => addToCart(item)}
-                className="card" 
-                style={{ padding: '14px', marginBottom: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '8px' }}
+                className="card product-card"
               >
-                <div style={{ width: '100%', aspectRatio: '1', background: 'var(--primary-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
-                   <Package size={32} opacity={0.5} />
+                <div className="product-image-placeholder">
+                   <Package size={28} opacity={0.4} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '2px' }}>{item.name}</h3>
-                  <div style={{ color: 'var(--primary)', fontWeight: '800', fontSize: '14px' }}>₹{item.price}</div>
+                  <h3 className="product-name">{item.name}</h3>
+                  <div className="product-price">₹{item.price}</div>
                 </div>
               </motion.div>
             ))}
@@ -133,23 +134,22 @@ const Billing = () => {
           {cart.length > 0 && (
             <motion.div 
               initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
-              style={{ position: 'fixed', bottom: '80px', left: '12px', right: '12px', zIndex: 90 }}
+              className="floating-cart-bar"
             >
               <button 
                 onClick={() => setShowCheckout(true)}
-                className="btn btn-primary"
-                style={{ height: '60px', padding: '0 24px', justifyContent: 'space-between', borderRadius: '18px', boxShadow: '0 8px 30px rgba(51, 121, 167, 0.4)' }}
+                className="btn btn-primary cart-btn"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.2)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="cart-info">
+                  <div className="cart-icon-box">
                     <ShoppingCart size={18} />
                   </div>
-                  <div style={{ textAlign: 'left' }}>
-                    <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '600' }}>{cart.length} ITEMS</div>
-                    <div style={{ fontSize: '16px', fontWeight: '800' }}>₹{total}</div>
+                  <div className="cart-summary">
+                    <div className="cart-count">{cart.length} ITEMS ADDED</div>
+                    <div className="cart-total">₹{total}</div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '800' }}>
+                <div className="cart-action">
                   CHECKOUT <ChevronRight size={18} />
                 </div>
               </button>
@@ -157,66 +157,57 @@ const Billing = () => {
           )}
         </AnimatePresence>
 
+        {/* Modal */}
         <AnimatePresence>
           {showCheckout && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay">
-              <motion.div 
-                initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-                className="modal-content"
-                style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
-              >
-                <div style={{ width: '40px', height: '4px', background: 'var(--border)', borderRadius: '2px', margin: '0 auto 20px' }} />
-                
-                <div className="flex-between" style={{ marginBottom: '24px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', background: 'var(--primary-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
-                      <Receipt size={20} />
+              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="modal-content" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+                <div className="modal-header">
+                  <div className="item-main">
+                    <div className="logo-box" style={{ background: 'var(--primary-light)' }}>
+                      <Receipt size={18} color="var(--primary)" />
                     </div>
-                    <h2 style={{ fontSize: '20px' }}>Order Summary</h2>
+                    <h2 style={{ fontSize: '18px' }}>Order Summary</h2>
                   </div>
-                  <button onClick={() => setShowCheckout(false)} style={{ background: 'white', border: '1px solid var(--border)', padding: '6px', borderRadius: '10px', color: 'var(--text-muted)', display: 'flex' }}>
+                  <button className="close-btn" onClick={() => setShowCheckout(false)}>
                     <X size={20} />
                   </button>
                 </div>
 
-                <div style={{ flex: 1, overflowY: 'auto', marginBottom: '24px', paddingRight: '4px' }}>
+                <div className="order-summary-list">
                   {cart.map(i => (
-                    <div key={i.id} className="card" style={{ padding: '12px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '40px', height: '40px', background: 'var(--background)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                         <Package size={20} color="var(--text-muted)" />
+                    <div key={i.id} className="card order-item-card">
+                      <div className="order-item-icon">
+                        <Package size={20} color="var(--text-muted)" />
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '14px', fontWeight: '700' }}>{i.name}</div>
                         <div style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '700' }}>₹{i.price}</div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--background)', padding: '4px 8px', borderRadius: '10px' }}>
-                        <button onClick={() => updateQty(i.id, -1)} style={{ background: 'none', border: 'none', color: 'var(--primary)' }}><Minus size={16} /></button>
-                        <span style={{ fontWeight: '800', fontSize: '14px', minWidth: '20px', textAlign: 'center' }}>{i.quantity}</span>
-                        <button onClick={() => updateQty(i.id, 1)} style={{ background: 'none', border: 'none', color: 'var(--primary)' }}><Plus size={16} /></button>
+                      <div className="qty-controls">
+                        <button className="qty-btn" onClick={() => updateQty(i.id, -1)}><Minus size={14} /></button>
+                        <span className="qty-val">{i.quantity}</span>
+                        <button className="qty-btn" onClick={() => updateQty(i.id, 1)}><Plus size={14} /></button>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="card" style={{ background: 'var(--primary-light)', border: 'none', padding: '16px', marginBottom: '24px' }}>
-                  <div className="flex-between" style={{ marginBottom: '8px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-muted)' }}>Items Total</span>
-                    <span style={{ fontWeight: '700' }}>₹{total}</span>
+                <div className="card grand-total-section">
+                  <div className="total-row">
+                    <span className="total-label">Subtotal ({cart.length} items)</span>
+                    <span className="total-val">₹{total}</span>
                   </div>
-                  <div className="flex-between">
-                    <span style={{ fontSize: '15px', fontWeight: '800', color: 'var(--primary)' }}>Grand Total</span>
-                    <span style={{ fontSize: '20px', fontWeight: '900', color: 'var(--primary)' }}>₹{total}</span>
+                  <div className="grand-total-row">
+                    <span className="grand-label">Grand Total</span>
+                    <span className="grand-val">₹{total}</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px' }}>
-                  <button onClick={() => setShowCheckout(false)} className="btn" style={{ background: '#F1F5F9', color: '#64748B' }}>Cancel</button>
+                <div className="modal-actions">
+                  <button onClick={() => setShowCheckout(false)} className="btn btn-ghost">Cancel</button>
                   <button onClick={handleCheckout} className="btn btn-primary" disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                         Confirm Payment <ChevronRight size={18} />
-                      </div>
-                    )}
+                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Complete Payment'}
                   </button>
                 </div>
               </motion.div>
