@@ -93,7 +93,11 @@ const Billing = () => {
                   <span className="bl-cart-badge">{cartMap[item.id]}</span>
                 )}
                 <div className="bl-product-thumb">
-                  <Package size={26} opacity={0.45} />
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt={item.name} />
+                  ) : (
+                    <Package size={26} opacity={0.45} />
+                  )}
                 </div>
                 <p className="bl-product-name">{item.name}</p>
                 <p className="bl-product-price">₹{item.price}</p>
@@ -163,7 +167,13 @@ const Billing = () => {
                 <div className="bl-order-list modal-body">
                   {cart.map(i => (
                     <div key={i.id} className="card bl-order-item">
-                      <div className="bl-order-icon"><Package size={17} /></div>
+                      <div className="bl-order-icon" style={{ overflow: 'hidden' }}>
+                        {i.imageUrl ? (
+                          <img src={i.imageUrl} alt={i.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                        ) : (
+                          <Package size={17} />
+                        )}
+                      </div>
                       <div style={{ flex: 1 }}>
                         <p className="bl-order-name">{i.name}</p>
                         <p className="bl-order-price">₹{i.price}</p>
