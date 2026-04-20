@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/AppLayout';
+import ModalPortal from '../components/ModalPortal';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { catalogApi, apiCall } from '../api/client';
@@ -117,9 +118,10 @@ const Products = () => {
           <Plus size={24} />
         </button>
 
-        {/* Modal */}
+        {/* Modal — rendered at body level via Portal */}
         <AnimatePresence>
           {showModal && (
+            <ModalPortal>
             <motion.div
               key="overlay"
               initial={{ opacity: 0 }}
@@ -190,7 +192,8 @@ const Products = () => {
                   </div>
                 </form>
               </motion.div>
-            </motion.div>
+              </motion.div>
+            </ModalPortal>
           )}
         </AnimatePresence>
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AppLayout from '../components/AppLayout';
+import ModalPortal from '../components/ModalPortal';
 import { useNavigate } from 'react-router-dom';
 import { useDescope } from '@descope/react-sdk';
 import { useBusiness } from '../App';
@@ -14,39 +15,36 @@ const sections = (setPrinter, navigate) => [
   {
     title: 'Management',
     items: [
-      { icon: Building2, label: 'Business',    sub: 'Switch workspace',       color: '#4A5568', action: () => navigate('/onboarding') },
-      { icon: Package,   label: 'Items',        sub: 'Products & pricing',     color: '#3379A7', action: () => navigate('/products?tab=items') },
-      { icon: Tag,       label: 'Categories',   sub: 'Organize catalog',       color: '#10B981', action: () => navigate('/products?tab=categories') },
-      { icon: Receipt,   label: 'Tax & GST',    sub: 'Invoice settings',       color: '#F59E0B', action: () => navigate('/tax-settings') },
+      { icon: Building2,  label: 'Business',         sub: 'Switch workspace',       color: '#4A5568', action: () => navigate('/onboarding') },
+      { icon: Package,    label: 'Items',             sub: 'Products & pricing',     color: '#3379A7', action: () => navigate('/products?tab=items') },
+      { icon: Tag,        label: 'Categories',        sub: 'Organize catalog',       color: '#10B981', action: () => navigate('/products?tab=categories') },
+      { icon: Receipt,    label: 'Tax & GST',         sub: 'Invoice settings',       color: '#F59E0B', action: () => navigate('/tax-settings') },
     ],
   },
   {
     title: 'Hardware',
     items: [
-      { icon: Printer, label: 'Bluetooth Printer', sub: 'Thermal receipt setup', color: '#6366F1', action: () => setPrinter(true) },
+      { icon: Printer,    label: 'Bluetooth Printer', sub: 'Thermal receipt setup',  color: '#6366F1', action: () => setPrinter(true) },
     ],
   },
   {
     title: 'Support',
     items: [
-      { icon: HelpCircle, label: 'Help Center', sub: 'FAQs & customer care', color: '#F59E0B', action: () => navigate('/help') },
+      { icon: HelpCircle, label: 'Help Center',       sub: 'FAQs & customer care',  color: '#F59E0B', action: () => navigate('/help') },
     ],
   },
 ];
 
 const Profile = () => {
-  const { logout }                    = useDescope();
+  const { logout }                         = useDescope();
   const { activeBusiness, logoutBusiness } = useBusiness();
-  const navigate                      = useNavigate();
-  const [printerOpen, setPrinterOpen] = useState(false);
-  const [scanning,    setScanning]    = useState(false);
+  const navigate                           = useNavigate();
+  const [printerOpen, setPrinterOpen]      = useState(false);
+  const [scanning,    setScanning]         = useState(false);
 
   const handleLogout = () => { logoutBusiness(); logout(); navigate('/login'); };
-
-  const scan = () => {
-    setScanning(true);
-    setTimeout(() => setScanning(false), 3000);
-  };
+  const scan = () => { setScanning(true); setTimeout(() => setScanning(false), 3000); };
+  const closePrinter = () => setPrinterOpen(false);
 
   return (
     <AppLayout>
@@ -87,15 +85,18 @@ const Profile = () => {
           <LogOut size={16} /> Sign Out
         </button>
 
-        {/* Printer Modal */}
-        <AnimatePresence>
-          {printerOpen && (
+      </div>
+
+      {/* Printer Modal — rendered directly at document.body via Portal */}
+      <AnimatePresence>
+        {printerOpen && (
+          <ModalPortal>
             <motion.div
               className="modal-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={e => e.target === e.currentTarget && setPrinterOpen(false)}
+              onClick={e => e.target === e.currentTarget && closePrinter()}
             >
               <motion.div
                 className="modal-sheet"
@@ -113,7 +114,7 @@ const Profile = () => {
                     </div>
                     <h2>Printer Setup</h2>
                   </div>
-                  <button className="modal-close" onClick={() => setPrinterOpen(false)}><X size={18} /></button>
+                  <button className="modal-close" onClick={closePrinter}><X size={18} /></button>
                 </div>
 
                 <div className="modal-body">
@@ -148,14 +149,14 @@ const Profile = () => {
                 </div>
 
                 <div className="modal-foot" style={{ gridTemplateColumns:'1fr' }}>
-                  <button className="btn btn-ghost" onClick={() => setPrinterOpen(false)}>Close</button>
+                  <button className="btn btn-ghost" onClick={closePrinter}>Close</button>
                 </div>
               </motion.div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </ModalPortal>
+        )}
+      </AnimatePresence>
 
-      </div>
     </AppLayout>
   );
 };

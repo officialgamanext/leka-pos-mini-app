@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/AppLayout';
+import ModalPortal from '../components/ModalPortal';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { billsApi, apiCall } from '../api/client';
@@ -101,7 +102,7 @@ const Billing = () => {
           </div>
         )}
 
-        {/* Floating cart bar */}
+        {/* Floating cart bar - inside layout, above content */}
         <AnimatePresence>
           {cart.length > 0 && (
             <motion.div
@@ -127,9 +128,10 @@ const Billing = () => {
           )}
         </AnimatePresence>
 
-        {/* Checkout Modal */}
+        {/* Checkout Modal — rendered at body level via Portal */}
         <AnimatePresence>
           {showCheckout && (
+            <ModalPortal>
             <motion.div
               key="bl-overlay"
               className="modal-overlay"
@@ -194,6 +196,7 @@ const Billing = () => {
                 </div>
               </motion.div>
             </motion.div>
+            </ModalPortal>
           )}
         </AnimatePresence>
 

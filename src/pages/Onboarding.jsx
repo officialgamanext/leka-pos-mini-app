@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSession, useDescope } from '@descope/react-sdk';
 import { businessApi } from '../api/client';
 import { useBusiness } from '../App';
+import ModalPortal from '../components/ModalPortal';
 import { Plus, Building2, ChevronRight, LogOut, Loader2, X, Store } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/Onboarding.css';
@@ -89,58 +90,60 @@ const Onboarding = () => {
         </div>
       )}
 
-      {/* Create Modal */}
+      {/* Create Modal — rendered directly at document.body via Portal */}
       <AnimatePresence>
         {showCreate && (
-          <motion.div
-            key="ob-overlay"
-            className="modal-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={e => e.target === e.currentTarget && closeCreate()}
-          >
+          <ModalPortal>
             <motion.div
-              key="ob-sheet"
-              className="modal-sheet"
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              key="ob-overlay"
+              className="modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={e => e.target === e.currentTarget && closeCreate()}
             >
-              <div className="modal-drag-bar" />
+              <motion.div
+                key="ob-sheet"
+                className="modal-sheet"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              >
+                <div className="modal-drag-bar" />
 
-              <div className="modal-head">
-                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                  <div className="logo-box" style={{ background:'var(--primary-light)', color:'var(--primary)' }}>
-                    <Store size={16} />
+                <div className="modal-head">
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div className="logo-box" style={{ background:'var(--primary-light)', color:'var(--primary)' }}>
+                      <Store size={16} />
+                    </div>
+                    <h2>New Workspace</h2>
                   </div>
-                  <h2>New Workspace</h2>
-                </div>
-                <button className="modal-close" onClick={closeCreate}><X size={18} /></button>
-              </div>
-
-              <form onSubmit={handleCreate}>
-                <div className="modal-body" style={{ marginBottom: 0 }}>
-                  <label className="input-label">Business Name</label>
-                  <input
-                    autoFocus required
-                    className="input-field"
-                    placeholder="e.g. Leka Coffee Shop"
-                    value={bizName}
-                    onChange={e => setBizName(e.target.value)}
-                  />
+                  <button className="modal-close" onClick={closeCreate}><X size={18} /></button>
                 </div>
 
-                <div className="modal-foot">
-                  <button type="button"   className="btn btn-ghost" onClick={closeCreate}>Cancel</button>
-                  <button type="submit"   className="btn btn-primary" disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Create'}
-                  </button>
-                </div>
-              </form>
+                <form onSubmit={handleCreate}>
+                  <div className="modal-body" style={{ marginBottom: 0 }}>
+                    <label className="input-label">Business Name</label>
+                    <input
+                      autoFocus required
+                      className="input-field"
+                      placeholder="e.g. Leka Coffee Shop"
+                      value={bizName}
+                      onChange={e => setBizName(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="modal-foot">
+                    <button type="button"   className="btn btn-ghost" onClick={closeCreate}>Cancel</button>
+                    <button type="submit"   className="btn btn-primary" disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Create'}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </ModalPortal>
         )}
       </AnimatePresence>
 
