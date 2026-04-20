@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSession, useDescope } from '@descope/react-sdk';
 import { businessApi } from '../api/client';
 import { useBusiness } from '../App';
-import { Plus, Building2, ChevronRight, LogOut, Loader2 } from 'lucide-react';
+import { Plus, Building2, ChevronRight, LogOut, Loader2, X, Store } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Onboarding = () => {
@@ -56,13 +56,13 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="flex-column animate-fade-in" style={{ padding: '16px 12px', minHeight: '100vh' }}>
-      <div className="flex-between" style={{ marginBottom: '32px' }}>
+    <div className="flex-column animate-fade-in" style={{ padding: '16px 12px', minHeight: '100vh', background: 'var(--background)' }}>
+      <div className="flex-between" style={{ marginBottom: '32px', padding: '16px 8px' }}>
         <div>
-          <h1 style={{ fontSize: '22px' }}>My Businesses</h1>
-          <p>Select or create a business space</p>
+          <h1 style={{ fontSize: '24px', fontWeight: '800' }}>My Businesses</h1>
+          <p style={{ color: 'var(--text-muted)' }}>Select or create a workspace</p>
         </div>
-        <button onClick={() => logout()} style={{ background: 'none', border: 'none', color: 'var(--danger)' }}>
+        <button onClick={() => logout()} style={{ background: 'var(--primary-light)', border: 'none', padding: '10px', borderRadius: '12px', color: 'var(--primary)', display: 'flex' }}>
           <LogOut size={20} />
         </button>
       </div>
@@ -72,7 +72,7 @@ const Onboarding = () => {
           <Loader2 className="animate-spin" size={32} color="var(--primary)" />
         </div>
       ) : (
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, padding: '0 8px' }}>
           <div style={{ display: 'grid', gap: '12px' }}>
             {businesses.map((biz) => (
               <motion.div 
@@ -80,69 +80,64 @@ const Onboarding = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleSelect(biz)}
                 className="card flex-between"
-                style={{ cursor: 'pointer', margin: 0 }}
+                style={{ cursor: 'pointer', margin: 0, padding: '16px' }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '40px', height: '40px', background: 'var(--primary-light)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
-                    <Building2 size={20} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{ width: '44px', height: '44px', background: 'var(--primary-light)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                    <Building2 size={22} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '16px' }}>{biz.name}</h3>
-                    <p style={{ fontSize: '12px' }}>Owner Space</p>
+                    <h3 style={{ fontSize: '16px', fontWeight: '700' }}>{biz.name}</h3>
+                    <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Retail Outlet</p>
                   </div>
                 </div>
-                <ChevronRight size={20} color="var(--border)" />
+                <div style={{ width: '32px', height: '32px', borderRadius: '10px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                   <ChevronRight size={18} color="var(--border)" />
+                </div>
               </motion.div>
             ))}
 
             <button 
               className="btn btn-outline" 
               onClick={() => setIsCreating(true)}
-              style={{ borderStyle: 'dashed', height: '64px', background: 'var(--background)' }}
+              style={{ borderStyle: 'dashed', height: '70px', background: 'white', borderColor: 'var(--primary)', color: 'var(--primary)', borderWidth: '2px' }}
             >
-              <Plus size={20} />
+              <Plus size={22} />
               Add New Business
             </button>
           </div>
         </div>
       )}
 
-      {/* Create Modal Shell */}
+      {/* Enhanced Create Modal */}
       <AnimatePresence>
         {isCreating && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', zIndex: 1000 }}
-          >
-            <motion.div 
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              style={{ background: 'white', width: '100%', borderTopLeftRadius: 'var(--radius-xl)', borderTopRightRadius: 'var(--radius-xl)', padding: '32px 24px var(--safe-area-bottom)' }}
-            >
-              <div style={{ width: '40px', height: '4px', background: 'var(--border)', borderRadius: '2px', margin: '0 auto 24px' }} />
-              <h2 style={{ marginBottom: '8px' }}>Create Business</h2>
-              <p style={{ marginBottom: '24px' }}>Give your workspace a name to get started.</p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-end', zIndex: 1000 }}>
+            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} style={{ background: 'var(--background)', width: '100%', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', padding: '24px 20px calc(24px + var(--safe-area-bottom))' }}>
+              <div style={{ width: '40px', height: '4px', background: 'var(--border)', borderRadius: '2px', margin: '0 auto 20px' }} />
+              
+              <div className="flex-between" style={{ marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                   <div style={{ width: '40px', height: '40px', background: 'var(--primary-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                      <Store size={20} />
+                   </div>
+                   <h2 style={{ fontSize: '20px' }}>Create Workspace</h2>
+                </div>
+                <button onClick={() => setIsCreating(false)} style={{ background: 'white', border: '1px solid var(--border)', padding: '6px', borderRadius: '10px', color: 'var(--text-muted)', display: 'flex' }}>
+                  <X size={20} />
+                </button>
+              </div>
               
               <form onSubmit={handleCreate}>
-                <div className="input-group">
-                  <label className="input-label">BUSINESS NAME</label>
-                  <input 
-                    autoFocus
-                    className="input-field" 
-                    placeholder="e.g. My Awesome Cafe" 
-                    value={newBusinessName}
-                    onChange={(e) => setNewBusinessName(e.target.value)}
-                  />
+                <div className="input-group" style={{ marginBottom: '32px' }}>
+                   <label className="input-label">BUSINESS NAME</label>
+                   <input autoFocus className="input-field" placeholder="e.g. My Smart POS" value={newBusinessName} onChange={(e) => setNewBusinessName(e.target.value)} required />
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px' }}>
-                  <button type="button" className="btn btn-ghost" onClick={() => setIsCreating(false)}>Cancel</button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '12px' }}>
+                  <button type="button" className="btn btn-outline" style={{ background: 'white' }} onClick={() => setIsCreating(false)}>Cancel</button>
                   <button type="submit" className="btn btn-primary" disabled={isSubmitting || !newBusinessName.trim()}>
-                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Create Space'}
+                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Establish Space'}
                   </button>
                 </div>
               </form>

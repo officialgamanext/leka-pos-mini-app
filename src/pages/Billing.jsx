@@ -2,8 +2,22 @@ import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/AppLayout';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
-import { billApi, apiCall } from '../api/client';
-import { Search, ShoppingCart, Plus, Minus, X, Check, Loader2 } from 'lucide-react';
+import { catalogApi, billsApi, apiCall } from '../api/client';
+import { 
+  Search, 
+  ShoppingCart, 
+  Plus, 
+  Minus, 
+  Trash2, 
+  Loader2, 
+  ChevronRight, 
+  IndianRupee,
+  X,
+  CreditCard,
+  Wallet,
+  Receipt,
+  Package
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Billing = () => {
@@ -11,16 +25,15 @@ const Billing = () => {
   const { activeBusiness } = useBusiness();
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [activeCategoryId, setActiveCategoryId] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
-  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [sessionToken, activeBusiness]);
 
   const fetchData = async () => {
     try {
@@ -28,135 +41,116 @@ const Billing = () => {
       const cats = await apiCall(`/categories?businessId=${activeBusiness.id}`, {}, sessionToken);
       setItems(its);
       setCategories(cats);
-    } catch (e) { console.error(e); }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const addToCart = (item) => {
-    setCart(prev => {
-      const existing = prev.find(i => i.id === item.id);
-      if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+    const existing = cart.find(i => i.id === item.id);
+    if (existing) {
+      setCart(cart.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i));
+    } else {
+      setCart([...cart, { ...item, quantity: 1 }]);
+    }
+  };
+
+  const updateQty = (id, delta) => {
+    setCart(cart.map(i => {
+      if (i.id === id) {
+        const newQty = Math.max(0, i.quantity + delta);
+        return { ...i, quantity: newQty };
       }
-      return [...prev, { ...item, quantity: 1 }];
-    });
+      return i;
+    }).filter(i => i.quantity > 0));
   };
 
-  const removeFromCart = (itemId) => {
-    setCart(prev => prev.map(i => i.id === itemId ? { ...i, quantity: Math.max(0, i.quantity - 1) } : i).filter(i => i.quantity > 0));
-  };
-
-  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
     setIsSubmitting(true);
     try {
-      // API expects items as { name, price, quantity, categoryId }
-      const billItems = cart.map(i => ({
-        name: i.name,
-        price: i.price,
-        quantity: i.quantity,
-        categoryId: i.categoryId
-      }));
-      await billApi.create(activeBusiness.id, billItems, total, sessionToken);
-      setOrderSuccess(true);
+      await billsApi.create(activeBusiness.id, {
+        items: cart.map(i => ({ itemId: i.id, quantity: i.quantity, price: i.price })),
+        total: total
+      }, sessionToken);
       setCart([]);
-      setTimeout(() => {
-        setOrderSuccess(false);
-        setShowCheckout(false);
-      }, 2000);
-    } catch (e) { alert(e.message); }
-    finally { setIsSubmitting(false); }
+      setShowCheckout(false);
+      alert('Bill generated successfully!');
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const filteredItems = items.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategoryId === 'all' || item.categoryId === activeCategoryId;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredItems = items.filter(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <AppLayout title="New Bill">
-      <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        
-        {/* Search & Categories */}
-        <div style={{ position: 'sticky', top: 0, background: 'var(--background)', zIndex: 1, paddingBottom: '16px' }}>
-          <div style={{ position: 'relative', marginBottom: '16px' }}>
-            <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input 
-              className="input-field" 
-              placeholder="Search items..." 
-              style={{ paddingLeft: '40px' }}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
-            <button 
-              onClick={() => setActiveCategoryId('all')}
-              style={{ padding: '6px 14px', borderRadius: '100px', fontSize: '12px', border: 'none', background: activeCategoryId === 'all' ? 'var(--primary)' : 'white', color: activeCategoryId === 'all' ? 'white' : 'var(--text-muted)', boxShadow: 'var(--shadow-sm)', whiteSpace: 'nowrap' }}
-            >
-              All
-            </button>
-            {categories.map(cat => (
-              <button 
-                key={cat.id}
-                onClick={() => setActiveCategoryId(cat.id)}
-                style={{ padding: '6px 14px', borderRadius: '100px', fontSize: '12px', border: 'none', background: activeCategoryId === cat.id ? 'var(--primary)' : 'white', color: activeCategoryId === cat.id ? 'white' : 'var(--text-muted)', boxShadow: 'var(--shadow-sm)', whiteSpace: 'nowrap' }}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
+    <AppLayout title="POS Billing">
+      <div className="animate-fade-in">
+        {/* Search Bar */}
+        <div style={{ position: 'relative', marginBottom: '20px' }}>
+          <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <input 
+            className="input-field" 
+            placeholder="Search products..." 
+            style={{ paddingLeft: '44px', background: 'white', border: '1px solid var(--border)',boxShadow: 'var(--shadow-sm)' }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
 
-        {/* Item Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-          {filteredItems.map(item => {
-            const cartItem = cart.find(i => i.id === item.id);
-            return (
+        {isLoading ? (
+          <div style={{ padding: '40px', textAlign: 'center' }}><Loader2 className="animate-spin" size={24} color="var(--primary)" /></div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', paddingBottom: '160px' }}>
+            {filteredItems.map(item => (
               <motion.div 
-                key={item.id}
+                key={item.id} 
                 whileTap={{ scale: 0.95 }}
                 onClick={() => addToCart(item)}
-                className="card"
-                style={{ padding: '12px', marginBottom: 0, position: 'relative', overflow: 'hidden' }}
+                className="card" 
+                style={{ padding: '14px', marginBottom: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '8px' }}
               >
-                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '4px' }}>{item.name}</div>
-                <div style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '700' }}>₹{item.price}</div>
-                
-                {cartItem && (
-                   <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--primary)', color: 'white', fontSize: '10px', padding: '2px 8px', borderBottomLeftRadius: 'var(--radius-md)' }}>
-                     {cartItem.quantity}
-                   </div>
-                )}
+                <div style={{ width: '100%', aspectRatio: '1', background: 'var(--primary-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                   <Package size={32} opacity={0.5} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '2px' }}>{item.name}</h3>
+                  <div style={{ color: 'var(--primary)', fontWeight: '800', fontSize: '14px' }}>₹{item.price}</div>
+                </div>
               </motion.div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
 
-        {/* Checkout Bar */}
+        {/* Floating Cart Bar */}
         <AnimatePresence>
           {cart.length > 0 && (
             <motion.div 
-              initial={{ y: 100 }}
-              animate={{ y: 0 }}
-              exit={{ y: 100 }}
-              style={{ position: 'fixed', bottom: '80px', left: '20px', right: '20px', zIndex: 10 }}
+              initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
+              style={{ position: 'fixed', bottom: '80px', left: '12px', right: '12px', zIndex: 90 }}
             >
               <button 
-                className="btn btn-primary" 
                 onClick={() => setShowCheckout(true)}
-                style={{ height: '56px', borderRadius: 'var(--radius-xl)', boxShadow: '0 12px 24px rgba(79, 70, 229, 0.4)', padding: '0 20px' }}
+                className="btn btn-primary"
+                style={{ height: '60px', padding: '0 24px', justifyContent: 'space-between', borderRadius: '18px', boxShadow: '0 8px 30px rgba(51, 121, 167, 0.4)' }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <ShoppingCart size={20} />
-                  <span>{cart.reduce((s, i) => s + i.quantity, 0)} Items</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.2)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ShoppingCart size={18} />
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '600' }}>{cart.length} ITEMS</div>
+                    <div style={{ fontSize: '16px', fontWeight: '800' }}>₹{total}</div>
+                  </div>
                 </div>
-                <div style={{ flex: 1, textAlign: 'right' }}>
-                  <span style={{ opacity: 0.8, fontSize: '12px', marginRight: '8px' }}>Total:</span>
-                  <span style={{ fontSize: '18px' }}>₹{total}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '800' }}>
+                  CHECKOUT <ChevronRight size={18} />
                 </div>
               </button>
             </motion.div>
@@ -166,48 +160,65 @@ const Billing = () => {
         {/* Checkout Modal */}
         <AnimatePresence>
           {showCheckout && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', zIndex: 1000 }}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-end', zIndex: 1000 }}>
               <motion.div 
                 initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-                style={{ background: 'white', width: '100%', borderTopLeftRadius: 'var(--radius-xl)', borderTopRightRadius: 'var(--radius-xl)', padding: '32px 24px var(--safe-area-bottom)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+                style={{ background: 'var(--background)', width: '100%', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', padding: '24px 20px calc(24px + var(--safe-area-bottom))', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
               >
+                <div style={{ width: '40px', height: '4px', background: 'var(--border)', borderRadius: '2px', margin: '0 auto 20px' }} />
+                
                 <div className="flex-between" style={{ marginBottom: '24px' }}>
-                  <h2>Review Order</h2>
-                  <button onClick={() => setShowCheckout(false)} style={{ background: 'var(--background)', border: 'none', padding: '8px', borderRadius: '100px' }}><X size={20}/></button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ width: '40px', height: '40px', background: 'var(--primary-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+                      <Receipt size={20} />
+                    </div>
+                    <h2 style={{ fontSize: '20px' }}>Order Summary</h2>
+                  </div>
+                  <button onClick={() => setShowCheckout(false)} style={{ background: 'white', border: '1px solid var(--border)', padding: '6px', borderRadius: '10px', color: 'var(--text-muted)', display: 'flex' }}>
+                    <X size={20} />
+                  </button>
                 </div>
 
-                <div style={{ flex: 1, overflowY: 'auto', marginBottom: '24px' }}>
-                  {cart.map(item => (
-                    <div key={item.id} className="flex-between" style={{ padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ flex: 1, overflowY: 'auto', marginBottom: '24px', paddingRight: '4px' }}>
+                  {cart.map(i => (
+                    <div key={i.id} className="card" style={{ padding: '12px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '40px', height: '40px', background: 'var(--background)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                         <Package size={20} color="var(--text-muted)" />
+                      </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600' }}>{item.name}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>₹{item.price} each</div>
+                        <div style={{ fontSize: '14px', fontWeight: '700' }}>{i.name}</div>
+                        <div style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '700' }}>₹{i.price}</div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <button onClick={() => removeFromCart(item.id)} style={{ width: '28px', height: '28px', border: '1px solid var(--border)', borderRadius: '14px', background: 'none' }}><Minus size={14}/></button>
-                        <span style={{ fontWeight: '700', width: '20px', textAlign: 'center' }}>{item.quantity}</span>
-                        <button onClick={() => addToCart(item)} style={{ width: '28px', height: '28px', background: 'var(--primary-light)', color: 'var(--primary)', border: 'none', borderRadius: '14px' }}><Plus size={14}/></button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--background)', padding: '4px 8px', borderRadius: '10px' }}>
+                        <button onClick={() => updateQty(i.id, -1)} style={{ background: 'none', border: 'none', color: 'var(--primary)' }}><Minus size={16} /></button>
+                        <span style={{ fontWeight: '800', fontSize: '14px', minWidth: '20px', textAlign: 'center' }}>{i.quantity}</span>
+                        <button onClick={() => updateQty(i.id, 1)} style={{ background: 'none', border: 'none', color: 'var(--primary)' }}><Plus size={16} /></button>
                       </div>
-                      <div style={{ fontWeight: '700', marginLeft: '16px', minWidth: '60px', textAlign: 'right' }}>₹{item.price * item.quantity}</div>
                     </div>
                   ))}
                 </div>
 
-                <div className="card" style={{ background: 'var(--primary-light)', border: 'none', padding: '16px' }}>
-                  <div className="flex-between" style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '20px' }}>
-                    <span>Grand Total</span>
-                    <span>₹{total}</span>
+                <div className="card" style={{ background: 'var(--primary-light)', border: 'none', padding: '16px', marginBottom: '24px' }}>
+                  <div className="flex-between" style={{ marginBottom: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-muted)' }}>Items Total</span>
+                    <span style={{ fontWeight: '700' }}>₹{total}</span>
+                  </div>
+                  <div className="flex-between">
+                    <span style={{ fontSize: '15px', fontWeight: '800', color: 'var(--primary)' }}>Grand Total</span>
+                    <span style={{ fontSize: '20px', fontWeight: '900', color: 'var(--primary)' }}>₹{total}</span>
                   </div>
                 </div>
 
-                <button 
-                  className="btn btn-primary" 
-                  onClick={handleCheckout}
-                  disabled={isSubmitting || orderSuccess}
-                  style={{ height: '56px', fontSize: '18px', marginTop: '16px' }}
-                >
-                  {isSubmitting ? <Loader2 className="animate-spin" /> : orderSuccess ? <Check /> : 'Print & Confirm Bill'}
-                </button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '12px' }}>
+                  <button onClick={() => setShowCheckout(false)} className="btn btn-outline" style={{ background: 'white' }}>Cancel</button>
+                  <button onClick={handleCheckout} className="btn btn-primary" disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                         Confirm Payment <ChevronRight size={18} />
+                      </div>
+                    )}
+                  </button>
+                </div>
               </motion.div>
             </motion.div>
           )}

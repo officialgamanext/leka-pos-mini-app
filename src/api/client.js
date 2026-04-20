@@ -39,10 +39,10 @@ export const catalogApi = {
   createItem: (businessId, itemData, token) => apiCall('/item', { method: 'POST', body: JSON.stringify({ businessId, ...itemData }) }, token),
 };
 
-export const billApi = {
-  create: (businessId, items, total, token) => apiCall('/bill', { 
+export const billsApi = {
+  create: (businessId, billData, token) => apiCall('/bill', { 
     method: 'POST', 
-    body: JSON.stringify({ businessId, items, total }) 
+    body: JSON.stringify({ businessId, ...billData }) 
   }, token),
 };
 

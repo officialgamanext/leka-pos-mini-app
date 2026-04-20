@@ -18,9 +18,9 @@ const AppLayout = ({ children, title, backPath }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--background)' }}>
       {/* Premium Header inspired by Ref */}
-      <header style={{ 
-        padding: '20px 12px 36px', 
-        background: 'var(--primary)', 
+      <header style={{
+        padding: '20px 12px 36px',
+        background: 'var(--primary)',
         borderBottomLeftRadius: '24px',
         borderBottomRightRadius: '24px',
         display: 'flex',
@@ -31,7 +31,7 @@ const AppLayout = ({ children, title, backPath }) => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {backPath && (
-            <button 
+            <button
               onClick={() => navigate(backPath)}
               style={{ background: 'rgba(255,255,255,0.2)', border: 'none', padding: '6px', borderRadius: '10px', color: 'white', display: 'flex' }}
             >
@@ -64,9 +64,9 @@ const AppLayout = ({ children, title, backPath }) => {
       </header>
 
       {/* Content area with negative margin to pull cards up */}
-      <main style={{ 
-        flex: 1, 
-        overflowY: 'auto', 
+      <main style={{
+        flex: 1,
+        overflowY: 'auto',
         padding: '0 12px 100px',
         marginTop: '-20px',
         position: 'relative',
@@ -76,11 +76,11 @@ const AppLayout = ({ children, title, backPath }) => {
       </main>
 
       {/* Bottom Nav */}
-      <nav style={{ 
+      <nav style={{
         background: 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(10px)',
-        borderTop: '1px solid var(--border)', 
-        display: 'flex', 
+        borderTop: '1px solid var(--border)',
+        display: 'flex',
         paddingBottom: 'var(--safe-area-bottom)',
         height: 'calc(60px + var(--safe-area-bottom))',
         position: 'fixed',
@@ -92,14 +92,14 @@ const AppLayout = ({ children, title, backPath }) => {
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
-            <button 
+            <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              style={{ 
-                flex: 1, 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 justifyContent: 'center',
                 background: 'none',
                 border: 'none',
@@ -108,10 +108,10 @@ const AppLayout = ({ children, title, backPath }) => {
                 transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
-              <div style={{ 
-                padding: '4px 12px', 
-                borderRadius: '20px', 
-                background: isActive ? 'var(--primary-light)' : 'transparent', 
+              <div style={{
+                padding: '4px 12px',
+                borderRadius: '20px',
+                background: isActive ? 'var(--primary-light)' : 'transparent',
                 display: 'flex',
                 marginBottom: '2px'
               }}>
