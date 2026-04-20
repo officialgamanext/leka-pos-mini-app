@@ -68,9 +68,7 @@ const AppLayout = ({ children, title, backPath }) => {
         flex: 1,
         overflowY: 'auto',
         padding: '0 12px 100px',
-        marginTop: '-20px',
-        position: 'relative',
-        zIndex: 5
+        marginTop: '-20px'
       }}>
         {children}
       </main>
@@ -87,7 +85,7 @@ const AppLayout = ({ children, title, backPath }) => {
         bottom: 0,
         width: '100%',
         left: 0,
-        zIndex: 10
+        zIndex: 5
       }}>
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;

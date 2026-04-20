@@ -147,11 +147,10 @@ const Products = () => {
           <Plus size={28} />
         </button>
 
-        {/* Enhanced Add Modal */}
         <AnimatePresence>
           {showAddModal && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-end', zIndex: 1000 }}>
-              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} style={{ background: 'var(--background)', width: '100%', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', padding: '24px 20px calc(24px + var(--safe-area-bottom))', boxShadow: '0 -10px 40px rgba(0,0,0,0.1)' }}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay">
+              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="modal-content">
                 <div style={{ width: '40px', height: '4px', background: 'var(--border)', borderRadius: '2px', margin: '0 auto 20px' }} />
                 
                 <div className="flex-between" style={{ marginBottom: '24px' }}>
@@ -190,8 +189,8 @@ const Products = () => {
                     </div>
                   )}
                   
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '12px', marginTop: '32px' }}>
-                    <button type="button" className="btn btn-outline" onClick={() => setShowAddModal(false)}>Cancel</button>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px', marginTop: '32px' }}>
+                    <button type="button" className="btn" style={{ background: '#F1F5F9', color: '#64748B' }} onClick={() => setShowAddModal(false)}>Cancel</button>
                     <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                       {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : `Save ${modalType === 'item' ? 'Item' : 'Category'}`}
                     </button>

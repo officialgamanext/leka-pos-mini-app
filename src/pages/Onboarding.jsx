@@ -134,8 +134,8 @@ const Onboarding = () => {
                    <input autoFocus className="input-field" placeholder="e.g. My Smart POS" value={newBusinessName} onChange={(e) => setNewBusinessName(e.target.value)} required />
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.5fr', gap: '12px' }}>
-                  <button type="button" className="btn btn-outline" style={{ background: 'white' }} onClick={() => setIsCreating(false)}>Cancel</button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px' }}>
+                  <button type="button" className="btn" style={{ background: '#F1F5F9', color: '#64748B' }} onClick={() => setIsCreating(false)}>Cancel</button>
                   <button type="submit" className="btn btn-primary" disabled={isSubmitting || !newBusinessName.trim()}>
                     {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Establish Space'}
                   </button>
