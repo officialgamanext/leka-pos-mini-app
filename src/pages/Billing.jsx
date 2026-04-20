@@ -5,8 +5,9 @@ import ModalPortal from '../components/ModalPortal';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { billsApi, apiCall } from '../api/client';
-import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package, Banknote, CreditCard, QrCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isPrinterConnected, printText } from '../utils/bluetooth';
 import '../styles/Billing.css';
 
 const Billing = () => {
@@ -21,6 +22,7 @@ const Billing = () => {
   const [isSubmitting,setIsSubmitting]= useState(false);
   const [search,      setSearch]      = useState('');
   const [selectedCat, setSelectedCat] = useState('all');
+  const [paymentMode, setPaymentMode] = useState('Cash');
 
   useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
 
@@ -62,7 +64,36 @@ const Billing = () => {
           price: i.price 
         })),
         total,
+        paymentMode
       }, sessionToken);
+
+      if (isPrinterConnected()) {
+        const center = (text, len=32) => {
+          const t = text.substring(0, len);
+          const pad = Math.floor((len - t.length) / 2);
+          return ' '.repeat(Math.max(0, pad)) + t;
+        };
+        const alignLR = (l, r, len=32) => {
+          let left = l.substring(0, len - r.length - 1);
+          let space = len - left.length - r.length;
+          return left + ' '.repeat(Math.max(0, space)) + r;
+        };
+
+        let receipt = '';
+        receipt += center(activeBusiness.name || 'Leka POS') + '\n';
+        receipt += '-'.repeat(32) + '\n';
+        cart.forEach(i => {
+          let itemLine = `${i.qty}x ${i.name}`;
+          let priceStr = `${(i.qty * i.price).toLocaleString('en-IN')}`;
+          receipt += alignLR(itemLine, priceStr) + '\n';
+        });
+        receipt += '-'.repeat(32) + '\n';
+        receipt += alignLR('TOTAL:', total.toLocaleString('en-IN')) + '\n';
+        receipt += alignLR('PAID BY:', paymentMode) + '\n';
+        receipt += '\n\n';
+        await printText(receipt).catch(err => console.error("Print error:", err));
+      }
+
       setCart([]);
       setShowCheckout(false);
       alert('Bill saved!');
@@ -160,7 +191,7 @@ const Billing = () => {
                     </div>
                     <div>
                       <div className="bl-cart-count">{cart.length} ITEMS</div>
-                      <div className="bl-cart-total">₹{total.toFixed(2)}</div>
+                      <div className="bl-cart-total">₹{total.toLocaleString('en-IN')}</div>
                     </div>
                   </div>
                   <div className="bl-cart-cta">Checkout <ChevronRight size={16} /></div>
@@ -229,18 +260,37 @@ const Billing = () => {
                 <div className="bl-total-box">
                   <div className="bl-total-row">
                     <span style={{ fontSize:12, color:'var(--text-sub)', fontWeight:600 }}>Subtotal</span>
-                    <span style={{ fontSize:13, fontWeight:700 }}>₹{total.toFixed(2)}</span>
+                    <span style={{ fontSize:13, fontWeight:700 }}>₹{total.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="bl-total-row" style={{ marginTop: 12, marginBottom: 12 }}>
+                    <div style={{ display: 'flex', gap: 6, width: '100%' }}>
+                      {['Cash', 'UPI', 'Card'].map(m => (
+                        <button 
+                          key={m} 
+                          onClick={() => setPaymentMode(m)}
+                          style={{
+                            flex: 1, padding: '8px', borderRadius: '8px',
+                            border: `1.5px solid ${paymentMode === m ? 'var(--primary)' : 'var(--border)'}`,
+                            background: paymentMode === m ? 'var(--primary-light)' : 'transparent',
+                            color: paymentMode === m ? 'var(--primary)' : 'var(--text-sub)',
+                            fontWeight: 700, fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
+                          }}
+                        >
+                          {m === 'Cash' ? <Banknote size={14}/> : m === 'UPI' ? <QrCode size={14}/> : <CreditCard size={14}/>} {m}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <div className="bl-total-row">
-                    <span className="bl-grand-label">Grand Total</span>
-                    <span className="bl-grand-val">₹{total.toFixed(2)}</span>
+                    <span className="bl-grand-label" style={{ fontSize: 13 }}>Grand Total</span>
+                    <span className="bl-grand-val">₹{total.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 
                 <div className="modal-foot">
                   <button className="btn btn-ghost" onClick={() => setShowCheckout(false)}>Cancel</button>
                   <button className="btn btn-primary" onClick={checkout} disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Confirm Payment'}
+                    {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Settle Bill'}
                   </button>
                 </div>
               </motion.div>
