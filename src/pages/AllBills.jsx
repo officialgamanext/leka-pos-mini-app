@@ -33,7 +33,6 @@ function getRangeDates(range) {
 }
 
 const FILTERS = [
-  { key: 'all',       label: 'All Time'   },
   { key: 'today',     label: 'Today'      },
   { key: 'yesterday', label: 'Yesterday'  },
   { key: 'thisWeek',  label: 'This Week'  },
@@ -47,7 +46,6 @@ const FILTERS = [
 
 // Map UI keys → API range param values
 const API_RANGE_MAP = {
-  all:       'thisYear',   // backend may not have 'all', use thisYear as widest
   today:     'today',
   yesterday: 'yesterday',
   thisWeek:  'thisWeek',
@@ -65,7 +63,7 @@ const AllBills = () => {
 
   const [bills,       setBills]       = useState([]);
   const [isLoading,   setIsLoading]   = useState(true);
-  const [activeRange, setActiveRange] = useState('all');
+  const [activeRange, setActiveRange] = useState('today');
   const [customStart, setCustomStart] = useState(fmt(new Date(Date.now() - 7 * 864e5)));
   const [customEnd,   setCustomEnd]   = useState(fmt(new Date()));
 
@@ -85,8 +83,8 @@ const AllBills = () => {
 
       let allBills = data?.bills || [];
 
-      // Client-side filter for 'all' and 'yesterday' that backend may not support
-      if (range === 'yesterday' || range === 'all') {
+      // Client-side filter for 'yesterday' that backend may not support
+      if (range === 'yesterday') {
         const [start, end] = getRangeDates(range);
         const endOfDay = new Date(end.getTime() + 24 * 3600 * 1000 - 1);
         allBills = allBills.filter(b => {
