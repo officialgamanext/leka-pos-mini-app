@@ -7,7 +7,8 @@ import { useBusiness } from '../App';
 import {
   Tag, Package, Printer, HelpCircle, LogOut,
   ChevronRight, Building2, Receipt, X, Cpu,
-  Bluetooth, BluetoothOff, Check, AlertCircle
+  Bluetooth, BluetoothOff, Check, AlertCircle,
+  Users, TrendingDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -23,10 +24,17 @@ const sections = (setPrinter, navigate) => [
   {
     title: 'Management',
     items: [
-      { icon: Building2,  label: 'Business',         sub: 'Switch workspace',       color: '#4A5568', action: () => navigate('/onboarding') },
-      { icon: Package,    label: 'Items',             sub: 'Products & pricing',     color: '#3379A7', action: () => navigate('/products?tab=items') },
-      { icon: Tag,        label: 'Categories',        sub: 'Organize catalog',       color: '#10B981', action: () => navigate('/products?tab=categories') },
-      { icon: Receipt,    label: 'Tax & GST',         sub: 'Invoice settings',       color: '#F59E0B', action: () => navigate('/tax-settings') },
+      { icon: Building2,    label: 'Business',    sub: 'Switch workspace',   color: '#4A5568', action: () => navigate('/onboarding') },
+      { icon: Package,      label: 'Items',       sub: 'Products & pricing', color: '#3379A7', action: () => navigate('/products?tab=items') },
+      { icon: Tag,          label: 'Categories',  sub: 'Organize catalog',   color: '#10B981', action: () => navigate('/products?tab=categories') },
+      { icon: Receipt,      label: 'Tax & GST',   sub: 'Invoice settings',   color: '#F59E0B', action: () => navigate('/tax-settings') },
+    ],
+  },
+  {
+    title: 'Team & Finance',
+    items: [
+      { icon: Users,        label: 'Staff',       sub: 'Manage team members', color: '#6366F1', action: () => navigate('/staff') },
+      { icon: TrendingDown, label: 'Expenses',    sub: 'Track investments',   color: '#EF4444', action: () => navigate('/expenses') },
     ],
   },
   {

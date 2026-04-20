@@ -1,238 +1,72 @@
-/* ─── Dashboard ──────────────────────────────────────────────── */
+/* ─── Dashboard Page ─────────────────────────────────────────── */
 
-.db-page {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  animation: fadeUp .35s ease-out both;
+.db-page { display: flex; flex-direction: column; gap: 10px; animation: fadeUp .35s ease-out both; }
+
+/* ── Range chips ── */
+.db-range-chips {
+  display: flex; gap: 7px;
+  overflow-x: auto; padding-bottom: 2px;
+  scrollbar-width: none;
 }
+.db-range-chips::-webkit-scrollbar { display: none; }
 
-/* Hero stats bar */
-.db-stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.db-stat-card {
-  padding: 14px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.db-stat-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  color: var(--text-sub);
-}
-
-.db-stat-value {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.db-stat-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
+.db-range-chip {
+  flex-shrink: 0;
+  height: 30px; padding: 0 13px;
   border-radius: 20px;
-  width: fit-content;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-sub);
+  font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all .18s;
+}
+.db-range-chip.active {
+  background: var(--primary); border-color: var(--primary);
+  color: #fff; box-shadow: 0 2px 10px rgba(51,121,167,.3);
 }
 
-/* Revenue highlight card */
+/* ── Revenue hero card ── */
 .db-revenue-card {
-  background: linear-gradient(135deg, var(--primary) 0%, #255a7e 100%);
   border-radius: var(--r-lg);
-  padding: 20px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: var(--shadow-md);
-  border: none;
-  position: relative;
-  overflow: hidden;
+  background: linear-gradient(135deg, var(--primary) 0%, #1e4f72 100%);
+  padding: 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow-lg);
+  position: relative; overflow: hidden;
 }
-
 .db-revenue-bg-icon {
-  position: absolute;
-  right: -10px;
-  bottom: -10px;
-  opacity: .07;
+  position: absolute; right: -18px; bottom: -18px;
+  opacity: .07; pointer-events: none; color: white;
 }
-
-.db-revenue-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(255,255,255,.75);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: 6px;
-}
-
-.db-revenue-amount {
-  font-size: 28px;
-  font-weight: 900;
-  color: white;
-  letter-spacing: -1px;
-}
-
+.db-revenue-label  { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.65); margin-bottom: 4px; }
+.db-revenue-amount { font-size: 30px; font-weight: 900; color: #fff; letter-spacing: -1.2px; }
 .db-revenue-icon-wrap {
-  width: 52px;
-  height: 52px;
-  background: rgba(255,255,255,.18);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  backdrop-filter: blur(4px);
+  width: 52px; height: 52px; border-radius: 16px;
+  background: rgba(255,255,255,.2); color: white;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 
-/* Chart */
-.db-chart-card {
-  padding: 16px;
-}
+/* ── 3-col stats row ── */
+.db-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.db-stat-card { padding: 12px 10px; text-align: center; }
+.db-stat-label { font-size: 10px; font-weight: 700; color: var(--text-sub); display: block; margin-bottom: 4px; }
+.db-stat-value { font-size: 15px; font-weight: 900; display: block; }
 
-.db-chart-top {
-  margin-bottom: 14px;
-}
+/* ── Bar chart ── */
+.db-chart-card  { padding: 16px 14px; }
+.db-chart-top   { margin-bottom: 14px; }
+.db-chart-bars  { display: flex; align-items: flex-end; gap: 6px; height: 80px; }
+.db-bar-group   { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; }
+.db-bar-track   { flex: 1; width: 100%; background: var(--surface-alt); border-radius: 6px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+.db-bar-fill    { background: var(--primary); border-radius: 6px; min-height: 4px; }
+.db-bar-label   { font-size: 9px; font-weight: 700; color: var(--text-sub); }
 
-.db-chart-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  height: 90px;
-}
-
-.db-bar-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  gap: 5px;
-}
-
-.db-bar-track {
-  flex: 1;
-  width: 100%;
-  background: var(--primary-light);
-  border-radius: 6px;
-  display: flex;
-  align-items: flex-end;
-  overflow: hidden;
-}
-
-.db-bar-fill {
-  width: 100%;
-  background: linear-gradient(180deg, #60a5d4 0%, var(--primary) 100%);
-  border-radius: 6px;
-  transition: height .6s cubic-bezier(.4,0,.2,1);
-}
-
-.db-bar-label {
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--text-sub);
-  text-transform: uppercase;
-}
-
-/* Quick Actions */
-.db-actions-card {
-  padding: 16px;
-}
-
-.db-section-head {
-  font-size: 13px;
-  font-weight: 800;
-  margin-bottom: 14px;
-  color: var(--text);
-}
-
-.db-actions-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.db-action {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-}
-
-.db-action-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--r-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-xs);
-  transition: transform .18s;
-}
-
-.db-action:active .db-action-icon { transform: scale(0.9); }
-
-.db-action-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-sub);
-  text-transform: uppercase;
-  letter-spacing: .03em;
-}
-
-/* Sales List */
-.db-sales-card {
-  padding: 16px;
-}
-
-.db-sale-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-}
-
+/* ── Sales list ── */
+.db-sales-card  { padding: 16px 14px; }
+.db-sale-row    { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .db-sale-row:last-child { border-bottom: none; }
-
-.db-sale-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.db-sale-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: var(--primary-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
-}
-
-.db-sale-id { font-size: 13px; font-weight: 700; }
-.db-sale-time { font-size: 11px; color: var(--text-sub); }
-
-.db-sale-amount {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--primary);
-}
-
-.db-sale-status {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--green);
-  text-align: right;
-}
+.db-sale-left   { display: flex; align-items: center; gap: 10px; }
+.db-sale-icon   { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.db-sale-id     { font-size: 13px; font-weight: 700; color: var(--text); }
+.db-sale-time   { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
+.db-sale-amount { font-size: 14px; font-weight: 900; color: var(--primary); }

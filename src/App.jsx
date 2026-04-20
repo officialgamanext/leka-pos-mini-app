@@ -10,6 +10,8 @@ import Products from './pages/Products';
 import AllBills from './pages/AllBills';
 import Profile from './pages/Profile';
 import Help from './pages/Help';
+import Staff from './pages/Staff';
+import Expenses from './pages/Expenses';
 
 // --- Business Context ---
 const BusinessContext = createContext();
@@ -96,6 +98,18 @@ const AppContent = () => {
         <Route path="/help" element={
           <ProtectedRoute>
             <Help />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/staff" element={
+          <ProtectedRoute>
+            {activeBusiness ? <Staff /> : <Navigate to="/onboarding" />}
+          </ProtectedRoute>
+        } />
+
+        <Route path="/expenses" element={
+          <ProtectedRoute>
+            {activeBusiness ? <Expenses /> : <Navigate to="/onboarding" />}
           </ProtectedRoute>
         } />
       </Routes>
