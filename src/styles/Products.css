@@ -1,143 +1,102 @@
-.products-page {
-  animation: fadeIn 0.4s ease-out;
-}
+/* ─── Products Page ──────────────────────────────────────────── */
 
-.tabs-container {
+.pr-page { animation: fadeUp .35s ease-out both; }
+
+/* Tab switcher */
+.pr-tabs {
   display: flex;
-  background: white;
-  border-radius: var(--radius-md);
-  padding: 4px;
-  margin-bottom: 20px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--r-md);
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-xs);
 }
 
-.tab-btn {
+.pr-tab {
   flex: 1;
-  padding: 10px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 700;
-  border: none;
-  border-radius: 8px;
   background: transparent;
-  color: var(--text-muted);
-  transition: all 0.2s;
-  cursor: pointer;
+  color: var(--text-sub);
+  transition: all .2s;
 }
 
-.tab-btn.active {
+.pr-tab.active {
   background: var(--primary);
-  color: white;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(51,121,167,.3);
 }
 
-.inventory-grid {
-  display: grid;
-  gap: 12px;
-}
+/* List */
+.pr-list { display: flex; flex-direction: column; gap: 8px; }
 
-.inventory-item {
+.pr-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px;
+  padding: 12px 14px;
 }
 
-.item-main {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.pr-row-left { display: flex; align-items: center; gap: 12px; }
 
-.item-icon-box {
-  width: 44px;
-  height: 44px;
-  background: var(--primary-light);
+.pr-icon-box {
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary);
 }
 
-.cat-icon-box {
-  width: 44px;
-  height: 44px;
-  background: var(--surface-muted);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-}
+.pr-item-icon { background: var(--primary-light); color: var(--primary); }
+.pr-cat-icon  { background: var(--surface-alt);   color: var(--text-sub); }
 
-.item-info h3 {
-  font-size: 15px;
-}
+.pr-name  { font-size: 14px; font-weight: 700; }
+.pr-sub   { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
+.pr-price { font-size: 14px; font-weight: 800; color: var(--primary); }
 
-.item-info p {
-  font-size: 12px;
-}
-
-.item-price {
-  font-weight: 800;
-  color: var(--primary);
-  font-size: 16px;
-}
-
-.fab-btn {
+/* FAB */
+.pr-fab {
   position: fixed;
-  right: 20px;
-  bottom: calc(90px + var(--safe-area-bottom));
-  width: 56px;
-  height: 56px;
-  border-radius: 28px;
+  right: 18px;
+  bottom: calc(70px + var(--safe-bottom));
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
   background: var(--primary);
   color: white;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 30px rgba(51, 121, 167, 0.4);
-  border: none;
-  z-index: 100;
-  transition: transform 0.2s;
+  box-shadow: 0 6px 22px rgba(51,121,167,.45);
+  z-index: 50;
+  transition: transform .18s;
 }
+.pr-fab:active { transform: scale(0.9); }
 
-.fab-btn:active {
-  transform: scale(0.9);
-}
-
-.empty-state {
+/* Empty state */
+.pr-empty {
   text-align: center;
-  padding: 80px 20px;
-  color: var(--text-muted);
+  padding: 60px 20px;
+  color: var(--text-sub);
 }
+.pr-empty-icon { opacity: .15; margin-bottom: 12px; }
 
-.empty-icon {
-  opacity: 0.1;
-  margin-bottom: 20px;
-}
-
-/* Modal Internal Specifics */
-.modal-form-grid {
-  display: grid;
-  gap: 20px;
-}
-
-.price-input-wrapper {
-  position: relative;
-}
-
-.price-icon {
+/* Modal internals */
+.pr-form       { display: flex; flex-direction: column; gap: 16px; }
+.input-icon-wrap { position: relative; }
+.input-pfx-icon {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-muted);
+  color: var(--text-sub);
+  pointer-events: none;
 }
-
-.modal-actions {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 12px;
-  margin-top: 32px;
-}
+.input-field.has-pfx { padding-left: 36px; }

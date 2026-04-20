@@ -4,73 +4,69 @@ import { LayoutDashboard, Receipt, History, User, Bell, Search, ChevronLeft } fr
 import { useBusiness } from '../App';
 import '../styles/AppLayout.css';
 
-const AppLayout = ({ children, title, backPath }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { activeBusiness } = useBusiness();
+const navItems = [
+  { icon: LayoutDashboard, label: 'Home',     path: '/dashboard' },
+  { icon: Receipt,         label: 'Billing',  path: '/billing'   },
+  { icon: History,         label: 'All Bills',path: '/all-bills'  },
+  { icon: User,            label: 'Profile',  path: '/profile'   },
+];
 
-  const navItems = [
-    { icon: <LayoutDashboard size={20} />, label: 'Home', path: '/dashboard' },
-    { icon: <Receipt size={20} />, label: 'Billing', path: '/billing' },
-    { icon: <History size={20} />, label: 'All Bills', path: '/all-bills' },
-    { icon: <User size={20} />, label: 'Profile', path: '/profile' },
-  ];
+const AppLayout = ({ children, backPath }) => {
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const { activeBusiness } = useBusiness();
 
   return (
     <div className="app-layout">
-      {/* Fixed Header */}
+
+      {/* ── Header ── */}
       <header className="app-header">
         <div className="header-left">
           {backPath && (
-            <button onClick={() => navigate(backPath)} className="back-btn">
-              <ChevronLeft size={20} />
+            <button className="back-btn" onClick={() => navigate(backPath)}>
+              <ChevronLeft size={18} />
             </button>
           )}
-          <div className="header-left">
-            <div className="logo-box">
-              <Receipt size={18} />
-            </div>
-            <h1 className="header-title">
-              {activeBusiness?.name || 'Leka POS'}
-            </h1>
+          <div className="logo-box">
+            <Receipt size={16} />
           </div>
+          <span className="header-biz-name">
+            {activeBusiness?.name || 'Leka POS'}
+          </span>
         </div>
 
         <div className="header-right">
-          <button className="header-icon-btn">
-            <Bell size={20} />
-          </button>
-          <button className="header-icon-btn">
-            <Search size={20} />
-          </button>
+          <button className="header-icon-btn"><Bell size={17} /></button>
+          <button className="header-icon-btn"><Search size={17} /></button>
         </div>
       </header>
 
-      {/* Main Container */}
+      {/* ── Scrollable Content ── */}
       <main className="main-content">
-        <div className="content-container">
+        <div className="content-wrap">
           {children}
         </div>
       </main>
 
-      {/* Bottom Navigation */}
+      {/* ── Bottom Nav ── */}
       <nav className="bottom-nav">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
+        {navItems.map(({ icon: Icon, label, path }) => {
+          const active = location.pathname === path;
           return (
-            <button 
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`nav-item ${isActive ? 'active' : ''}`}
+            <button
+              key={path}
+              className={`nav-item${active ? ' active' : ''}`}
+              onClick={() => navigate(path)}
             >
-              <div className="nav-icon-wrapper">
-                {item.icon}
-              </div>
-              <span className="nav-label">{item.label}</span>
+              <span className="nav-icon-pill">
+                <Icon size={19} />
+              </span>
+              <span className="nav-label">{label}</span>
             </button>
           );
         })}
       </nav>
+
     </div>
   );
 };

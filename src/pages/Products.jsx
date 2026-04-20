@@ -3,198 +3,189 @@ import AppLayout from '../components/AppLayout';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { catalogApi, apiCall } from '../api/client';
-import { Plus, Tag, Package, Loader2, Search, MoreVertical, X, IndianRupee } from 'lucide-react';
+import { Plus, Tag, Package, Loader2, MoreVertical, X, IndianRupee } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/Products.css';
 
 const Products = () => {
-  const { sessionToken } = useSession();
+  const { sessionToken }  = useSession();
   const { activeBusiness } = useBusiness();
+
   const [categories, setCategories] = useState([]);
-  const [items, setItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
+  const [items,      setItems]      = useState([]);
+  const [isLoading,  setIsLoading]  = useState(true);
+
   const [activeTab, setActiveTab] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('tab') || 'items';
+    return new URLSearchParams(window.location.search).get('tab') || 'items';
   });
-  
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [modalType, setModalType] = useState('item'); 
-  
-  const [newItem, setNewItem] = useState({ name: '', price: '', categoryId: '' });
-  const [newCategory, setNewCategory] = useState('');
+
+  const [showModal,    setShowModal]    = useState(false);
+  const [modalType,    setModalType]    = useState('item');
+  const [newItem,      setNewItem]      = useState({ name: '', price: '', categoryId: '' });
+  const [newCatName,   setNewCatName]   = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, [sessionToken, activeBusiness]);
+  useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const cats = await apiCall(`/categories?businessId=${activeBusiness.id}`, {}, sessionToken);
-      const its = await apiCall(`/items?businessId=${activeBusiness.id}`, {}, sessionToken);
+      const [cats, its] = await Promise.all([
+        apiCall(`/categories?businessId=${activeBusiness.id}`, {}, sessionToken),
+        apiCall(`/items?businessId=${activeBusiness.id}`,      {}, sessionToken),
+      ]);
       setCategories(Array.isArray(cats) ? cats : []);
-      setItems(Array.isArray(its) ? its : []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+      setItems(Array.isArray(its)  ? its  : []);
+    } catch (e) { console.error(e); }
+    finally { setIsLoading(false); }
   };
 
-  const handleCreateCategory = async (e) => {
-    e.preventDefault();
-    if (!newCategory.trim()) return;
-    setIsSubmitting(true);
-    try {
-      await catalogApi.createCategory(activeBusiness.id, newCategory, sessionToken);
-      setShowAddModal(false);
-      setNewCategory('');
-      fetchData();
-    } catch (error) { console.error(error); }
-    finally { setIsSubmitting(false); }
-  };
+  const openModal = (type) => { setModalType(type); setShowModal(true); };
+  const closeModal = () => { setShowModal(false); setNewItem({ name:'', price:'', categoryId:'' }); setNewCatName(''); };
 
-  const handleCreateItem = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (!newItem.name || !newItem.price) return;
     setIsSubmitting(true);
     try {
-      await catalogApi.createItem(activeBusiness.id, {
-        name: newItem.name,
-        price: Number(newItem.price),
-        categoryId: newItem.categoryId || null
-      }, sessionToken);
-      setShowAddModal(false);
-      setNewItem({ name: '', price: '', categoryId: '' });
+      if (modalType === 'item') {
+        await catalogApi.createItem(activeBusiness.id, { name: newItem.name, price: Number(newItem.price), categoryId: newItem.categoryId || null }, sessionToken);
+      } else {
+        await catalogApi.createCategory(activeBusiness.id, newCatName, sessionToken);
+      }
+      closeModal();
       fetchData();
-    } catch (error) { console.error(error); }
+    } catch (e) { console.error(e); }
     finally { setIsSubmitting(false); }
   };
 
   return (
-    <AppLayout title="Inventory" backPath="/profile">
-      <div className="products-page">
-        {/* Tab Navigation */}
-        <div className="tabs-container">
-          <button 
-            onClick={() => setActiveTab('items')}
-            className={`tab-btn ${activeTab === 'items' ? 'active' : ''}`}
-          >
+    <AppLayout backPath="/profile">
+      <div className="pr-page">
+
+        {/* Tabs */}
+        <div className="pr-tabs">
+          <button className={`pr-tab${activeTab === 'items' ? ' active' : ''}`} onClick={() => setActiveTab('items')}>
             Items ({items.length})
           </button>
-          <button 
-            onClick={() => setActiveTab('categories')}
-            className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
-          >
+          <button className={`pr-tab${activeTab === 'categories' ? ' active' : ''}`} onClick={() => setActiveTab('categories')}>
             Categories ({categories.length})
           </button>
         </div>
 
+        {/* List */}
         {isLoading ? (
-          <div className="empty-state">
-            <Loader2 className="animate-spin" size={32} color="var(--primary)" style={{ margin: '0 auto' }} />
+          <div className="pr-empty">
+            <Loader2 className="spin" size={28} color="var(--primary)" />
           </div>
         ) : (
-          <div className="inventory-grid">
-            {activeTab === 'items' ? (
-              items.map((item) => (
-                <div key={item.id} className="card inventory-item">
-                  <div className="item-main">
-                    <div className="item-icon-box">
-                      <Package size={20} />
+          <div className="pr-list">
+            {activeTab === 'items'
+              ? items.map(item => (
+                  <div key={item.id} className="card pr-row">
+                    <div className="pr-row-left">
+                      <div className="pr-icon-box pr-item-icon"><Package size={18} /></div>
+                      <div>
+                        <p className="pr-name">{item.name}</p>
+                        <p className="pr-sub">{categories.find(c => c.id === item.categoryId)?.name || 'General'}</p>
+                      </div>
                     </div>
-                    <div className="item-info">
-                      <h3>{item.name}</h3>
-                      <p>{categories.find(c => c.id === item.categoryId)?.name || 'General'}</p>
-                    </div>
+                    <span className="pr-price">₹{item.price}</span>
                   </div>
-                  <div className="item-price">₹{item.price}</div>
-                </div>
-              ))
-            ) : (
-              categories.map((cat) => (
-                <div key={cat.id} className="card inventory-item">
-                  <div className="item-main">
-                    <div className="cat-icon-box">
-                      <Tag size={20} />
+                ))
+              : categories.map(cat => (
+                  <div key={cat.id} className="card pr-row">
+                    <div className="pr-row-left">
+                      <div className="pr-icon-box pr-cat-icon"><Tag size={18} /></div>
+                      <p className="pr-name">{cat.name}</p>
                     </div>
-                    <div className="item-info">
-                      <h3>{cat.name}</h3>
-                    </div>
+                    <MoreVertical size={16} color="var(--border)" />
                   </div>
-                  <MoreVertical size={16} color="var(--border)" />
-                </div>
-              ))
-            )}
-            
+                ))
+            }
+
             {((activeTab === 'items' && items.length === 0) || (activeTab === 'categories' && categories.length === 0)) && (
-              <div className="empty-state">
-                <Package size={48} className="empty-icon" />
-                <p>No {activeTab} added to this workspace yet.</p>
+              <div className="pr-empty">
+                <Package size={44} className="pr-empty-icon" />
+                <p>No {activeTab} yet. Tap + to add one.</p>
               </div>
             )}
           </div>
         )}
 
-        {/* Floating Add Button */}
-        <button 
-          onClick={() => {
-            setModalType(activeTab === 'items' ? 'item' : 'category');
-            setShowAddModal(true);
-          }}
-          className="fab-btn"
-        >
-          <Plus size={28} />
+        {/* FAB */}
+        <button className="pr-fab" onClick={() => openModal(activeTab === 'items' ? 'item' : 'category')}>
+          <Plus size={24} />
         </button>
 
         {/* Modal */}
         <AnimatePresence>
-          {showAddModal && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay">
-              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="modal-content">
-                <div className="modal-header">
+          {showModal && (
+            <motion.div
+              key="overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="modal-overlay"
+              onClick={(e) => e.target === e.currentTarget && closeModal()}
+            >
+              <motion.div
+                key="sheet"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                className="modal-sheet"
+              >
+                <div className="modal-drag-bar" />
+
+                <div className="modal-head">
                   <h2>Add {modalType === 'item' ? 'Item' : 'Category'}</h2>
-                  <button className="close-btn" onClick={() => setShowAddModal(false)}>
-                    <X size={20} />
-                  </button>
+                  <button className="modal-close" onClick={closeModal}><X size={18} /></button>
                 </div>
-                
-                <form onSubmit={modalType === 'item' ? handleCreateItem : handleCreateCategory}>
-                  {modalType === 'item' ? (
-                    <div className="modal-form-grid">
-                      <div>
-                        <label className="input-label">PRODUCT NAME</label>
-                        <input autoFocus className="input-field" placeholder="e.g. Cold Coffee" value={newItem.name} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required />
-                      </div>
-                      <div>
-                        <label className="input-label">SALE PRICE</label>
-                        <div className="price-input-wrapper">
-                           <IndianRupee size={16} className="price-icon" />
-                           <input className="input-field" type="number" placeholder="0.00" style={{ paddingLeft: '36px' }} value={newItem.price} onChange={(e) => setNewItem({...newItem, price: e.target.value})} required />
+
+                <form onSubmit={handleSave}>
+                  <div className="pr-form">
+                    {modalType === 'item' ? (
+                      <>
+                        <div>
+                          <label className="input-label">Product Name</label>
+                          <input autoFocus required className="input-field" placeholder="e.g. Cold Coffee"
+                            value={newItem.name}
+                            onChange={e => setNewItem({ ...newItem, name: e.target.value })} />
                         </div>
-                      </div>
+                        <div>
+                          <label className="input-label">Price</label>
+                          <div className="input-icon-wrap">
+                            <IndianRupee size={14} className="input-pfx-icon" />
+                            <input required type="number" className="input-field has-pfx" placeholder="0.00"
+                              value={newItem.price}
+                              onChange={e => setNewItem({ ...newItem, price: e.target.value })} />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="input-label">Category (optional)</label>
+                          <select className="input-field"
+                            value={newItem.categoryId}
+                            onChange={e => setNewItem({ ...newItem, categoryId: e.target.value })}>
+                            <option value="">None</option>
+                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                          </select>
+                        </div>
+                      </>
+                    ) : (
                       <div>
-                        <label className="input-label">CATEGORY</label>
-                        <select className="input-field" value={newItem.categoryId} onChange={(e) => setNewItem({...newItem, categoryId: e.target.value})}>
-                          <option value="">Select Category</option>
-                          {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                        </select>
+                        <label className="input-label">Category Name</label>
+                        <input autoFocus required className="input-field" placeholder="e.g. Beverages"
+                          value={newCatName}
+                          onChange={e => setNewCatName(e.target.value)} />
                       </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <label className="input-label">CATEGORY NAME</label>
-                      <input autoFocus className="input-field" placeholder="e.g. Beverages" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} required />
-                    </div>
-                  )}
-                  
-                  <div className="modal-actions">
-                    <button type="button" className="btn btn-ghost" onClick={() => setShowAddModal(false)}>Cancel</button>
+                    )}
+                  </div>
+
+                  <div className="modal-foot">
+                    <button type="button" className="btn btn-ghost" onClick={closeModal}>Cancel</button>
                     <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                      {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : `Save ${modalType === 'item' ? 'To Catalog' : 'Category'}`}
+                      {isSubmitting ? <Loader2 className="spin" size={18} /> : 'Save'}
                     </button>
                   </div>
                 </form>
@@ -202,6 +193,7 @@ const Products = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
       </div>
     </AppLayout>
   );

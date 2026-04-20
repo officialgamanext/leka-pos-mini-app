@@ -1,72 +1,93 @@
-.onboarding-page {
-  padding: 16px 12px;
-  min-height: 100vh;
-  background: var(--background);
-  animation: fadeIn 0.4s ease-out;
+/* ─── Onboarding ─────────────────────────────────────────────── */
+
+.ob-page {
+  min-height: 100dvh;
+  background: var(--bg);
+  padding: 0 16px;
+  animation: fadeUp .35s ease-out both;
 }
 
-.onboarding-header {
-  padding: 16px 8px;
-  margin-bottom: 32px;
+.ob-top {
+  padding: 52px 0 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
-.onboarding-title {
-  font-size: 26px;
-  letter-spacing: -0.5px;
-}
+.ob-title  { font-size: 26px; font-weight: 900; letter-spacing: -0.7px; color: var(--text); }
+.ob-sub    { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
 
-.onboarding-sub {
-  color: var(--text-muted);
-  font-size: 15px;
-  margin-top: 4px;
-}
-
-.business-list {
-  display: grid;
-  gap: 12px;
-  padding: 0 8px;
-}
-
-.business-card {
-  padding: 16px;
-  cursor: pointer;
-}
-
-.business-info {
+.ob-logout-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
+  color: var(--red);
 }
 
-.business-icon-box {
-  width: 48px;
-  height: 48px;
-  background: var(--primary-light);
+.ob-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ob-biz-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: transform .15s;
+}
+
+.ob-biz-card:active { transform: scale(0.98); }
+
+.ob-biz-left { display: flex; align-items: center; gap: 14px; }
+
+.ob-biz-avatar {
+  width: 44px;
+  height: 44px;
   border-radius: 14px;
+  background: var(--primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary);
 }
 
-.business-details h3 {
-  font-size: 16px;
+.ob-biz-name { font-size: 15px; font-weight: 700; }
+.ob-biz-sub  { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+
+.ob-biz-chevron {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-sub);
 }
 
-.business-details p {
-  font-size: 12px;
-}
-
-.add-business-btn {
-  border-style: dashed;
-  height: 72px;
-  background: white;
-  border-color: var(--primary);
+.ob-add-btn {
+  width: 100%;
+  height: 54px;
+  border-radius: var(--r-lg);
+  border: 2px dashed var(--primary);
+  background: transparent;
   color: var(--primary);
-  border-width: 2px;
-  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background .2s;
 }
 
-.add-business-btn:hover {
-  background: var(--primary-light);
-}
+.ob-add-btn:hover { background: var(--primary-light); }

@@ -1,170 +1,238 @@
-.dashboard-container {
+/* ─── Dashboard ──────────────────────────────────────────────── */
+
+.db-page {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 14px;
+  animation: fadeUp .35s ease-out both;
 }
 
-.revenue-card {
+/* Hero stats bar */
+.db-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.db-stat-card {
+  padding: 14px 12px;
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.revenue-icon-box {
-  width: 60px;
-  height: 60px;
-  border-radius: 30px;
-  background: #FCD34D;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #92400E;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
-  flex-shrink: 0;
-}
-
-.revenue-label {
-  font-size: 14px;
-  color: var(--text-muted);
+.db-stat-label {
+  font-size: 10px;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-sub);
 }
 
-.revenue-amount {
-  font-size: 32px;
-  margin-top: 4px;
+.db-stat-value {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.db-stat-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+/* Revenue highlight card */
+.db-revenue-card {
+  background: linear-gradient(135deg, var(--primary) 0%, #255a7e 100%);
+  border-radius: var(--r-lg);
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-md);
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.db-revenue-bg-icon {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  opacity: .07;
+}
+
+.db-revenue-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,.75);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+
+.db-revenue-amount {
+  font-size: 28px;
+  font-weight: 900;
+  color: white;
   letter-spacing: -1px;
 }
 
-.summary-card {
-  padding: 20px;
-}
-
-.summary-header {
-  margin-bottom: 20px;
-  font-size: 15px;
-}
-
-.chart-container {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  height: 120px;
-  padding: 0 8px;
-  gap: 8px;
-}
-
-.chart-bar-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.chart-bar {
-  width: 100%;
-  background: linear-gradient(180deg, #3379A7 0%, #60A5FA 100%);
-  border-radius: 6px;
-  min-height: 4px;
-}
-
-.chart-label {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.quick-actions-section {
-  margin-top: 8px;
-}
-
-.section-title {
-  font-size: 15px;
-  margin-bottom: 16px;
-}
-
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-
-.action-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.action-icon-box {
-  width: 100%;
-  aspect-ratio: 1;
-  background: white;
+.db-revenue-icon-wrap {
+  width: 52px;
+  height: 52px;
+  background: rgba(255,255,255,.18);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  transition: transform 0.2s;
+  color: white;
+  backdrop-filter: blur(4px);
 }
 
-.action-item:active .action-icon-box {
-  transform: scale(0.92);
+/* Chart */
+.db-chart-card {
+  padding: 16px;
 }
 
-.action-label {
-  font-size: 11px;
+.db-chart-top {
+  margin-bottom: 14px;
+}
+
+.db-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 90px;
+}
+
+.db-bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  gap: 5px;
+}
+
+.db-bar-track {
+  flex: 1;
+  width: 100%;
+  background: var(--primary-light);
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.db-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #60a5d4 0%, var(--primary) 100%);
+  border-radius: 6px;
+  transition: height .6s cubic-bezier(.4,0,.2,1);
+}
+
+.db-bar-label {
+  font-size: 9px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-sub);
+  text-transform: uppercase;
 }
 
-.recent-sales-list {
+/* Quick Actions */
+.db-actions-card {
+  padding: 16px;
+}
+
+.db-section-head {
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+
+.db-actions-grid {
   display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
 }
 
-.sale-item {
-  padding: 14px;
+.db-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+}
+
+.db-action-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-xs);
+  transition: transform .18s;
+}
+
+.db-action:active .db-action-icon { transform: scale(0.9); }
+
+.db-action-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+/* Sales List */
+.db-sales-card {
+  padding: 16px;
+}
+
+.db-sale-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
 }
 
-.sale-icon-box {
-  width: 42px;
-  height: 42px;
-  background: var(--primary-light);
+.db-sale-row:last-child { border-bottom: none; }
+
+.db-sale-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.db-sale-icon {
+  width: 38px;
+  height: 38px;
   border-radius: 12px;
+  background: var(--primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary);
 }
 
-.sale-info h4 {
+.db-sale-id { font-size: 13px; font-weight: 700; }
+.db-sale-time { font-size: 11px; color: var(--text-sub); }
+
+.db-sale-amount {
   font-size: 14px;
-}
-
-.sale-info p {
-  font-size: 11px;
-}
-
-.sale-amount {
-  text-align: right;
-}
-
-.amount-val {
   font-weight: 800;
   color: var(--primary);
-  font-size: 16px;
 }
 
-.status-label {
+.db-sale-status {
   font-size: 10px;
-  color: var(--secondary);
   font-weight: 700;
+  color: var(--green);
+  text-align: right;
 }

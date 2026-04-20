@@ -2,218 +2,201 @@ import React, { useState, useEffect } from 'react';
 import AppLayout from '../components/AppLayout';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
-import { catalogApi, billsApi, apiCall } from '../api/client';
-import { 
-  Search, 
-  ShoppingCart, 
-  Plus, 
-  Minus, 
-  Trash2, 
-  Loader2, 
-  ChevronRight, 
-  IndianRupee,
-  X,
-  CreditCard,
-  Wallet,
-  Receipt,
-  Package
-} from 'lucide-react';
+import { billsApi, apiCall } from '../api/client';
+import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/Billing.css';
 
 const Billing = () => {
-  const { sessionToken } = useSession();
+  const { sessionToken }   = useSession();
   const { activeBusiness } = useBusiness();
-  const [items, setItems] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [cart, setCart] = useState([]);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    fetchData();
-  }, [sessionToken, activeBusiness]);
+  const [items,       setItems]       = useState([]);
+  const [isLoading,   setIsLoading]   = useState(true);
+  const [cart,        setCart]        = useState([]);
+  const [showCheckout,setShowCheckout]= useState(false);
+  const [isSubmitting,setIsSubmitting]= useState(false);
+  const [search,      setSearch]      = useState('');
+
+  useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
 
   const fetchData = async () => {
     try {
       const its = await apiCall(`/items?businessId=${activeBusiness.id}`, {}, sessionToken);
-      const cats = await apiCall(`/categories?businessId=${activeBusiness.id}`, {}, sessionToken);
-      setItems(its);
-      setCategories(cats);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+      setItems(Array.isArray(its) ? its : []);
+    } catch (e) { console.error(e); }
+    finally { setIsLoading(false); }
   };
 
   const addToCart = (item) => {
-    const existing = cart.find(i => i.id === item.id);
-    if (existing) {
-      setCart(cart.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i));
-    } else {
-      setCart([...cart, { ...item, quantity: 1 }]);
-    }
+    setCart(prev => {
+      const ex = prev.find(i => i.id === item.id);
+      return ex ? prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i)
+                : [...prev, { ...item, qty: 1 }];
+    });
   };
 
   const updateQty = (id, delta) => {
-    setCart(cart.map(i => {
-      if (i.id === id) {
-        const newQty = Math.max(0, i.quantity + delta);
-        return { ...i, quantity: newQty };
-      }
-      return i;
-    }).filter(i => i.quantity > 0));
+    setCart(prev => prev.map(i => i.id === id ? { ...i, qty: i.qty + delta } : i).filter(i => i.qty > 0));
   };
 
-  const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
 
-  const handleCheckout = async () => {
-    if (cart.length === 0) return;
+  const checkout = async () => {
     setIsSubmitting(true);
     try {
       await billsApi.create(activeBusiness.id, {
-        items: cart.map(i => ({ itemId: i.id, quantity: i.quantity, price: i.price })),
-        total: total
+        items: cart.map(i => ({ itemId: i.id, quantity: i.qty, price: i.price })),
+        total,
       }, sessionToken);
       setCart([]);
       setShowCheckout(false);
-      alert('Bill generated successfully!');
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+      alert('Bill saved!');
+    } catch (e) { alert(e.message); }
+    finally { setIsSubmitting(false); }
   };
 
-  const filteredItems = items.filter(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filtered = items.filter(i => i.name.toLowerCase().includes(search.toLowerCase()));
+  const cartMap   = Object.fromEntries(cart.map(i => [i.id, i.qty]));
 
   return (
-    <AppLayout title="Billing">
-      <div className="billing-page">
-        {/* Search Header */}
-        <div className="search-section">
-          <Search size={18} className="search-icon" />
-          <input 
-            className="input-field search-input" 
-            placeholder="Search items to add..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+    <AppLayout>
+      <div className="bl-page">
+
+        {/* Search */}
+        <div className="bl-search-wrap">
+          <Search size={16} className="bl-search-icon" />
+          <input
+            className="input-field bl-search-input"
+            placeholder="Search items…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
 
+        {/* Product grid */}
         {isLoading ? (
-          <div className="text-center" style={{ padding: '40px' }}>
-            <Loader2 className="animate-spin" size={24} color="var(--primary)" />
+          <div className="text-center" style={{ padding: 40 }}>
+            <Loader2 className="spin" size={26} color="var(--primary)" />
           </div>
         ) : (
-          <div className="products-grid">
-            {filteredItems.map(item => (
-              <motion.div 
-                key={item.id} 
-                whileTap={{ scale: 0.96 }}
+          <div className="bl-grid">
+            {filtered.map(item => (
+              <motion.div
+                key={item.id}
+                className="card bl-product-card"
+                whileTap={{ scale: 0.95 }}
                 onClick={() => addToCart(item)}
-                className="card product-card"
               >
-                <div className="product-image-placeholder">
-                   <Package size={28} opacity={0.4} />
+                {cartMap[item.id] && (
+                  <span className="bl-cart-badge">{cartMap[item.id]}</span>
+                )}
+                <div className="bl-product-thumb">
+                  <Package size={26} opacity={0.45} />
                 </div>
-                <div>
-                  <h3 className="product-name">{item.name}</h3>
-                  <div className="product-price">₹{item.price}</div>
-                </div>
+                <p className="bl-product-name">{item.name}</p>
+                <p className="bl-product-price">₹{item.price}</p>
               </motion.div>
             ))}
           </div>
         )}
 
-        {/* Floating Cart Bar */}
+        {/* Floating cart bar */}
         <AnimatePresence>
           {cart.length > 0 && (
-            <motion.div 
-              initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
-              className="floating-cart-bar"
+            <motion.div
+              className="bl-cart-bar"
+              initial={{ y: 80, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 80, opacity: 0 }}
+              transition={{ type: 'spring', damping: 24, stiffness: 280 }}
             >
-              <button 
-                onClick={() => setShowCheckout(true)}
-                className="btn btn-primary cart-btn"
-              >
-                <div className="cart-info">
-                  <div className="cart-icon-box">
-                    <ShoppingCart size={18} />
+              <button className="bl-cart-btn" onClick={() => setShowCheckout(true)}>
+                <div className="bl-cart-left">
+                  <div className="bl-cart-count-box">
+                    <ShoppingCart size={16} />
                   </div>
-                  <div className="cart-summary">
-                    <div className="cart-count">{cart.length} ITEMS ADDED</div>
-                    <div className="cart-total">₹{total}</div>
+                  <div>
+                    <div className="bl-cart-count">{cart.length} ITEMS</div>
+                    <div className="bl-cart-total">₹{total.toFixed(2)}</div>
                   </div>
                 </div>
-                <div className="cart-action">
-                  CHECKOUT <ChevronRight size={18} />
-                </div>
+                <div className="bl-cart-cta">Checkout <ChevronRight size={16} /></div>
               </button>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Modal */}
+        {/* Checkout Modal */}
         <AnimatePresence>
           {showCheckout && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay">
-              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="modal-content" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
-                <div className="modal-header">
-                  <div className="item-main">
-                    <div className="logo-box" style={{ background: 'var(--primary-light)' }}>
-                      <Receipt size={18} color="var(--primary)" />
+            <motion.div
+              key="bl-overlay"
+              className="modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={e => e.target === e.currentTarget && setShowCheckout(false)}
+            >
+              <motion.div
+                key="bl-sheet"
+                className="modal-sheet"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              >
+                <div className="modal-drag-bar" />
+
+                <div className="modal-head">
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div className="logo-box" style={{ background:'var(--primary-light)', color:'var(--primary)' }}>
+                      <Receipt size={16} />
                     </div>
-                    <h2 style={{ fontSize: '18px' }}>Order Summary</h2>
+                    <h2>Order Summary</h2>
                   </div>
-                  <button className="close-btn" onClick={() => setShowCheckout(false)}>
-                    <X size={20} />
-                  </button>
+                  <button className="modal-close" onClick={() => setShowCheckout(false)}><X size={18} /></button>
                 </div>
 
-                <div className="order-summary-list">
+                <div className="bl-order-list modal-body">
                   {cart.map(i => (
-                    <div key={i.id} className="card order-item-card">
-                      <div className="order-item-icon">
-                        <Package size={20} color="var(--text-muted)" />
-                      </div>
+                    <div key={i.id} className="card bl-order-item">
+                      <div className="bl-order-icon"><Package size={17} /></div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '14px', fontWeight: '700' }}>{i.name}</div>
-                        <div style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '700' }}>₹{i.price}</div>
+                        <p className="bl-order-name">{i.name}</p>
+                        <p className="bl-order-price">₹{i.price}</p>
                       </div>
-                      <div className="qty-controls">
-                        <button className="qty-btn" onClick={() => updateQty(i.id, -1)}><Minus size={14} /></button>
-                        <span className="qty-val">{i.quantity}</span>
-                        <button className="qty-btn" onClick={() => updateQty(i.id, 1)}><Plus size={14} /></button>
+                      <div className="bl-qty-row">
+                        <button className="bl-qty-btn" onClick={() => updateQty(i.id, -1)}><Minus size={12} /></button>
+                        <span className="bl-qty-val">{i.qty}</span>
+                        <button className="bl-qty-btn" onClick={() => updateQty(i.id,  1)}><Plus  size={12} /></button>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="card grand-total-section">
-                  <div className="total-row">
-                    <span className="total-label">Subtotal ({cart.length} items)</span>
-                    <span className="total-val">₹{total}</span>
+                <div className="bl-total-box">
+                  <div className="bl-total-row">
+                    <span style={{ fontSize:12, color:'var(--text-sub)', fontWeight:600 }}>Subtotal</span>
+                    <span style={{ fontSize:13, fontWeight:700 }}>₹{total.toFixed(2)}</span>
                   </div>
-                  <div className="grand-total-row">
-                    <span className="grand-label">Grand Total</span>
-                    <span className="grand-val">₹{total}</span>
+                  <div className="bl-total-row">
+                    <span className="bl-grand-label">Grand Total</span>
+                    <span className="bl-grand-val">₹{total.toFixed(2)}</span>
                   </div>
                 </div>
 
-                <div className="modal-actions">
-                  <button onClick={() => setShowCheckout(false)} className="btn btn-ghost">Cancel</button>
-                  <button onClick={handleCheckout} className="btn btn-primary" disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Complete Payment'}
+                <div className="modal-foot">
+                  <button className="btn btn-ghost" onClick={() => setShowCheckout(false)}>Cancel</button>
+                  <button className="btn btn-primary" onClick={checkout} disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Confirm Payment'}
                   </button>
                 </div>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
+
       </div>
     </AppLayout>
   );

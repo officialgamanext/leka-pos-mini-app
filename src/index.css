@@ -1,169 +1,205 @@
-/* Design System - Global Tokens */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ─── Design Tokens ─────────────────────────────────────────── */
 :root {
-  /* Brand Colors */
-  --primary: #3379A7;
-  --primary-dark: #255a7e;
-  --primary-light: #E9F2F9;
-  
-  --secondary: #10B981;
-  --accent: #F59E0B;
-  --danger: #EF4444;
-  
-  /* Backgrounds */
-  --background: #F9FAFB;
-  --surface: #FFFFFF;
-  --surface-muted: #F3F4F6;
-  
-  /* Text */
-  --text-main: #111827;
-  --text-muted: #6B7280;
-  --text-inverse: #FFFFFF;
-  
-  /* Borders & Shadows */
-  --border: #E5E7EB;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  
-  /* Layout */
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  
-  /* Layering (Strict Z-Indices) */
-  --z-header: 100;
-  --z-nav: 200;
-  --z-modal: 1000;
-  --z-overlay: 999;
-  
-  --font-main: 'Plus Jakarta Sans', -apple-system, blinkmacsystemfont, sans-serif;
-  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --primary:       #3379A7;
+  --primary-dark:  #255a7e;
+  --primary-light: #ddeef8;
+  --primary-fade:  rgba(51,121,167,0.08);
+
+  --green:  #10B981;
+  --amber:  #F59E0B;
+  --purple: #6366F1;
+  --red:    #EF4444;
+
+  --bg:           #EFF4F8;       /* subtle blue-grey canvas */
+  --surface:      #FFFFFF;
+  --surface-alt:  #F3F7FA;
+
+  --text:         #0f2133;
+  --text-sub:     #5a7a93;
+  --border:       #dce8f0;
+
+  --shadow-xs: 0 1px 3px rgba(51,121,167,.07);
+  --shadow-sm: 0 2px 8px rgba(51,121,167,.10);
+  --shadow-md: 0 6px 20px rgba(51,121,167,.14);
+  --shadow-lg: 0 12px 40px rgba(51,121,167,.18);
+
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  /* Strict Stacking */
+  --z-content:  5;
+  --z-nav:      20;     /* above content */
+  --z-header:   30;
+  --z-modal:    9999;   /* always on top */
+
+  --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-}
-
+/* ─── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body, #root { height: 100%; }
 body {
-  font-family: var(--font-main);
-  background: var(--background);
-  color: var(--text-main);
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
 }
+button { cursor: pointer; font-family: inherit; }
+select, input, textarea { font-family: inherit; }
 
-/* Global Typography Reset */
-h1, h2, h3, h4 { font-weight: 800; line-height: 1.2; }
-p { font-size: 14px; color: var(--text-muted); }
+/* ─── Typography ─────────────────────────────────────────────── */
+h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+h2 { font-size: 18px; font-weight: 800; }
+h3 { font-size: 15px; font-weight: 700; }
+h4 { font-size: 13px; font-weight: 700; }
+p  { font-size: 12px; color: var(--text-sub); line-height: 1.5; }
 
-/* Global Components */
-.card {
+/* ─── Input ─────────────────────────────────────────────────── */
+.input-field {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--border);
   background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+}
+.input-field:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+.input-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  color: var(--text-sub);
+  margin-bottom: 6px;
+  text-transform: uppercase;
 }
 
+/* ─── Buttons ────────────────────────────────────────────────── */
 .btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
+  height: 46px;
   width: 100%;
-  height: 52px;
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 15px;
   border: none;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: inherit;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 700;
+  transition: transform .18s, box-shadow .18s;
 }
+.btn:active { transform: scale(0.97); }
 
 .btn-primary {
   background: var(--primary);
-  color: white;
-  box-shadow: 0 4px 14px rgba(51, 121, 167, 0.3);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(51,121,167,.35);
 }
-
-.btn-primary:active { transform: scale(0.97); }
+.btn-primary:hover { box-shadow: 0 6px 22px rgba(51,121,167,.45); }
 
 .btn-ghost {
-  background: #F3F4F6;
-  color: #4B5563;
+  background: var(--surface-alt);
+  color: var(--text-sub);
 }
 
-.input-field {
-  width: 100%;
-  height: 52px;
-  padding: 0 16px;
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--border);
-  background: #FFFFFF;
-  font-family: inherit;
-  font-size: 15px;
-  transition: all 0.2s;
+/* ─── Card ───────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
 }
 
-.input-field:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-light);
-  outline: none;
-}
-
-/* Global Modal Styles (On Top of Everything) */
+/* ─── Modal (Always on top) ──────────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
   z-index: var(--z-modal);
   display: flex;
   align-items: flex-end;
-  animation: fadeIn 0.3s ease-out;
+  background: rgba(15,33,51,.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
-.modal-content {
-  background: var(--background);
+.modal-sheet {
   width: 100%;
-  border-top-left-radius: var(--radius-xl);
-  border-top-right-radius: var(--radius-xl);
-  padding: 24px 20px calc(24px + var(--safe-area-bottom));
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  margin: 0 auto;
+  background: var(--surface);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 0 20px calc(28px + var(--safe-bottom));
+  box-shadow: 0 -20px 60px rgba(15,33,51,.15);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.modal-header {
+.modal-drag-bar {
+  width: 36px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 14px auto 20px;
+  flex-shrink: 0;
+}
+
+.modal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
-.close-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #F3F4F6;
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--surface-alt);
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--text-sub);
 }
 
-/* Animations */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+}
 
-.animate-spin { animation: spin 1s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.modal-foot {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  padding-top: 20px;
+  flex-shrink: 0;
+}
 
-/* Utils */
+/* ─── Animations ─────────────────────────────────────────────── */
+@keyframes fadeUp   { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes spin     { to { transform: rotate(360deg); } }
+
+.anim-fadeup { animation: fadeUp .35s ease-out both; }
+.spin { animation: spin 1s linear infinite; }
+
+/* ─── Utils ──────────────────────────────────────────────────── */
+.flex-center  { display: flex; align-items: center; }
 .flex-between { display: flex; align-items: center; justify-content: space-between; }
-.flex-column { display: flex; flex-direction: column; }
-.text-center { text-align: center; }
+.text-center  { text-align: center; }
+.text-primary { color: var(--primary); }
+.text-sub     { color: var(--text-sub); }
+.font-800     { font-weight: 800; }

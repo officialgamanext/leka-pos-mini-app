@@ -8,126 +8,134 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/Onboarding.css';
 
 const Onboarding = () => {
-  const { sessionToken } = useSession();
-  const { logout } = useDescope();
-  const { selectBusiness } = useBusiness();
-  const navigate = useNavigate();
-  
-  const [businesses, setBusinesses] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isCreating, setIsCreating] = useState(false);
-  const [newBusinessName, setNewBusinessName] = useState('');
+  const { sessionToken }        = useSession();
+  const { logout }              = useDescope();
+  const { selectBusiness }      = useBusiness();
+  const navigate                = useNavigate();
+
+  const [businesses,   setBusinesses]   = useState([]);
+  const [isLoading,    setIsLoading]    = useState(true);
+  const [showCreate,   setShowCreate]   = useState(false);
+  const [bizName,      setBizName]      = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchBusinesses();
-  }, [sessionToken]);
+  useEffect(() => { fetchBusinesses(); }, [sessionToken]);
 
   const fetchBusinesses = async () => {
     try {
       const data = await businessApi.list(sessionToken);
-      setBusinesses(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+      setBusinesses(Array.isArray(data) ? data : []);
+    } catch (e) { console.error(e); }
+    finally { setIsLoading(false); }
   };
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    if (!newBusinessName.trim()) return;
-    
+    if (!bizName.trim()) return;
     setIsSubmitting(true);
     try {
-      const newBusiness = await businessApi.create(newBusinessName, sessionToken);
-      setBusinesses([...businesses, newBusiness]);
-      setIsCreating(false);
-      setNewBusinessName('');
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+      const nb = await businessApi.create(bizName.trim(), sessionToken);
+      setBusinesses(prev => [...prev, nb]);
+      setShowCreate(false);
+      setBizName('');
+    } catch (e) { alert(e.message); }
+    finally { setIsSubmitting(false); }
   };
 
-  const handleSelect = (business) => {
-    selectBusiness(business);
-    navigate('/dashboard');
-  };
+  const handleSelect = (biz) => { selectBusiness(biz); navigate('/dashboard'); };
+  const closeCreate  = ()    => { setShowCreate(false); setBizName(''); };
 
   return (
-    <div className="onboarding-page">
-      <div className="flex-between onboarding-header">
+    <div className="ob-page">
+
+      <div className="ob-top">
         <div>
-          <h1 className="onboarding-title">My Workspaces</h1>
-          <p className="onboarding-sub">Select a business to start billing</p>
+          <h1 className="ob-title">My Workspaces</h1>
+          <p className="ob-sub">Select a business to start</p>
         </div>
-        <button onClick={() => logout()} className="close-btn" style={{ borderRadius: '14px' }}>
-          <LogOut size={20} color="var(--danger)" />
+        <button className="ob-logout-btn" onClick={() => logout()}>
+          <LogOut size={17} />
         </button>
       </div>
 
       {isLoading ? (
-        <div className="text-center" style={{ marginTop: '100px' }}>
-          <Loader2 className="animate-spin" size={32} color="var(--primary)" />
+        <div className="text-center" style={{ marginTop: 80 }}>
+          <Loader2 className="spin" size={28} color="var(--primary)" />
         </div>
       ) : (
-        <div className="business-list">
-          {businesses.map((biz) => (
-            <motion.div 
-              key={biz.id}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleSelect(biz)}
-              className="card business-card flex-between"
-            >
-              <div className="business-info">
-                <div className="business-icon-box">
-                  <Building2 size={24} />
+        <div>
+          <div className="ob-list">
+            {businesses.map(biz => (
+              <motion.div
+                key={biz.id}
+                className="card ob-biz-card"
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleSelect(biz)}
+              >
+                <div className="ob-biz-left">
+                  <div className="ob-biz-avatar"><Building2 size={22} /></div>
+                  <div>
+                    <p className="ob-biz-name">{biz.name}</p>
+                    <p className="ob-biz-sub">Standard Outlet</p>
+                  </div>
                 </div>
-                <div className="business-details">
-                  <h3>{biz.name}</h3>
-                  <p>Standard Outlet • Online</p>
-                </div>
-              </div>
-              <ChevronRight size={20} color="var(--border)" />
-            </motion.div>
-          ))}
-
-          <button className="btn add-business-btn" onClick={() => setIsCreating(true)}>
-            <Plus size={24} />
-            Create New Workspace
+                <div className="ob-biz-chevron"><ChevronRight size={16} /></div>
+              </motion.div>
+            ))}
+          </div>
+          <button className="ob-add-btn" onClick={() => setShowCreate(true)}>
+            <Plus size={20} /> New Workspace
           </button>
         </div>
       )}
 
-      {/* Modal */}
+      {/* Create Modal */}
       <AnimatePresence>
-        {isCreating && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay">
-            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="modal-content">
-              <div className="modal-header">
-                <div className="item-main">
-                  <div className="logo-box" style={{ background: 'var(--primary-light)' }}>
-                    <Store size={20} color="var(--primary)" />
+        {showCreate && (
+          <motion.div
+            key="ob-overlay"
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={e => e.target === e.currentTarget && closeCreate()}
+          >
+            <motion.div
+              key="ob-sheet"
+              className="modal-sheet"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            >
+              <div className="modal-drag-bar" />
+
+              <div className="modal-head">
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <div className="logo-box" style={{ background:'var(--primary-light)', color:'var(--primary)' }}>
+                    <Store size={16} />
                   </div>
-                  <h2 style={{ fontSize: '18px' }}>Setup Workspace</h2>
+                  <h2>New Workspace</h2>
                 </div>
-                <button className="close-btn" onClick={() => setIsCreating(false)}>
-                  <X size={20} />
-                </button>
+                <button className="modal-close" onClick={closeCreate}><X size={18} /></button>
               </div>
-              
+
               <form onSubmit={handleCreate}>
-                <div style={{ marginBottom: '32px' }}>
-                   <label className="input-label">BUSINESS NAME</label>
-                   <input autoFocus className="input-field" placeholder="e.g. Leka Coffee Shop" value={newBusinessName} onChange={(e) => setNewBusinessName(e.target.value)} required />
+                <div className="modal-body" style={{ marginBottom: 0 }}>
+                  <label className="input-label">Business Name</label>
+                  <input
+                    autoFocus required
+                    className="input-field"
+                    placeholder="e.g. Leka Coffee Shop"
+                    value={bizName}
+                    onChange={e => setBizName(e.target.value)}
+                  />
                 </div>
-                
-                <div className="modal-actions">
-                  <button type="button" className="btn btn-ghost" onClick={() => setIsCreating(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Establish Workspace'}
+
+                <div className="modal-foot">
+                  <button type="button"   className="btn btn-ghost" onClick={closeCreate}>Cancel</button>
+                  <button type="submit"   className="btn btn-primary" disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Create'}
                   </button>
                 </div>
               </form>
@@ -135,6 +143,7 @@ const Onboarding = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   );
 };
