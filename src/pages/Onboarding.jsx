@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSession } from '@descope/react-sdk';
+import { useSession, useDescope } from '@descope/react-sdk';
 import { businessApi } from '../api/client';
 import { useBusiness } from '../App';
 import { Plus, Building2, ChevronRight, LogOut, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Onboarding = () => {
-  const { sessionToken, logout } = useSession();
+  const { sessionToken } = useSession();
+  const { logout } = useDescope();
   const { selectBusiness } = useBusiness();
   const navigate = useNavigate();
   

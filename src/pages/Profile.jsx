@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AppLayout from '../components/AppLayout';
 import { useNavigate } from 'react-router-dom';
-import { useSession } from '@descope/react-sdk';
+import { useSession, useDescope } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { 
   Tag, 
@@ -20,7 +20,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile = () => {
-  const { logout } = useSession();
+  const { logout } = useDescope();
   const { activeBusiness, logoutBusiness } = useBusiness();
   const navigate = useNavigate();
   const [showPrinterModal, setShowPrinterModal] = useState(false);
