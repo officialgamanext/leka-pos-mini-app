@@ -112,7 +112,7 @@ export async function printText(text) {
     new Uint8Array([ESC, 0x40]),
     new Uint8Array([ESC, 0x61, 0x00]),
     enc.encode(text),
-    new Uint8Array([ESC, 0x64, 0x04]),
+    new Uint8Array([ESC, 0x64, 0x01]),
     new Uint8Array([GS, 0x56, 0x41, 0x10]),
   ];
   let total = parts.reduce((s, p) => s + p.length, 0);

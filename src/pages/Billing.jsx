@@ -85,14 +85,14 @@ const Billing = () => {
           receipt += center(activeBusiness.address) + '\n';
         }
         receipt += '-'.repeat(32) + '\n';
-        receipt += 'Item            Qty      Amt' + '\n';
+        receipt += 'Item'.padEnd(18, ' ') + 'Qty'.padStart(6, ' ') + 'Amt'.padStart(8, ' ') + '\n';
         receipt += '-'.repeat(32) + '\n';
         
         cart.forEach(i => {
-          let name = i.name.substring(0, 14).padEnd(14, ' ');
-          let qty = String(i.qty).padStart(3, ' ');
-          let priceStr = (i.qty * i.price).toLocaleString('en-IN').padStart(9, ' ');
-          receipt += `${name} ${qty} ${priceStr}\n`;
+          let name = i.name.substring(0, 18).padEnd(18, ' ');
+          let qty = String(i.qty).padStart(6, ' ');
+          let priceStr = (i.qty * i.price).toLocaleString('en-IN').padStart(8, ' ');
+          receipt += `${name}${qty}${priceStr}\n`;
         });
 
         receipt += '-'.repeat(32) + '\n';
