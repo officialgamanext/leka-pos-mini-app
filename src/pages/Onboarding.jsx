@@ -56,7 +56,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="flex-column animate-fade-in" style={{ padding: '24px', minHeight: '100vh' }}>
+    <div className="flex-column animate-fade-in" style={{ padding: '16px 12px', minHeight: '100vh' }}>
       <div className="flex-between" style={{ marginBottom: '32px' }}>
         <div>
           <h1 style={{ fontSize: '22px' }}>My Businesses</h1>

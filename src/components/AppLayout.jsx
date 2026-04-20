@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, History, User, LogOut, ChevronLeft } from 'lucide-react';
+import { LayoutDashboard, Receipt, History, User, Bell, Search, ChevronLeft } from 'lucide-react';
 import { useBusiness } from '../App';
 
 const AppLayout = ({ children, title, backPath }) => {
@@ -17,37 +17,61 @@ const AppLayout = ({ children, title, backPath }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--background)' }}>
-      {/* Header */}
+      {/* Premium Header inspired by Ref */}
       <header style={{ 
-        padding: '12px 16px', 
-        background: 'white', 
-        borderBottom: '1px solid var(--border)',
+        padding: '20px 12px 36px', 
+        background: 'var(--primary)', 
+        borderBottomLeftRadius: '24px',
+        borderBottomRightRadius: '24px',
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        height: '56px'
+        justifyContent: 'space-between',
+        position: 'relative',
+        zIndex: 50
       }}>
-        {backPath ? (
-          <button 
-            onClick={() => navigate(backPath)}
-            style={{ background: 'var(--primary-light)', border: 'none', padding: '6px', borderRadius: 'var(--radius-sm)', color: 'var(--primary)', display: 'flex' }}
-          >
-            <ChevronLeft size={20} />
-          </button>
-        ) : null}
-        <div style={{ flex: 1, overflow: 'hidden' }}>
-          <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--primary)', letterSpacing: '0.02em', display: 'block', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-            {activeBusiness?.name?.toUpperCase()}
-          </span>
-          <h1 style={{ fontSize: '16px', fontWeight: '700' }}>{title}</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {backPath && (
+            <button 
+              onClick={() => navigate(backPath)}
+              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', padding: '6px', borderRadius: '10px', color: 'white', display: 'flex' }}
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+              <Receipt size={18} />
+            </div>
+            <h1 style={{ fontSize: '18px', fontWeight: '800', color: 'white', letterSpacing: '-0.5px' }}>
+              {activeBusiness?.name || 'Leka POS'}
+            </h1>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ position: 'relative' }}>
+            <div style={{ width: '36px', height: '36px', background: 'rgba(255,255,255,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+              <Bell size={18} />
+            </div>
+            <div style={{ position: 'absolute', top: '-4px', right: '-4px', width: '16px', height: '16px', background: '#F59E0B', borderRadius: '8px', border: '2px solid var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: '700', color: 'white' }}>
+              2
+            </div>
+          </div>
+          <div style={{ width: '36px', height: '36px', background: 'rgba(255,255,255,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+            <Search size={18} />
+          </div>
         </div>
       </header>
 
-      {/* Content */}
-      <main style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
+      {/* Content area with negative margin to pull cards up */}
+      <main style={{ 
+        flex: 1, 
+        overflowY: 'auto', 
+        padding: '0 12px 100px',
+        marginTop: '-20px',
+        position: 'relative',
+        zIndex: 60
+      }}>
         {children}
       </main>
 
@@ -62,10 +86,8 @@ const AppLayout = ({ children, title, backPath }) => {
         position: 'fixed',
         bottom: 0,
         width: '100%',
-        maxWidth: '480px', // Match app container limit
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 10
+        left: 0,
+        zIndex: 100
       }}>
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
