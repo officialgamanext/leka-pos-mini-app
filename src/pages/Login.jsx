@@ -1,181 +1,181 @@
 import React, { useState } from 'react';
-import { useDescope, useSession } from '@descope/react-sdk';
+import { useDescope } from '@descope/react-sdk';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Loader2, Smartphone, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, Loader2, Smartphone, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import '../styles/Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
-  const sdk = useDescope();
-  
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otp, setOtp] = useState('');
-  const [isStepOtp, setIsStepOtp] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const sdk      = useDescope();
 
-  const handleSendOtp = async (e) => {
+  const [phone,     setPhone]     = useState('');
+  const [otp,       setOtp]       = useState('');
+  const [isOtpStep, setIsOtpStep] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error,     setError]     = useState('');
+
+  const fullPhone = phone.startsWith('+') ? phone : `+91${phone}`;
+
+  const handleSend = async (e) => {
     e.preventDefault();
-    if (!phoneNumber) return;
-    
-    setIsLoading(true);
-    setError('');
+    setIsLoading(true); setError('');
     try {
-      // Note: In a real app, you'd want to handle country codes properly.
-      // Assuming phone number is entered with country code or adding a default.
-      const fullPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-      
-      const resp = await sdk.otp.signUpOrIn.sms(fullPhone);
-      if (resp.ok) {
-        setIsStepOtp(true);
-      } else {
-        setError('Failed to send OTP. Please check your number.');
-      }
-    } catch (err) {
-      setError('Something went wrong. Try again.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
+      const res = await sdk.otp.signUpOrIn.sms(fullPhone);
+      res.ok ? setIsOtpStep(true) : setError('Could not send OTP. Please check your number.');
+    } catch { setError('Something went wrong. Please try again.'); }
+    finally { setIsLoading(false); }
   };
 
-  const handleVerifyOtp = async (e) => {
+  const handleVerify = async (e) => {
     e.preventDefault();
-    if (!otp) return;
-
-    setIsLoading(true);
-    setError('');
+    setIsLoading(true); setError('');
     try {
-      const fullPhone = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
-      const resp = await sdk.otp.verify.sms(fullPhone, otp);
-      if (resp.ok) {
-        // Session will be updated automatically by the SDK
-        navigate('/onboarding');
-      } else {
-        setError('Invalid OTP. Please try again.');
-      }
-    } catch (err) {
-      setError('Verification failed.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
+      const res = await sdk.otp.verify.sms(fullPhone, otp);
+      res.ok ? navigate('/onboarding') : setError('Invalid code. Please try again.');
+    } catch { setError('Verification failed. Please retry.'); }
+    finally { setIsLoading(false); }
   };
 
   return (
-    <div className="flex-column animate-fade-in" style={{ padding: '24px', minHeight: '100vh', background: 'white' }}>
-      <button 
-        onClick={() => isStepOtp ? setIsStepOtp(false) : navigate('/')}
-        style={{ 
-          background: 'none', 
-          border: 'none', 
-          padding: '8px', 
-          marginLeft: '-8px',
-          cursor: 'pointer',
-          color: 'var(--text-muted)',
-          display: 'flex',
-          width: 'fit-content'
-        }}
-      >
-        <ChevronLeft size={24} />
-      </button>
+    <div className="lg-page">
 
-      <div style={{ marginTop: '32px', marginBottom: '40px' }}>
-        <h1 style={{ marginBottom: '8px', fontSize: '28px' }}>
-          {isStepOtp ? 'Enter Code' : 'Welcome Back'}
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>
-          {isStepOtp 
-            ? `We've sent a 6-digit code to ${phoneNumber}` 
-            : 'Enter your mobile number to get started.'}
-        </p>
+      {/* Blue gradient strip — same as Welcome */}
+      <div className="lg-top-strip">
+        <div className="lg-circle-1" />
       </div>
 
+      {/* Back button */}
+      <div className="lg-back">
+        <button
+          className="lg-back-btn"
+          onClick={() => isOtpStep ? setIsOtpStep(false) : navigate('/')}
+        >
+          <ChevronLeft size={18} />
+        </button>
+      </div>
+
+      {/* Header — on the blue strip */}
+      <div className="lg-header">
+        <div className="lg-icon-wrap">
+          {isOtpStep ? <ShieldCheck size={24} /> : <Smartphone size={24} />}
+        </div>
+        <div className="lg-header-text">
+          <h1 className="lg-title">
+            {isOtpStep ? 'Verify Code' : 'Welcome Back'}
+          </h1>
+          <p className="lg-subtitle">
+            {isOtpStep
+              ? `Code sent to +91 ${phone}`
+              : 'Sign in or create your account'}
+          </p>
+        </div>
+      </div>
+
+      {/* White form card */}
       <AnimatePresence mode="wait">
-        {!isStepOtp ? (
-          <motion.form 
-            key="phone-step"
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -20, opacity: 0 }}
-            onSubmit={handleSendOtp}
+        {!isOtpStep ? (
+          <motion.form
+            key="phone"
+            initial={{ x: 30, opacity: 0 }}
+            animate={{ x: 0,  opacity: 1 }}
+            exit={{ x: -30,   opacity: 0 }}
+            transition={{ duration: .2 }}
+            onSubmit={handleSend}
+            className="lg-card"
           >
-            <div className="input-group">
-              <label className="input-label">MOBILE NUMBER</label>
-              <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontSize: '15px', fontWeight: '600' }}>
-                  <Smartphone size={18} />
-                  <span>+91</span>
-                  <div style={{ width: '1px', height: '16px', background: 'var(--border)' }} />
-                </div>
-                <input 
-                  autoFocus
-                  type="tel"
-                  className="input-field" 
-                  placeholder="00000 00000" 
-                  style={{ paddingLeft: '85px' }}
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                  required
-                />
+            <label className="lg-input-label">Mobile Number</label>
+            <div className="lg-input-wrap">
+              <div className="lg-input-prefix">
+                <Smartphone size={14} />
+                <span>+91</span>
+                <div className="lg-pfx-divider" />
               </div>
+              <input
+                autoFocus
+                type="tel"
+                className="lg-input with-prefix"
+                placeholder="00000 00000"
+                value={phone}
+                onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                required
+              />
             </div>
 
-            {error && <p style={{ color: 'var(--danger)', fontSize: '13px', marginBottom: '16px' }}>{error}</p>}
+            {error && (
+              <div className="lg-error">
+                <AlertCircle size={14} /> {error}
+              </div>
+            )}
 
-            <button type="submit" className="btn btn-primary" disabled={isLoading || phoneNumber.length < 10} style={{ height: '56px', fontSize: '16px' }}>
-              {isLoading ? <Loader2 className="animate-spin" /> : 'Send OTP'}
+            <button className="lg-btn" type="submit" disabled={isLoading || phone.length < 10}>
+              {isLoading
+                ? <Loader2 size={19} className="spin" />
+                : <> Send OTP <ArrowRight size={17} /> </>}
             </button>
           </motion.form>
+
         ) : (
-          <motion.form 
-            key="otp-step"
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -20, opacity: 0 }}
-            onSubmit={handleVerifyOtp}
+          <motion.form
+            key="otp"
+            initial={{ x: 30, opacity: 0 }}
+            animate={{ x: 0,  opacity: 1 }}
+            exit={{ x: -30,   opacity: 0 }}
+            transition={{ duration: .2 }}
+            onSubmit={handleVerify}
+            className="lg-card"
           >
-            <div className="input-group">
-              <label className="input-label">VERIFICATION CODE</label>
-              <div style={{ position: 'relative' }}>
-                <ShieldCheck size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input 
-                  autoFocus
-                  type="text"
-                  inputMode="numeric"
-                  className="input-field" 
-                  placeholder="Enter 6-digit code" 
-                  style={{ paddingLeft: '44px', letterSpacing: '4px', fontWeight: '700', fontSize: '18px' }}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  required
-                />
-              </div>
+            <label className="lg-input-label">Verification Code</label>
+            <div className="lg-input-wrap">
+              <ShieldCheck size={16} className="lg-input-icon" />
+              <input
+                autoFocus
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                className="lg-input otp-input"
+                placeholder="——————"
+                value={otp}
+                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                required
+              />
             </div>
 
-            {error && <p style={{ color: 'var(--danger)', fontSize: '13px', marginBottom: '16px' }}>{error}</p>}
+            {/* Progress dots */}
+            <div className="lg-otp-dots">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className={`lg-otp-dot${i < otp.length ? ' filled' : ''}`} />
+              ))}
+            </div>
 
-            <button type="submit" className="btn btn-primary" disabled={isLoading || otp.length < 6} style={{ height: '56px', fontSize: '16px' }}>
-              {isLoading ? <Loader2 className="animate-spin" /> : 'Verify & Login'}
+            {error && (
+              <div className="lg-error">
+                <AlertCircle size={14} /> {error}
+              </div>
+            )}
+
+            <button className="lg-btn" type="submit" disabled={isLoading || otp.length < 6}>
+              {isLoading
+                ? <Loader2 size={19} className="spin" />
+                : <> Verify &amp; Login <ArrowRight size={17} /> </>}
             </button>
 
-            <button 
-              type="button" 
-              className="btn btn-ghost" 
-              onClick={() => setIsStepOtp(false)}
-              style={{ marginTop: '12px' }}
-            >
+            <button type="button" className="lg-ghost-btn" onClick={() => setIsOtpStep(false)}>
               Change Number
             </button>
           </motion.form>
         )}
       </AnimatePresence>
 
-      <div style={{ marginTop: 'auto', textAlign: 'center', paddingBottom: 'var(--safe-area-bottom)' }}>
-        <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-          By continuing, you agree to our <span style={{ color: 'var(--primary)', fontWeight: '600' }}>Terms</span> and <span style={{ color: 'var(--primary)', fontWeight: '600' }}>Privacy Policy</span>.
+      {/* Footer */}
+      <div className="lg-footer">
+        <p className="lg-terms">
+          By continuing you agree to our{' '}
+          <span className="lg-terms-link">Terms</span> &amp;{' '}
+          <span className="lg-terms-link">Privacy Policy</span>
         </p>
       </div>
+
     </div>
   );
 };

@@ -1,77 +1,123 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
+import { Receipt, ArrowRight, Zap, ShieldCheck, Wifi, Download } from 'lucide-react';
+import '../styles/Welcome.css';
+
+const features = [
+  { icon: <Zap size={17} />,        title: 'Lightning Fast Billing',  sub: 'Create bills in seconds'        },
+  { icon: <ShieldCheck size={17} />, title: 'Secure & Reliable',       sub: 'Your data, always safe'          },
+  { icon: <Wifi size={17} />,        title: 'Works Offline',            sub: 'No internet? No problem'         },
+];
 
 const Welcome = () => {
   const navigate = useNavigate();
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstall,    setShowInstall]    = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstall(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') setShowInstall(false);
+    setDeferredPrompt(null);
+  };
 
   return (
-    <div className="flex-column animate-fade-in" style={{ height: '100vh', padding: '32px', background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%)' }}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-        <motion.div 
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, type: 'spring' }}
-          style={{ 
-            width: '80px', 
-            height: '80px', 
-            background: 'var(--primary)', 
-            borderRadius: 'var(--radius-xl)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            marginBottom: '24px',
-            boxShadow: '0 20px 40px rgba(79, 70, 229, 0.2)'
-          }}
-        >
-          <ShoppingBag size={40} color="white" />
-        </motion.div>
+    <div className="wl-page">
 
-        <motion.h1 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          style={{ fontSize: '32px', marginBottom: '12px' }}
-        >
-          Leka <span style={{ color: 'var(--primary)' }}>POS</span> Mini
-        </motion.h1>
-        
-        <motion.p 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          style={{ fontSize: '16px', maxWidth: '280px', margin: '0 auto 40px' }}
-        >
-          Professional billing and inventory management, right in your pocket.
-        </motion.p>
-
-        <div style={{ width: '100%', gap: '16px', display: 'flex', flexDirection: 'column' }}>
-          <Feature icon={<Zap size={18} />} title="Lightning Fast Billing" />
-          <Feature icon={<ShieldCheck size={18} />} title="Secure & Reliable" />
-        </div>
+      {/* Blue gradient strip */}
+      <div className="wl-top-strip">
+        <div className="wl-circle-1" />
+        <div className="wl-circle-2" />
       </div>
 
-      <motion.div 
-        initial={{ y: 40, opacity: 0 }}
+      {/* Centred hero — sits on top of split bg */}
+      <div className="wl-hero">
+
+        {/* Logo box */}
+        <motion.div
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', damping: 14, delay: 0.05 }}
+          className="wl-logo-box"
+        >
+          <Receipt size={44} className="wl-logo-icon" />
+        </motion.div>
+
+        {/* Title & subtitle — on the blue strip */}
+        <motion.h1
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="wl-headline"
+        >
+          Leka POS Mini
+        </motion.h1>
+
+        <motion.p
+          initial={{ y: 16, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.22 }}
+          className="wl-sub"
+        >
+          Professional billing & inventory for your business
+        </motion.p>
+
+        {/* Feature cards — on the light bg */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.32 }}
+          className="wl-features"
+        >
+          {features.map(f => (
+            <div key={f.title} className="wl-feature-card">
+              <div className="wl-feature-icon">{f.icon}</div>
+              <div>
+                <p className="wl-feature-title">{f.title}</p>
+                <p className="wl-feature-sub">{f.sub}</p>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Bottom CTA */}
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        style={{ paddingBottom: 'var(--safe-area-bottom)' }}
+        transition={{ delay: 0.45 }}
+        className="wl-footer"
       >
-        <button className="btn btn-primary" onClick={() => navigate('/login')} style={{ height: '56px', fontSize: '16px' }}>
-          Get Started
-          <ArrowRight size={20} />
+        <button className="wl-cta-btn" onClick={() => navigate('/login')}>
+          Get Started <ArrowRight size={19} />
         </button>
+
+        {showInstall && (
+          <button className="wl-install-btn" onClick={handleInstall}>
+            <Download size={16} /> Install App on This Device
+          </button>
+        )}
+
+        <p className="wl-terms">
+          By continuing you agree to our{' '}
+          <span className="wl-link">Terms</span> &amp; <span className="wl-link">Privacy Policy</span>
+        </p>
       </motion.div>
+
     </div>
   );
 };
-
-const Feature = ({ icon, title }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'white', padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-    <div style={{ color: 'var(--primary)', display: 'flex' }}>{icon}</div>
-    <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-main)' }}>{title}</span>
-  </div>
-);
 
 export default Welcome;
