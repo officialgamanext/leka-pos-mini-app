@@ -81,16 +81,26 @@ const Billing = () => {
 
         let receipt = '';
         receipt += center(activeBusiness.name || 'Leka POS') + '\n';
+        if (activeBusiness.address) {
+          receipt += center(activeBusiness.address) + '\n';
+        }
         receipt += '-'.repeat(32) + '\n';
+        receipt += 'Item            Qty      Amt' + '\n';
+        receipt += '-'.repeat(32) + '\n';
+        
         cart.forEach(i => {
-          let itemLine = `${i.qty}x ${i.name}`;
-          let priceStr = `${(i.qty * i.price).toLocaleString('en-IN')}`;
-          receipt += alignLR(itemLine, priceStr) + '\n';
+          let name = i.name.substring(0, 14).padEnd(14, ' ');
+          let qty = String(i.qty).padStart(3, ' ');
+          let priceStr = (i.qty * i.price).toLocaleString('en-IN').padStart(9, ' ');
+          receipt += `${name} ${qty} ${priceStr}\n`;
         });
+
         receipt += '-'.repeat(32) + '\n';
-        receipt += alignLR('TOTAL:', total.toLocaleString('en-IN')) + '\n';
-        receipt += alignLR('PAID BY:', paymentMode) + '\n';
-        receipt += '\n\n';
+        receipt += alignLR('GRAND TOTAL:', total.toLocaleString('en-IN')) + '\n';
+        receipt += alignLR('Payment Mode:', paymentMode) + '\n';
+        receipt += '-'.repeat(32) + '\n';
+        receipt += center('Thank you, visit again!') + '\n';
+        
         await printText(receipt).catch(err => console.error("Print error:", err));
       }
 
