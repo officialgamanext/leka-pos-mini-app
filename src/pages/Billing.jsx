@@ -54,7 +54,13 @@ const Billing = () => {
     setIsSubmitting(true);
     try {
       await billsApi.create(activeBusiness.id, {
-        items: cart.map(i => ({ itemId: i.id, quantity: i.qty, price: i.price })),
+        items: cart.map(i => ({ 
+          itemId: i.id, 
+          name: i.name, 
+          categoryId: i.categoryId || null, 
+          quantity: i.qty, 
+          price: i.price 
+        })),
         total,
       }, sessionToken);
       setCart([]);

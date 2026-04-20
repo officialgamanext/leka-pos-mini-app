@@ -1,0 +1,110 @@
+/* ─── Reports Page ───────────────────────────────────────────── */
+
+.rp-page { animation: fadeUp .35s ease-out both; padding-bottom: 20px; }
+
+/* Range chips */
+.rp-range-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+}
+.rp-range-chips::-webkit-scrollbar { display: none; }
+
+.rp-range-chip {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-sub);
+  font-size: 12px;
+  font-weight: 700;
+  transition: all .2s;
+}
+
+.rp-range-chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(51,121,167,.25);
+}
+
+/* Overview Cards */
+.rp-overview {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rp-stat-card {
+  flex: 1;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rp-stat-label { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+.rp-stat-val   { font-size: 20px; font-weight: 900; color: var(--text); }
+
+/* Table styling for new age look */
+.rp-section-title { font-size: 16px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+.rp-table-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.rp-list-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 12px 16px;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-sub);
+  text-transform: uppercase;
+}
+
+.rp-list-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  transition: background .2s;
+}
+.rp-list-row:last-child { border-bottom: none; }
+.rp-list-row:hover { background: var(--primary-fade); }
+
+.rp-cell-name { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.rp-cell-qty  { font-size: 13px; font-weight: 800; text-align: right; color: var(--text-sub); }
+.rp-cell-rev  { font-size: 13px; font-weight: 900; text-align: right; color: var(--primary); }
+
+.rp-rank-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+}
+.rp-rank-1 { background: #FEF3C7; color: #D97706; }
+.rp-rank-2 { background: #F3F4F6; color: #6B7280; }
+.rp-rank-3 { background: #FFEDD5; color: #C2410C; }

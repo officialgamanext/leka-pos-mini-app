@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, History, User, Bell, Search, ChevronLeft } from 'lucide-react';
+import { LayoutDashboard, Receipt, History, User, Bell, Search, ChevronLeft, BarChart3 } from 'lucide-react';
 import { useBusiness } from '../App';
 import '../styles/AppLayout.css';
 
@@ -8,6 +8,7 @@ const navItems = [
   { icon: LayoutDashboard, label: 'Home',     path: '/dashboard' },
   { icon: Receipt,         label: 'Billing',  path: '/billing'   },
   { icon: History,         label: 'All Bills',path: '/all-bills'  },
+  { icon: BarChart3,       label: 'Reports',  path: '/reports'   },
   { icon: User,            label: 'Profile',  path: '/profile'   },
 ];
 

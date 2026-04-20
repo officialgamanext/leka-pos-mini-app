@@ -12,6 +12,7 @@ import Profile from './pages/Profile';
 import Help from './pages/Help';
 import Staff from './pages/Staff';
 import Expenses from './pages/Expenses';
+import Reports from './pages/Reports';
 
 // --- Business Context ---
 const BusinessContext = createContext();
@@ -80,6 +81,12 @@ const AppContent = () => {
         <Route path="/all-bills" element={
           <ProtectedRoute>
             {activeBusiness ? <AllBills /> : <Navigate to="/onboarding" />}
+          </ProtectedRoute>
+        } />
+
+        <Route path="/reports" element={
+          <ProtectedRoute>
+            {activeBusiness ? <Reports /> : <Navigate to="/onboarding" />}
           </ProtectedRoute>
         } />
 
