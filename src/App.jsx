@@ -7,6 +7,9 @@ import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Billing from './pages/Billing';
 import Products from './pages/Products';
+import AllBills from './pages/AllBills';
+import Profile from './pages/Profile';
+import Help from './pages/Help';
 
 // --- Business Context ---
 const BusinessContext = createContext();
@@ -72,9 +75,27 @@ const AppContent = () => {
           </ProtectedRoute>
         } />
 
+        <Route path="/all-bills" element={
+          <ProtectedRoute>
+            {activeBusiness ? <AllBills /> : <Navigate to="/onboarding" />}
+          </ProtectedRoute>
+        } />
+
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            {activeBusiness ? <Profile /> : <Navigate to="/onboarding" />}
+          </ProtectedRoute>
+        } />
+
         <Route path="/products" element={
           <ProtectedRoute>
             {activeBusiness ? <Products /> : <Navigate to="/onboarding" />}
+          </ProtectedRoute>
+        } />
+
+        <Route path="/help" element={
+          <ProtectedRoute>
+            <Help />
           </ProtectedRoute>
         } />
       </Routes>

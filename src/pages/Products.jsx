@@ -12,7 +12,12 @@ const Products = () => {
   const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('items'); // 'items' or 'categories'
+  
+  // Use query param for initial tab
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') || 'items';
+  });
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [modalType, setModalType] = useState('item'); // 'item' or 'category'
@@ -147,7 +152,7 @@ const Products = () => {
         {/* Add Modal */}
         <AnimatePresence>
           {showAddModal && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', zIndex: 100 }}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', zIndex: 1000 }}>
               <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} style={{ background: 'white', width: '100%', borderTopLeftRadius: 'var(--radius-xl)', borderTopRightRadius: 'var(--radius-xl)', padding: '32px 24px var(--safe-area-bottom)' }}>
                 <h2 style={{ marginBottom: '24px' }}>Add {modalType === 'item' ? 'Item' : 'Category'}</h2>
                 

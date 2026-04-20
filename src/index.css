@@ -1,37 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Core Colors - Professional Indigo & Slate */
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
-  --primary-light: #EEF2FF;
+  /* Core Colors - New Primary #3379A7 */
+  --primary: #3379A7;
+  --primary-hover: #2a638a;
+  --primary-light: #eef6fb;
   
   --secondary: #10B981; /* Success Green */
   --accent: #F59E0B; /* Warning Amber */
   --danger: #EF4444; /* Error Red */
   
-  --background: #F8FAFC;
+  --background: #F4F7F9;
   --surface: #FFFFFF;
-  --surface-hover: #F1F5F9;
+  --surface-hover: #F8FAFC;
   
-  --text-main: #0F172A;
+  --text-main: #1E293B;
   --text-muted: #64748B;
   --text-inverse: #FFFFFF;
   
   --border: #E2E8F0;
-  --border-focus: #4F46E5;
+  --border-focus: #3379A7;
   
-  /* Layout */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  /* Compact Layout */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
   
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(51, 121, 167, 0.08);
+  --shadow-lg: 0 10px 25px rgba(51, 121, 167, 0.12);
   
-  --font-main: 'Plus Jakarta Sans', sans-serif;
+  --font-main: 'Plus Jakarta Sans', -apple-system, blinkmacsystemfont, sans-serif;
   
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -42,6 +42,7 @@
   padding: 0;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
 body {
