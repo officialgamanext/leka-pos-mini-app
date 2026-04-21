@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, History, User, Bell, Search, ChevronLeft, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Receipt, History, User, RotateCw, ChevronLeft, BarChart3 } from 'lucide-react';
 import { useBusiness } from '../App';
 import PWAInstall from './PWAInstall';
 import '../styles/AppLayout.css';
@@ -44,8 +44,13 @@ const AppLayout = ({ children, backPath }) => {
         </div>
 
         <div className="header-right">
-          <button className="header-icon-btn"><Bell size={17} /></button>
-          <button className="header-icon-btn"><Search size={17} /></button>
+          <button 
+            className="header-icon-btn reload-btn" 
+            onClick={() => window.location.reload()}
+            title="Reload App"
+          >
+            <RotateCw size={17} />
+          </button>
         </div>
       </header>
 
