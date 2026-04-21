@@ -69,7 +69,9 @@ const AppContent = () => {
 
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            {activeBusiness ? <Dashboard /> : <Navigate to="/onboarding" />}
+            {activeBusiness ? (
+              activeBusiness.role === 'staff' ? <Navigate to="/billing" /> : <Dashboard />
+            ) : <Navigate to="/onboarding" />}
           </ProtectedRoute>
         } />
 
@@ -87,7 +89,9 @@ const AppContent = () => {
 
         <Route path="/reports" element={
           <ProtectedRoute>
-            {activeBusiness ? <Reports /> : <Navigate to="/onboarding" />}
+            {activeBusiness ? (
+              activeBusiness.role === 'staff' ? <Navigate to="/billing" /> : <Reports />
+            ) : <Navigate to="/onboarding" />}
           </ProtectedRoute>
         } />
 

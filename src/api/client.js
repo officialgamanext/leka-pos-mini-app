@@ -40,7 +40,8 @@ export const catalogApi = {
 // ── Staff ─────────────────────────────────────────────────────
 export const staffApi = {
   list:   (businessId, token)                      => apiCall(`/staff?businessId=${businessId}`, {}, token),
-  add:    (businessId, staffUserId, role, token)   => apiCall('/staff', { method: 'POST', body: JSON.stringify({ businessId, staffUserId, role }) }, token),
+  add:    (businessId, mobileNumber, name, role, token) => 
+    apiCall('/staff', { method: 'POST', body: JSON.stringify({ businessId, mobileNumber, name, role }) }, token),
   remove: (staffId, businessId, token)             => apiCall(`/staff/${staffId}?businessId=${businessId}`, { method: 'DELETE' }, token),
 };
 

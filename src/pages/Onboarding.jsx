@@ -46,7 +46,14 @@ const Onboarding = () => {
     finally { setIsSubmitting(false); }
   };
 
-  const handleSelect = (biz) => { selectBusiness(biz); navigate('/dashboard'); };
+  const handleSelect = (biz) => { 
+    selectBusiness(biz); 
+    if (biz.role === 'staff') {
+      navigate('/billing');
+    } else {
+      navigate('/dashboard'); 
+    }
+  };
   const closeCreate  = ()    => { setShowCreate(false); setBizName(''); };
 
   return (
@@ -80,7 +87,7 @@ const Onboarding = () => {
                   <div className="ob-biz-avatar"><Building2 size={22} /></div>
                   <div>
                     <p className="ob-biz-name">{biz.name}</p>
-                    <p className="ob-biz-sub">Standard Outlet</p>
+                    <p className="ob-biz-sub" style={{ textTransform: 'capitalize' }}>{biz.role || 'Partner'}</p>
                   </div>
                 </div>
                 <div className="ob-biz-chevron"><ChevronRight size={16} /></div>

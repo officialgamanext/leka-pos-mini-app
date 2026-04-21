@@ -53,21 +53,28 @@ const AppLayout = ({ children, backPath }) => {
 
       {/* ── Bottom Nav ── */}
       <nav className="bottom-nav">
-        {navItems.map(({ icon: Icon, label, path }) => {
-          const active = location.pathname === path;
-          return (
-            <button
-              key={path}
-              className={`nav-item${active ? ' active' : ''}`}
-              onClick={() => navigate(path)}
-            >
-              <span className="nav-icon-pill">
-                <Icon size={19} />
-              </span>
-              <span className="nav-label">{label}</span>
-            </button>
-          );
-        })}
+        {navItems
+          .filter(item => {
+            if (activeBusiness?.role === 'staff') {
+              return item.path !== '/dashboard' && item.path !== '/reports';
+            }
+            return true;
+          })
+          .map(({ icon: Icon, label, path }) => {
+            const active = location.pathname === path;
+            return (
+              <button
+                key={path}
+                className={`nav-item${active ? ' active' : ''}`}
+                onClick={() => navigate(path)}
+              >
+                <span className="nav-icon-pill">
+                  <Icon size={19} />
+                </span>
+                <span className="nav-label">{label}</span>
+              </button>
+            );
+          })}
       </nav>
 
     </div>

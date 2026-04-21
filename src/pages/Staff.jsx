@@ -24,7 +24,7 @@ const Staff = () => {
   const [staffList, setStaffList]   = useState([]);
   const [isLoading, setIsLoading]   = useState(true);
   const [modalOpen, setModalOpen]   = useState(false);
-  const [form,      setForm]        = useState({ staffUserId: '', role: 'staff' });
+  const [form,      setForm]        = useState({ mobileNumber: '', name: '', role: 'staff' });
   const [submitting, setSubmitting] = useState(false);
   const [error,     setError]       = useState('');
 
@@ -41,12 +41,12 @@ const Staff = () => {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!form.staffUserId.trim()) return;
+    if (!form.mobileNumber.trim() || !form.name.trim()) return;
     setSubmitting(true); setError('');
     try {
-      await staffApi.add(activeBusiness.id, form.staffUserId.trim(), form.role, sessionToken);
+      await staffApi.add(activeBusiness.id, form.mobileNumber.trim(), form.name.trim(), form.role, sessionToken);
       setModalOpen(false);
-      setForm({ staffUserId: '', role: 'staff' });
+      setForm({ mobileNumber: '', name: '', role: 'staff' });
       fetchStaff();
     } catch (err) { setError(err.message || 'Failed to add staff'); }
     finally { setSubmitting(false); }
@@ -108,7 +108,7 @@ const Staff = () => {
                   <div className="st-avatar" style={{ background: bgColor }}>{initials}</div>
                   <div style={{ flex: 1 }}>
                     <p className="st-name">{s.name || 'Staff Member'}</p>
-                    <p className="st-uid">{s.userId}</p>
+                    <p className="st-uid">{s.mobileNumber}</p>
                   </div>
                   <span className="st-role-badge" style={{ background: roleStyle.bg, color: roleStyle.color }}>
                     {s.role || 'staff'}
@@ -142,15 +142,26 @@ const Staff = () => {
 
                 <form className="modal-body" onSubmit={handleAdd}>
                   <div className="form-group">
-                    <label className="form-label">Descope User ID</label>
+                    <label className="form-label">Full Name</label>
                     <input
                       className="input-field"
-                      placeholder="e.g. U2a3b4c5d6..."
-                      value={form.staffUserId}
-                      onChange={e => setForm(p => ({ ...p, staffUserId: e.target.value }))}
+                      placeholder="e.g. John Doe"
+                      value={form.name}
+                      onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
                       required
                     />
-                    <p style={{ fontSize: 11, marginTop: 4 }}>Enter the Descope user ID of the staff member</p>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Mobile Number</label>
+                    <input
+                      className="input-field"
+                      type="tel"
+                      placeholder="e.g. 9876543210"
+                      value={form.mobileNumber}
+                      onChange={e => setForm(p => ({ ...p, mobileNumber: e.target.value }))}
+                      required
+                    />
                   </div>
 
                   <div className="form-group">
