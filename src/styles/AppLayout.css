@@ -59,6 +59,30 @@
   letter-spacing: -0.3px;
 }
 
+.status-badge {
+  font-size: 9px;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+  background: #34c759;
+  color: white;
+}
+
+.status-badge.expired {
+  background: #ff9500;
+  color: white;
+}
+
+.status-badge.inactive {
+  background: #ff3b30;
+  color: white;
+}
+
 .header-right {
   display: flex;
   gap: 8px;

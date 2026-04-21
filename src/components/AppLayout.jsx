@@ -36,6 +36,11 @@ const AppLayout = ({ children, backPath }) => {
           <span className="header-biz-name">
             {activeBusiness?.name || 'Leka POS'}
           </span>
+          {activeBusiness?.statusLabel && (
+            <span className={`status-badge ${activeBusiness.statusLabel?.toLowerCase()}`}>
+              {activeBusiness.statusLabel}
+            </span>
+          )}
         </div>
 
         <div className="header-right">
