@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, History, User, RotateCw, ChevronLeft, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Receipt, History, User, RotateCw, ChevronLeft, BarChart3, CloudSync } from 'lucide-react';
 import { useBusiness } from '../App';
 import PWAInstall from './PWAInstall';
+import { useSync } from '../context/SyncContext';
 import '../styles/AppLayout.css';
 
 const navItems = [
@@ -17,6 +18,7 @@ const AppLayout = ({ children, backPath }) => {
   const navigate  = useNavigate();
   const location  = useLocation();
   const { activeBusiness } = useBusiness();
+  const { pendingCount, isSyncing, syncNow } = useSync();
 
   return (
     <div className="app-layout">
@@ -44,6 +46,17 @@ const AppLayout = ({ children, backPath }) => {
         </div>
 
         <div className="header-right">
+          {pendingCount > 0 && (
+            <button 
+              className="header-sync-box" 
+              onClick={() => syncNow()}
+              disabled={isSyncing}
+              title={isSyncing ? "Syncing..." : `Click to sync ${pendingCount} bills`}
+            >
+               <CloudSync size={16} color="white" className={isSyncing ? 'spin' : ''} />
+               <span className="sync-badge">{pendingCount}</span>
+            </button>
+          )}
           <button 
             className="header-icon-btn reload-btn" 
             onClick={() => window.location.reload()}

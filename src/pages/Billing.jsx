@@ -9,6 +9,8 @@ import { billsApi, apiCall } from '../api/client';
 import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package, Banknote, CreditCard, QrCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isPrinterConnected, printText } from '../utils/bluetooth';
+import { useSync } from '../context/SyncContext';
+import { localDb } from '../utils/localDb';
 import '../styles/Billing.css';
 
 const Billing = () => {
@@ -26,17 +28,39 @@ const Billing = () => {
   const [selectedCat, setSelectedCat] = useState('all');
   const [paymentMode, setPaymentMode] = useState('Cash');
 
+  const { isSyncing, syncNow, updatePendingCount } = useSync();
+
   useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
 
   const fetchData = async () => {
+    // 1. Try to load from LocalDB first (Fast!)
+    try {
+      const cachedItems = await localDb.getCatalog(`items_${activeBusiness.id}`);
+      const cachedCats  = await localDb.getCatalog(`cats_${activeBusiness.id}`);
+      if (cachedItems) setItems(cachedItems);
+      if (cachedCats)  setCategories(cachedCats);
+      if (cachedItems || cachedCats) setIsLoading(false);
+    } catch (e) { console.warn("Local cache read failed", e); }
+
+    // 2. Fetch fresh data from API
     try {
       const [its, cats] = await Promise.all([
         apiCall(`/items?businessId=${activeBusiness.id}`, {}, sessionToken),
         apiCall(`/categories?businessId=${activeBusiness.id}`, {}, sessionToken)
       ]);
-      setItems(Array.isArray(its) ? its : []);
-      setCategories(Array.isArray(cats) ? cats : []);
-    } catch (e) { console.error(e); }
+      const itsArr = Array.isArray(its) ? its : [];
+      const catsArr = Array.isArray(cats) ? cats : [];
+      
+      setItems(itsArr);
+      setCategories(catsArr);
+      
+      // Save to LocalDB for next time
+      await localDb.saveCatalog(`items_${activeBusiness.id}`, itsArr);
+      await localDb.saveCatalog(`cats_${activeBusiness.id}`, catsArr);
+    } catch (e) { 
+      console.error("API fetch failed, using local data", e); 
+      if (isLoading) showToast("Working Offline (Last Cached Data)", "warning");
+    }
     finally { setIsLoading(false); }
   };
 
@@ -57,7 +81,7 @@ const Billing = () => {
   const checkout = async () => {
     setIsSubmitting(true);
     try {
-      await billsApi.create(activeBusiness.id, {
+      const billData = {
         items: cart.map(i => ({ 
           itemId: i.id, 
           name: i.name, 
@@ -67,8 +91,12 @@ const Billing = () => {
         })),
         total,
         paymentMode
-      }, sessionToken);
+      };
 
+      // 1. SAVE LOCALLY (Instant!)
+      await localDb.addPendingBill(activeBusiness.id, billData);
+      
+      // 2. TRIGGER PRINT (Optional but desired in POS)
       if (isPrinterConnected()) {
         const center = (text, len=32) => {
           const t = text.substring(0, len);
@@ -83,33 +111,37 @@ const Billing = () => {
 
         let receipt = '';
         receipt += center(activeBusiness.name || 'Leka POS') + '\n';
-        if (activeBusiness.address) {
-          receipt += center(activeBusiness.address) + '\n';
-        }
+        if (activeBusiness.address) receipt += center(activeBusiness.address) + '\n';
         receipt += '-'.repeat(32) + '\n';
         receipt += 'Item'.padEnd(18, ' ') + 'Qty'.padStart(6, ' ') + 'Amt'.padStart(8, ' ') + '\n';
         receipt += '-'.repeat(32) + '\n';
-        
         cart.forEach(i => {
           let name = i.name.substring(0, 18).padEnd(18, ' ');
           let qty = String(i.qty).padStart(6, ' ');
           let priceStr = (i.qty * i.price).toLocaleString('en-IN').padStart(8, ' ');
           receipt += `${name}${qty}${priceStr}\n`;
         });
-
         receipt += '-'.repeat(32) + '\n';
         receipt += alignLR('GRAND TOTAL:', total.toLocaleString('en-IN')) + '\n';
         receipt += alignLR('Payment Mode:', paymentMode) + '\n';
         receipt += '-'.repeat(32) + '\n';
         receipt += center('Thank you, visit again!') + '\n';
-        
         await printText(receipt).catch(err => console.error("Print error:", err));
       }
 
+      // 3. UI RESET (Instantly)
       setCart([]);
       setShowCheckout(false);
-      showToast('Bill saved!');
-    } catch (e) { showToast(e.message, 'error'); }
+      showToast('Bill Saved Locally!', 'success');
+      
+      // 4. TRIGGER SYNC ATTEMPT IN BACKGROUND
+      updatePendingCount();
+      syncNow(); // Start syncing in background without making user wait
+      
+    } catch (e) { 
+      showToast('Checkout failed. Please retry.', 'error');
+      console.error(e);
+    }
     finally { setIsSubmitting(false); }
   };
 

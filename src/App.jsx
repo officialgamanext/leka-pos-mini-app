@@ -129,14 +129,18 @@ const AppContent = () => {
   );
 };
 
+import { SyncProvider } from './context/SyncContext';
+
 const App = () => {
   return (
     <AuthProvider projectId="P3Ca8orb0GbLKNu5UFAXtYOxWaeS">
       <ToastProvider>
         <BusinessProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
+          <SyncProvider>
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </SyncProvider>
         </BusinessProvider>
       </ToastProvider>
     </AuthProvider>
