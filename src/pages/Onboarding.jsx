@@ -62,14 +62,24 @@ const Onboarding = () => {
   return (
     <div className="ob-page">
 
-      <div className="ob-top">
-        <div>
-          <h1 className="ob-title">My Workspaces</h1>
-          <p className="ob-sub">Select a business to start</p>
+      <div className="ob-hero">
+        <div className="ob-hero-content">
+          <div className="ob-logo-badge">
+            <Building2 size={24} />
+          </div>
+          <h1 className="ob-title">Welcome back,</h1>
+          <p className="ob-sub">Select a workspace to manage your business operations</p>
         </div>
-        <button className="ob-logout-btn" onClick={() => logout()}>
-          <LogOut size={17} />
+        
+        <button className="ob-logout-btn" onClick={() => logout()} title="Logout account">
+          <LogOut size={18} />
+          <span>Exit</span>
         </button>
+      </div>
+
+      <div className="ob-section-header">
+        <h3>Available Workspaces</h3>
+        <span className="ob-count-badge">{businesses.length}</span>
       </div>
 
       {isLoading ? (
@@ -78,26 +88,40 @@ const Onboarding = () => {
         </div>
       ) : (
         <div>
-          <div className="ob-list">
+          <motion.div 
+            className="ob-list"
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: { staggerChildren: 0.08 }
+              }
+            }}
+          >
             {businesses.map(biz => {
               const isActive = biz.statusLabel === 'Active';
               return (
                 <motion.div
                   key={biz.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    show: { opacity: 1, y: 0 }
+                  }}
                   className={`card ob-biz-card ${!isActive ? 'ob-card-disabled' : ''}`}
-                  whileTap={isActive ? { scale: 0.97 } : {}}
                   onClick={() => {
                     if (isActive) {
                       handleSelect(biz);
                     } else {
-                      showToast(`Current status is ${biz.statusLabel}. Please renew subscription.`, 'error');
+                      showToast(`Selection locked: Business is ${biz.statusLabel}`, 'error');
                     }
                   }}
                 >
                   <div className="ob-biz-left">
-                    <div className="ob-biz-avatar"><Building2 size={22} /></div>
+                    <div className="ob-biz-avatar"><Building2 size={24} /></div>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <p className="ob-biz-name">{biz.name}</p>
                         {biz.statusLabel && (
                           <span className={`status-badge ${biz.statusLabel.toLowerCase()}`}>
@@ -105,16 +129,16 @@ const Onboarding = () => {
                           </span>
                         )}
                       </div>
-                      <p className="ob-biz-sub" style={{ textTransform: 'capitalize' }}>{biz.role || 'Partner'}</p>
+                      <p className="ob-biz-sub">{biz.role || 'Partner'}</p>
                     </div>
                   </div>
                   <div className="ob-biz-chevron">
-                    {isActive ? <ChevronRight size={16} /> : <X size={16} color="#ff3b30" />}
+                    {isActive ? <ChevronRight size={18} /> : <X size={16} color="#ef4444" />}
                   </div>
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
           <button className="ob-add-btn" onClick={() => setShowCreate(true)}>
             <Plus size={20} /> New Workspace
           </button>
