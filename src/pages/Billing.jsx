@@ -6,7 +6,7 @@ import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { useToast } from '../components/Toast';
 import { billsApi, apiCall } from '../api/client';
-import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package, Banknote, CreditCard, QrCode } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package, Banknote, CreditCard, QrCode, ReceiptText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isPrinterConnected, printText } from '../utils/bluetooth';
 import { useSync } from '../context/SyncContext';
@@ -285,7 +285,7 @@ const Billing = () => {
                   <div className="modal-head">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div className="logo-box" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
-                        <Receipt size={16} />
+                        <ReceiptText size={16} />
                       </div>
                       <h2>Order Summary</h2>
                     </div>

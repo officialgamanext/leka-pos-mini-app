@@ -1,22 +1,22 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Receipt, History, User, RotateCw, ChevronLeft, BarChart3, CloudSync } from 'lucide-react';
+import { LayoutDashboard, Receipt, History, User, RotateCw, ChevronLeft, BarChart3, CloudSync, ReceiptText } from 'lucide-react';
 import { useBusiness } from '../App';
 import PWAInstall from './PWAInstall';
 import { useSync } from '../context/SyncContext';
 import '../styles/AppLayout.css';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Home',     path: '/dashboard' },
-  { icon: Receipt,         label: 'Billing',  path: '/billing'   },
-  { icon: History,         label: 'All Bills',path: '/all-bills'  },
-  { icon: BarChart3,       label: 'Reports',  path: '/reports'   },
-  { icon: User,            label: 'Profile',  path: '/profile'   },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+  { icon: ReceiptText, label: 'Billing', path: '/billing' },
+  { icon: History, label: 'All Bills', path: '/all-bills' },
+  { icon: BarChart3, label: 'Reports', path: '/reports' },
+  { icon: User, label: 'Profile', path: '/profile' },
 ];
 
 const AppLayout = ({ children, backPath }) => {
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { activeBusiness } = useBusiness();
   const { pendingCount, isSyncing, syncNow } = useSync();
 
@@ -33,7 +33,7 @@ const AppLayout = ({ children, backPath }) => {
             </button>
           )}
           <div className="logo-box">
-            <Receipt size={16} />
+            <ReceiptText size={16} />
           </div>
           <span className="header-biz-name">
             {activeBusiness?.name || 'Leka POS'}
@@ -47,18 +47,18 @@ const AppLayout = ({ children, backPath }) => {
 
         <div className="header-right">
           {pendingCount > 0 && (
-            <button 
-              className="header-sync-box" 
+            <button
+              className="header-sync-box"
               onClick={() => syncNow()}
               disabled={isSyncing}
               title={isSyncing ? "Syncing..." : `Click to sync ${pendingCount} bills`}
             >
-               <CloudSync size={16} color="white" className={isSyncing ? 'spin' : ''} />
-               <span className="sync-badge">{pendingCount}</span>
+              <CloudSync size={16} color="white" className={isSyncing ? 'spin' : ''} />
+              <span className="sync-badge">{pendingCount}</span>
             </button>
           )}
-          <button 
-            className="header-icon-btn reload-btn" 
+          <button
+            className="header-icon-btn reload-btn"
             onClick={() => window.location.reload()}
             title="Reload App"
           >

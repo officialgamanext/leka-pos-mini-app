@@ -3,7 +3,7 @@ import AppLayout from '../components/AppLayout';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { reportsApi } from '../api/client';
-import { Receipt, Loader2, IndianRupee } from 'lucide-react';
+import { Receipt, Loader2, IndianRupee, ReceiptText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import '../styles/AllBills.css';
 
@@ -11,61 +11,61 @@ import '../styles/AllBills.css';
 const fmt = (d) => d.toISOString().split('T')[0]; // YYYY-MM-DD
 
 function getRangeDates(range) {
-  const now   = new Date();
+  const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const ranges = {
-    today:     [today,                                         today],
-    yesterday: [new Date(today - 864e5),                      new Date(today - 864e5)],
-    thisWeek:  [new Date(today - today.getDay() * 864e5),     today],
+    today: [today, today],
+    yesterday: [new Date(today - 864e5), new Date(today - 864e5)],
+    thisWeek: [new Date(today - today.getDay() * 864e5), today],
     lastWeek: (() => {
       const s = new Date(today - today.getDay() * 864e5 - 7 * 864e5);
       const e = new Date(s.getTime() + 6 * 864e5);
       return [s, e];
     })(),
-    thisMonth: [new Date(now.getFullYear(), now.getMonth(), 1),     today],
+    thisMonth: [new Date(now.getFullYear(), now.getMonth(), 1), today],
     lastMonth: [new Date(now.getFullYear(), now.getMonth() - 1, 1), new Date(now.getFullYear(), now.getMonth(), 0)],
-    thisYear:  [new Date(now.getFullYear(), 0, 1),                  today],
-    lastYear:  [new Date(now.getFullYear() - 1, 0, 1),              new Date(now.getFullYear() - 1, 11, 31)],
-    all:       [new Date(2020, 0, 1),                               today],
+    thisYear: [new Date(now.getFullYear(), 0, 1), today],
+    lastYear: [new Date(now.getFullYear() - 1, 0, 1), new Date(now.getFullYear() - 1, 11, 31)],
+    all: [new Date(2020, 0, 1), today],
   };
   return ranges[range] || ranges.all;
 }
 
 const FILTERS = [
-  { key: 'today',     label: 'Today'      },
-  { key: 'yesterday', label: 'Yesterday'  },
-  { key: 'thisWeek',  label: 'This Week'  },
-  { key: 'lastWeek',  label: 'Last Week'  },
+  { key: 'today', label: 'Today' },
+  { key: 'yesterday', label: 'Yesterday' },
+  { key: 'thisWeek', label: 'This Week' },
+  { key: 'lastWeek', label: 'Last Week' },
   { key: 'thisMonth', label: 'This Month' },
   { key: 'lastMonth', label: 'Last Month' },
-  { key: 'thisYear',  label: 'This Year'  },
-  { key: 'lastYear',  label: 'Last Year'  },
-  { key: 'custom',    label: 'Custom'     },
+  { key: 'thisYear', label: 'This Year' },
+  { key: 'lastYear', label: 'Last Year' },
+  { key: 'custom', label: 'Custom' },
 ];
 
 // Map UI keys → API range param values
 const API_RANGE_MAP = {
-  today:     'today',
+  today: 'today',
   yesterday: 'yesterday',
-  thisWeek:  'thisWeek',
-  lastWeek:  'lastWeek',
+  thisWeek: 'thisWeek',
+  lastWeek: 'lastWeek',
   thisMonth: 'thisMonth',
   lastMonth: 'lastMonth',
-  thisYear:  'thisYear',
-  lastYear:  'lastYear',
+  thisYear: 'thisYear',
+  lastYear: 'lastYear',
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
 const AllBills = () => {
-  const { sessionToken }   = useSession();
+  const { sessionToken } = useSession();
   const { activeBusiness } = useBusiness();
 
-  const [bills,       setBills]       = useState([]);
-  const [isLoading,   setIsLoading]   = useState(true);
+  const [bills, setBills] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeRange, setActiveRange] = useState('today');
   const [customStart, setCustomStart] = useState(fmt(new Date(Date.now() - 7 * 864e5)));
-  const [customEnd,   setCustomEnd]   = useState(fmt(new Date()));
+  const [customEnd, setCustomEnd] = useState(fmt(new Date()));
 
   const fetchBills = useCallback(async (range = activeRange, cStart = customStart, cEnd = customEnd) => {
     setIsLoading(true);
@@ -187,7 +187,7 @@ const AllBills = () => {
           </div>
         ) : bills.length === 0 ? (
           <div className="ab-empty">
-            <div className="ab-empty-icon"><Receipt size={48} /></div>
+            <div className="ab-empty-icon"><ReceiptText size={48} /></div>
             <p>No transactions in this period</p>
           </div>
         ) : (
@@ -200,7 +200,7 @@ const AllBills = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
               >
-                <div className="ab-icon"><Receipt size={19} /></div>
+                <div className="ab-icon"><ReceiptText size={19} /></div>
 
                 <div style={{ flex: 1 }}>
                   <p className="ab-bill-id">
