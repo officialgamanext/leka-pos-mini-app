@@ -215,6 +215,11 @@ const AllBills = () => {
 
                 <div style={{ textAlign: 'right' }}>
                   <p className="ab-bill-amt">₹{Number(bill.total).toLocaleString('en-IN')}</p>
+                  {bill.gstAmount > 0 && (
+                    <p style={{ fontSize: 10, color: '#F59E0B', fontWeight: 700 }}>
+                      + ₹{Number(bill.gstAmount).toLocaleString('en-IN')} GST
+                    </p>
+                  )}
                   <p className="ab-bill-items">{bill.items?.length || 0} item{bill.items?.length !== 1 ? 's' : ''}</p>
                 </div>
 
