@@ -4,6 +4,7 @@ import AppLayout from '../components/AppLayout';
 import ModalPortal from '../components/ModalPortal';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
+import { useToast } from '../components/Toast';
 import { catalogApi, apiCall } from '../api/client';
 import { Plus, Tag, Package, Loader2, MoreVertical, X, IndianRupee, ImagePlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +14,7 @@ import '../styles/Products.css';
 const Products = () => {
   const { sessionToken }   = useSession();
   const { activeBusiness } = useBusiness();
+  const { showToast }      = useToast();
 
   const [categories, setCategories] = useState([]);
   const [items,      setItems]      = useState([]);
@@ -61,7 +63,7 @@ const Products = () => {
       setNewItem(prev => ({ ...prev, imageUrl: compressedBase64 }));
     } catch (error) {
       console.error('Image compression failed:', error);
-      alert('Failed to process image. Try another one.');
+      showToast('Failed to process image. Try another one.', 'error');
     }
   };
 

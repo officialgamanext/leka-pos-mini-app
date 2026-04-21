@@ -3,6 +3,7 @@ import AppLayout from '../components/AppLayout';
 import ModalPortal from '../components/ModalPortal';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
+import { useToast } from '../components/Toast';
 import { staffApi } from '../api/client';
 import { Users, UserPlus, X, Trash2, Loader2, Shield, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,6 +19,7 @@ const AVATAR_COLORS = ['#5F259F','#6366F1','#10B981','#F59E0B','#EF4444','#EC489
 const Staff = () => {
   const { sessionToken }   = useSession();
   const { activeBusiness } = useBusiness();
+  const { showToast }      = useToast();
 
   const [staffList, setStaffList]   = useState([]);
   const [isLoading, setIsLoading]   = useState(true);
@@ -55,7 +57,8 @@ const Staff = () => {
     try {
       await staffApi.remove(staffId, activeBusiness.id, sessionToken);
       setStaffList(p => p.filter(s => s.id !== staffId));
-    } catch (err) { alert(err.message || 'Failed to remove'); }
+      showToast('Staff member removed');
+    } catch (err) { showToast(err.message || 'Failed to remove', 'error'); }
   };
 
   return (

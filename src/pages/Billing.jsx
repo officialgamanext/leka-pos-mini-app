@@ -4,6 +4,7 @@ import AppLayout from '../components/AppLayout';
 import ModalPortal from '../components/ModalPortal';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
+import { useToast } from '../components/Toast';
 import { billsApi, apiCall } from '../api/client';
 import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package, Banknote, CreditCard, QrCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +14,7 @@ import '../styles/Billing.css';
 const Billing = () => {
   const { sessionToken }   = useSession();
   const { activeBusiness } = useBusiness();
+  const { showToast }      = useToast();
 
   const [items,       setItems]       = useState([]);
   const [categories,  setCategories]  = useState([]);
@@ -106,8 +108,8 @@ const Billing = () => {
 
       setCart([]);
       setShowCheckout(false);
-      alert('Bill saved!');
-    } catch (e) { alert(e.message); }
+      showToast('Bill saved!');
+    } catch (e) { showToast(e.message, 'error'); }
     finally { setIsSubmitting(false); }
   };
 

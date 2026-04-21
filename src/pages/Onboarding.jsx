@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSession, useDescope } from '@descope/react-sdk';
 import { businessApi } from '../api/client';
 import { useBusiness } from '../App';
+import { useToast } from '../components/Toast';
 import ModalPortal from '../components/ModalPortal';
 import { Plus, Building2, ChevronRight, LogOut, Loader2, X, Store } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +13,7 @@ const Onboarding = () => {
   const { sessionToken }        = useSession();
   const { logout }              = useDescope();
   const { selectBusiness }      = useBusiness();
+  const { showToast }           = useToast();
   const navigate                = useNavigate();
 
   const [businesses,   setBusinesses]   = useState([]);
@@ -39,7 +41,8 @@ const Onboarding = () => {
       setBusinesses(prev => [...prev, nb]);
       setShowCreate(false);
       setBizName('');
-    } catch (e) { alert(e.message); }
+      showToast('Business created successfully');
+    } catch (e) { showToast(e.message, 'error'); }
     finally { setIsSubmitting(false); }
   };
 

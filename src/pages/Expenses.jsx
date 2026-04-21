@@ -3,6 +3,7 @@ import AppLayout from '../components/AppLayout';
 import ModalPortal from '../components/ModalPortal';
 import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
+import { useToast } from '../components/Toast';
 import { investmentsApi } from '../api/client';
 import { TrendingDown, Plus, X, Trash2, Loader2, PieChart as PieIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -51,6 +52,7 @@ const ChartTooltip = ({ active, payload }) => {
 const Expenses = () => {
   const { sessionToken }   = useSession();
   const { activeBusiness } = useBusiness();
+  const { showToast }      = useToast();
 
   const [data,        setData]        = useState({ summary: {}, investments: [] });
   const [isLoading,   setIsLoading]   = useState(true);
@@ -102,7 +104,8 @@ const Expenses = () => {
         summary: { ...prev.summary, totalAmount: (prev.summary.totalAmount||0) - amount, count: (prev.summary.count||1) - 1 },
         investments: prev.investments.filter(i => i.id !== id),
       }));
-    } catch (err) { alert(err.message || 'Failed to delete'); }
+      showToast('Expense deleted');
+    } catch (err) { showToast(err.message || 'Failed to delete', 'error'); }
   };
 
   const { summary, investments } = data;

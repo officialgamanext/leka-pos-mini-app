@@ -13,6 +13,7 @@ import Help from './pages/Help';
 import Staff from './pages/Staff';
 import Expenses from './pages/Expenses';
 import Reports from './pages/Reports';
+import { ToastProvider } from './components/Toast';
 
 // --- Business Context ---
 const BusinessContext = createContext();
@@ -127,11 +128,13 @@ const AppContent = () => {
 const App = () => {
   return (
     <AuthProvider projectId="P3Ca8orb0GbLKNu5UFAXtYOxWaeS">
-      <BusinessProvider>
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </BusinessProvider>
+      <ToastProvider>
+        <BusinessProvider>
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </BusinessProvider>
+      </ToastProvider>
     </AuthProvider>
   );
 };
