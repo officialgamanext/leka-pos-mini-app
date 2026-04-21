@@ -4,7 +4,8 @@
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);          /* #EFF4F8 — same as rest of app */
+  background: var(--bg);
+  /* #EFF4F8 — same as rest of app */
   position: relative;
   overflow: hidden;
 }
@@ -12,7 +13,9 @@
 /* Top hero gradient strip */
 .wl-top-strip {
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 52%;
   background: linear-gradient(170deg, #5F259F 0%, #4D1E82 100%);
   border-bottom-left-radius: 40px;
@@ -23,17 +26,22 @@
 /* Decorative circles on the strip */
 .wl-circle-1 {
   position: absolute;
-  top: -60px; right: -50px;
-  width: 200px; height: 200px;
+  top: -60px;
+  right: -50px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  background: rgba(255,255,255,.08);
+  background: rgba(255, 255, 255, .08);
 }
+
 .wl-circle-2 {
   position: absolute;
-  bottom: 20px; left: -40px;
-  width: 130px; height: 130px;
+  bottom: 20px;
+  left: -40px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
-  background: rgba(255,255,255,.06);
+  background: rgba(255, 255, 255, .06);
 }
 
 /* Hero content */
@@ -58,11 +66,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 40px rgba(51,121,167,.28);
+  box-shadow: 0 12px 40px rgba(51, 121, 167, .28);
   margin-bottom: 24px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+  }
 }
 
-.wl-logo-icon { color: var(--primary); }
+.wl-logo-icon {
+  color: var(--primary);
+}
 
 /* Titles — on blue strip */
 .wl-headline {
@@ -76,7 +93,7 @@
 
 .wl-sub {
   font-size: 14px;
-  color: rgba(255,255,255,.72);
+  color: rgba(255, 255, 255, .72);
   line-height: 1.6;
   max-width: 260px;
 }
@@ -114,8 +131,17 @@
   flex-shrink: 0;
 }
 
-.wl-feature-title { font-size: 13px; font-weight: 700; color: var(--text); }
-.wl-feature-sub   { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
+.wl-feature-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.wl-feature-sub {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-top: 1px;
+}
 
 /* Bottom CTA */
 .wl-footer {
@@ -139,11 +165,14 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 6px 22px rgba(51,121,167,.38);
+  box-shadow: 0 6px 22px rgba(51, 121, 167, .38);
   transition: transform .18s;
   width: 100%;
 }
-.wl-cta-btn:active { transform: scale(0.97); }
+
+.wl-cta-btn:active {
+  transform: scale(0.97);
+}
 
 .wl-install-btn {
   height: 46px;
@@ -169,4 +198,7 @@
   line-height: 1.5;
 }
 
-.wl-link { color: var(--primary); font-weight: 700; }
+.wl-link {
+  color: var(--primary);
+  font-weight: 700;
+}

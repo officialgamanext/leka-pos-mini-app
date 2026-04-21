@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Receipt, ArrowRight, Zap, ShieldCheck, Wifi, Download } from 'lucide-react';
 import '../styles/Welcome.css';
+import Logo from "../assets/logo.png"
 
 const features = [
-  { icon: <Zap size={17} />,        title: 'Lightning Fast Billing',  sub: 'Create bills in seconds'        },
-  { icon: <ShieldCheck size={17} />, title: 'Secure & Reliable',       sub: 'Your data, always safe'          },
-  { icon: <Wifi size={17} />,        title: 'Works Offline',            sub: 'No internet? No problem'         },
+  { icon: <Zap size={17} />, title: 'Lightning Fast Billing', sub: 'Create bills in seconds' },
+  { icon: <ShieldCheck size={17} />, title: 'Secure & Reliable', sub: 'Your data, always safe' },
+  { icon: <Wifi size={17} />, title: 'Works Offline', sub: 'No internet? No problem' },
 ];
 
 const Welcome = () => {
   const navigate = useNavigate();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstall,    setShowInstall]    = useState(false);
+  const [showInstall, setShowInstall] = useState(false);
 
   useEffect(() => {
     const handler = (e) => {
@@ -52,7 +53,7 @@ const Welcome = () => {
           transition={{ type: 'spring', damping: 14, delay: 0.05 }}
           className="wl-logo-box"
         >
-          <Receipt size={44} className="wl-logo-icon" />
+          <img src={Logo} alt="" />
         </motion.div>
 
         {/* Title & subtitle — on the blue strip */}
