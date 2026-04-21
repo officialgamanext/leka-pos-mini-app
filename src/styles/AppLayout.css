@@ -60,26 +60,30 @@
 }
 
 .status-badge {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 900;
-  padding: 2px 8px;
-  border-radius: 6px;
+  padding: 3px 10px;
+  border-radius: 100px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .status-badge.active {
-  background: #34c759;
+  background: linear-gradient(135deg, #32D74B, #248A3D);
   color: white;
 }
 
 .status-badge.expired {
-  background: #ff9500;
+  background: linear-gradient(135deg, #FF9F0A, #C87D00);
   color: white;
 }
 
 .status-badge.inactive {
-  background: #ff3b30;
+  background: linear-gradient(135deg, #FF453A, #B12B26);
   color: white;
 }
 

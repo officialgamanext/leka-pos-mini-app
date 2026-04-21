@@ -28,7 +28,10 @@ const Onboarding = () => {
     try {
       const data = await businessApi.list(sessionToken);
       setBusinesses(Array.isArray(data) ? data : []);
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e);
+      showToast(e.message || 'Failed to fetch businesses', 'error');
+    }
     finally { setIsLoading(false); }
   };
 
@@ -76,23 +79,41 @@ const Onboarding = () => {
       ) : (
         <div>
           <div className="ob-list">
-            {businesses.map(biz => (
-              <motion.div
-                key={biz.id}
-                className="card ob-biz-card"
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleSelect(biz)}
-              >
-                <div className="ob-biz-left">
-                  <div className="ob-biz-avatar"><Building2 size={22} /></div>
-                  <div>
-                    <p className="ob-biz-name">{biz.name}</p>
-                    <p className="ob-biz-sub" style={{ textTransform: 'capitalize' }}>{biz.role || 'Partner'}</p>
+            {businesses.map(biz => {
+              const isActive = biz.statusLabel === 'Active';
+              return (
+                <motion.div
+                  key={biz.id}
+                  className={`card ob-biz-card ${!isActive ? 'ob-card-disabled' : ''}`}
+                  whileTap={isActive ? { scale: 0.97 } : {}}
+                  onClick={() => {
+                    if (isActive) {
+                      handleSelect(biz);
+                    } else {
+                      showToast(`Current status is ${biz.statusLabel}. Please renew subscription.`, 'error');
+                    }
+                  }}
+                >
+                  <div className="ob-biz-left">
+                    <div className="ob-biz-avatar"><Building2 size={22} /></div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                        <p className="ob-biz-name">{biz.name}</p>
+                        {biz.statusLabel && (
+                          <span className={`status-badge ${biz.statusLabel.toLowerCase()}`}>
+                            {biz.statusLabel}
+                          </span>
+                        )}
+                      </div>
+                      <p className="ob-biz-sub" style={{ textTransform: 'capitalize' }}>{biz.role || 'Partner'}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="ob-biz-chevron"><ChevronRight size={16} /></div>
-              </motion.div>
-            ))}
+                  <div className="ob-biz-chevron">
+                    {isActive ? <ChevronRight size={16} /> : <X size={16} color="#ff3b30" />}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
           <button className="ob-add-btn" onClick={() => setShowCreate(true)}>
             <Plus size={20} /> New Workspace
