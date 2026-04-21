@@ -24,7 +24,7 @@ export const ToastProvider = ({ children }) => {
       {children}
       <div className="toast-container" style={{
         position: 'fixed',
-        bottom: '85px',
+        top: '85px',
         left: '20px',
         right: '20px',
         zIndex: 10000,
@@ -37,7 +37,7 @@ export const ToastProvider = ({ children }) => {
           {toasts.map(t => (
             <motion.div
               key={t.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
               style={{

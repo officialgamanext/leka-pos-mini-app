@@ -14,17 +14,17 @@ import { localDb } from '../utils/localDb';
 import '../styles/Billing.css';
 
 const Billing = () => {
-  const { sessionToken }   = useSession();
+  const { sessionToken } = useSession();
   const { activeBusiness } = useBusiness();
-  const { showToast }      = useToast();
+  const { showToast } = useToast();
 
-  const [items,       setItems]       = useState([]);
-  const [categories,  setCategories]  = useState([]);
-  const [isLoading,   setIsLoading]   = useState(true);
-  const [cart,        setCart]        = useState([]);
-  const [showCheckout,setShowCheckout]= useState(false);
-  const [isSubmitting,setIsSubmitting]= useState(false);
-  const [search,      setSearch]      = useState('');
+  const [items, setItems] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [cart, setCart] = useState([]);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [search, setSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState('all');
   const [paymentMode, setPaymentMode] = useState('Cash');
 
@@ -36,9 +36,9 @@ const Billing = () => {
     // 1. Try to load from LocalDB first (Fast!)
     try {
       const cachedItems = await localDb.getCatalog(`items_${activeBusiness.id}`);
-      const cachedCats  = await localDb.getCatalog(`cats_${activeBusiness.id}`);
+      const cachedCats = await localDb.getCatalog(`cats_${activeBusiness.id}`);
       if (cachedItems) setItems(cachedItems);
-      if (cachedCats)  setCategories(cachedCats);
+      if (cachedCats) setCategories(cachedCats);
       if (cachedItems || cachedCats) setIsLoading(false);
     } catch (e) { console.warn("Local cache read failed", e); }
 
@@ -50,15 +50,15 @@ const Billing = () => {
       ]);
       const itsArr = Array.isArray(its) ? its : [];
       const catsArr = Array.isArray(cats) ? cats : [];
-      
+
       setItems(itsArr);
       setCategories(catsArr);
-      
+
       // Save to LocalDB for next time
       await localDb.saveCatalog(`items_${activeBusiness.id}`, itsArr);
       await localDb.saveCatalog(`cats_${activeBusiness.id}`, catsArr);
-    } catch (e) { 
-      console.error("API fetch failed, using local data", e); 
+    } catch (e) {
+      console.error("API fetch failed, using local data", e);
       if (isLoading) showToast("Working Offline (Last Cached Data)", "warning");
     }
     finally { setIsLoading(false); }
@@ -68,7 +68,7 @@ const Billing = () => {
     setCart(prev => {
       const ex = prev.find(i => i.id === item.id);
       return ex ? prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i)
-                : [...prev, { ...item, qty: 1 }];
+        : [...prev, { ...item, qty: 1 }];
     });
   };
 
@@ -76,42 +76,52 @@ const Billing = () => {
     setCart(prev => prev.map(i => i.id === id ? { ...i, qty: i.qty + delta } : i).filter(i => i.qty > 0));
   };
 
-  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const gstRate = activeBusiness?.gstEnabled ? Number(activeBusiness?.gstPercentage || 0) : 0;
+  const gstAmount = subtotal * (gstRate / 100);
+  const total = subtotal + gstAmount;
 
   const checkout = async () => {
     setIsSubmitting(true);
     try {
       const billData = {
-        items: cart.map(i => ({ 
-          itemId: i.id, 
-          name: i.name, 
-          categoryId: i.categoryId || null, 
-          quantity: i.qty, 
-          price: i.price 
+        items: cart.map(i => ({
+          itemId: i.id,
+          name: i.name,
+          categoryId: i.categoryId || null,
+          quantity: i.qty,
+          price: i.price
         })),
+        subtotal,
+        gstRate,
+        gstAmount,
         total,
         paymentMode
       };
 
       // 1. SAVE LOCALLY (Instant!)
       await localDb.addPendingBill(activeBusiness.id, billData);
-      
+
       // 2. TRIGGER PRINT (Optional but desired in POS)
       if (isPrinterConnected()) {
-        const center = (text, len=32) => {
-          const t = text.substring(0, len);
+        const center = (text, len = 32) => {
+          const t = String(text || '').substring(0, len);
           const pad = Math.floor((len - t.length) / 2);
           return ' '.repeat(Math.max(0, pad)) + t;
         };
-        const alignLR = (l, r, len=32) => {
-          let left = l.substring(0, len - r.length - 1);
-          let space = len - left.length - r.length;
+        const alignLR = (l, r, len = 32) => {
+          let left = String(l || '').substring(0, len - String(r || '').length - 1);
+          let space = len - left.length - String(r || '').length;
           return left + ' '.repeat(Math.max(0, space)) + r;
         };
 
         let receipt = '';
         receipt += center(activeBusiness.name || 'Leka POS') + '\n';
-        if (activeBusiness.address) receipt += center(activeBusiness.address) + '\n';
+        if (activeBusiness.address) {
+          // Wrapped address support (basic)
+          const addr = activeBusiness.address.match(/.{1,32}/g) || [activeBusiness.address];
+          addr.forEach(line => receipt += center(line) + '\n');
+        }
         receipt += '-'.repeat(32) + '\n';
         receipt += 'Item'.padEnd(18, ' ') + 'Qty'.padStart(6, ' ') + 'Amt'.padStart(8, ' ') + '\n';
         receipt += '-'.repeat(32) + '\n';
@@ -122,6 +132,10 @@ const Billing = () => {
           receipt += `${name}${qty}${priceStr}\n`;
         });
         receipt += '-'.repeat(32) + '\n';
+        receipt += alignLR('Subtotal:', subtotal.toLocaleString('en-IN')) + '\n';
+        if (gstRate > 0) {
+          receipt += alignLR(`GST (${gstRate}%):`, gstAmount.toLocaleString('en-IN')) + '\n';
+        }
         receipt += alignLR('GRAND TOTAL:', total.toLocaleString('en-IN')) + '\n';
         receipt += alignLR('Payment Mode:', paymentMode) + '\n';
         receipt += '-'.repeat(32) + '\n';
@@ -133,12 +147,12 @@ const Billing = () => {
       setCart([]);
       setShowCheckout(false);
       showToast('Bill Saved Locally!', 'success');
-      
+
       // 4. TRIGGER SYNC ATTEMPT IN BACKGROUND
       updatePendingCount();
       syncNow(); // Start syncing in background without making user wait
-      
-    } catch (e) { 
+
+    } catch (e) {
       showToast('Checkout failed. Please retry.', 'error');
       console.error(e);
     }
@@ -150,7 +164,7 @@ const Billing = () => {
     const matchCat = selectedCat === 'all' || i.categoryId === selectedCat;
     return matchSearch && matchCat;
   });
-  const cartMap   = Object.fromEntries(cart.map(i => [i.id, i.qty]));
+  const cartMap = Object.fromEntries(cart.map(i => [i.id, i.qty]));
 
   return (
     <AppLayout>
@@ -169,15 +183,15 @@ const Billing = () => {
 
         {/* Category Chips */}
         <div className="bl-cat-chips">
-          <button 
+          <button
             className={`bl-cat-chip ${selectedCat === 'all' ? 'active' : ''}`}
             onClick={() => setSelectedCat('all')}
           >
             All Items
           </button>
           {categories.map(c => (
-            <button 
-              key={c.id} 
+            <button
+              key={c.id}
               className={`bl-cat-chip ${selectedCat === c.id ? 'active' : ''}`}
               onClick={() => setSelectedCat(c.id)}
             >
@@ -250,95 +264,101 @@ const Billing = () => {
         <AnimatePresence>
           {showCheckout && (
             <ModalPortal>
-            <motion.div
-              key="bl-overlay"
-              className="modal-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={e => e.target === e.currentTarget && setShowCheckout(false)}
-            >
               <motion.div
-                key="bl-sheet"
-                className="modal-sheet"
-                initial={{ y: '100%' }}
-                animate={{ y: 0 }}
-                exit={{ y: '100%' }}
-                transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                key="bl-overlay"
+                className="modal-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={e => e.target === e.currentTarget && setShowCheckout(false)}
               >
-                <div className="modal-drag-bar" />
+                <motion.div
+                  key="bl-sheet"
+                  className="modal-sheet"
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                >
+                  <div className="modal-drag-bar" />
 
-                <div className="modal-head">
-                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                    <div className="logo-box" style={{ background:'var(--primary-light)', color:'var(--primary)' }}>
-                      <Receipt size={16} />
-                    </div>
-                    <h2>Order Summary</h2>
-                  </div>
-                  <button className="modal-close" onClick={() => setShowCheckout(false)}><X size={18} /></button>
-                </div>
-
-                <div className="bl-order-list modal-body">
-                  {cart.map(i => (
-                    <div key={i.id} className="card bl-order-item">
-                      <div className="bl-order-icon" style={{ overflow: 'hidden' }}>
-                        {i.imageUrl ? (
-                          <img src={i.imageUrl} alt={i.name} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                        ) : (
-                          <Package size={17} />
-                        )}
+                  <div className="modal-head">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className="logo-box" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
+                        <Receipt size={16} />
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <p className="bl-order-name">{i.name}</p>
-                        <p className="bl-order-price">₹{i.price}</p>
+                      <h2>Order Summary</h2>
+                    </div>
+                    <button className="modal-close" onClick={() => setShowCheckout(false)}><X size={18} /></button>
+                  </div>
+
+                  <div className="bl-order-list modal-body">
+                    {cart.map(i => (
+                      <div key={i.id} className="card bl-order-item">
+                        <div className="bl-order-icon" style={{ overflow: 'hidden' }}>
+                          {i.imageUrl ? (
+                            <img src={i.imageUrl} alt={i.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <Package size={17} />
+                          )}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <p className="bl-order-name">{i.name}</p>
+                          <p className="bl-order-price">₹{i.price}</p>
+                        </div>
+                        <div className="bl-qty-row">
+                          <button className="bl-qty-btn" onClick={() => updateQty(i.id, -1)}><Minus size={12} /></button>
+                          <span className="bl-qty-val">{i.qty}</span>
+                          <button className="bl-qty-btn" onClick={() => updateQty(i.id, 1)}><Plus size={12} /></button>
+                        </div>
                       </div>
-                      <div className="bl-qty-row">
-                        <button className="bl-qty-btn" onClick={() => updateQty(i.id, -1)}><Minus size={12} /></button>
-                        <span className="bl-qty-val">{i.qty}</span>
-                        <button className="bl-qty-btn" onClick={() => updateQty(i.id,  1)}><Plus  size={12} /></button>
+                    ))}
+                  </div>
+
+                  <div className="bl-total-box">
+                    <div className="bl-total-row">
+                      <span style={{ fontSize: 12, color: 'var(--text-sub)', fontWeight: 600 }}>Subtotal</span>
+                      <span style={{ fontSize: 13, fontWeight: 700 }}>₹{subtotal.toLocaleString('en-IN')}</span>
+                    </div>
+                    {gstRate > 0 && (
+                      <div className="bl-total-row">
+                        <span style={{ fontSize: 12, color: 'var(--text-sub)', fontWeight: 600 }}>GST ({gstRate}%)</span>
+                        <span style={{ fontSize: 13, fontWeight: 700 }}>+ ₹{gstAmount.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+                    <div className="bl-total-row" style={{ marginTop: 12, marginBottom: 12 }}>
+                      <div style={{ display: 'flex', gap: 6, width: '100%' }}>
+                        {['Cash', 'UPI', 'Card'].map(m => (
+                          <button
+                            key={m}
+                            onClick={() => setPaymentMode(m)}
+                            style={{
+                              flex: 1, padding: '8px', borderRadius: '8px',
+                              border: `1.5px solid ${paymentMode === m ? 'var(--primary)' : 'var(--border)'}`,
+                              background: paymentMode === m ? 'var(--primary-light)' : 'transparent',
+                              color: paymentMode === m ? 'var(--primary)' : 'var(--text-sub)',
+                              fontWeight: 700, fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
+                            }}
+                          >
+                            {m === 'Cash' ? <Banknote size={14} /> : m === 'UPI' ? <QrCode size={14} /> : <CreditCard size={14} />} {m}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                <div className="bl-total-box">
-                  <div className="bl-total-row">
-                    <span style={{ fontSize:12, color:'var(--text-sub)', fontWeight:600 }}>Subtotal</span>
-                    <span style={{ fontSize:13, fontWeight:700 }}>₹{total.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="bl-total-row" style={{ marginTop: 12, marginBottom: 12 }}>
-                    <div style={{ display: 'flex', gap: 6, width: '100%' }}>
-                      {['Cash', 'UPI', 'Card'].map(m => (
-                        <button 
-                          key={m} 
-                          onClick={() => setPaymentMode(m)}
-                          style={{
-                            flex: 1, padding: '8px', borderRadius: '8px',
-                            border: `1.5px solid ${paymentMode === m ? 'var(--primary)' : 'var(--border)'}`,
-                            background: paymentMode === m ? 'var(--primary-light)' : 'transparent',
-                            color: paymentMode === m ? 'var(--primary)' : 'var(--text-sub)',
-                            fontWeight: 700, fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
-                          }}
-                        >
-                          {m === 'Cash' ? <Banknote size={14}/> : m === 'UPI' ? <QrCode size={14}/> : <CreditCard size={14}/>} {m}
-                        </button>
-                      ))}
+                    <div className="bl-total-row">
+                      <span className="bl-grand-label" style={{ fontSize: 13 }}>Grand Total</span>
+                      <span className="bl-grand-val">₹{total.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
-                  <div className="bl-total-row">
-                    <span className="bl-grand-label" style={{ fontSize: 13 }}>Grand Total</span>
-                    <span className="bl-grand-val">₹{total.toLocaleString('en-IN')}</span>
-                  </div>
-                </div>
 
-                <div className="modal-foot">
-                  <button className="btn btn-ghost" onClick={() => setShowCheckout(false)}>Cancel</button>
-                  <button className="btn btn-primary" onClick={checkout} disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Settle Bill'}
-                  </button>
-                </div>
+                  <div className="modal-foot">
+                    <button className="btn btn-ghost" onClick={() => setShowCheckout(false)}>Cancel</button>
+                    <button className="btn btn-primary" onClick={checkout} disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Settle Bill'}
+                    </button>
+                  </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
             </ModalPortal>
           )}
         </AnimatePresence>

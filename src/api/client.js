@@ -29,6 +29,7 @@ export const apiCall = async (endpoint, options = {}, sessionToken) => {
 export const businessApi = {
   create: (name, token) => apiCall('/business', { method: 'POST', body: JSON.stringify({ name }) }, token),
   list:   (token)       => apiCall('/businesses', {}, token),
+  update: (id, data, token) => apiCall(`/business/${id}`, { method: 'PATCH', body: JSON.stringify(data) }, token),
 };
 
 // ── Catalog ───────────────────────────────────────────────────

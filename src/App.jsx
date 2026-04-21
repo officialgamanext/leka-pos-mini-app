@@ -13,6 +13,7 @@ import Help from './pages/Help';
 import Staff from './pages/Staff';
 import Expenses from './pages/Expenses';
 import Reports from './pages/Reports';
+import TaxSettings from './pages/TaxSettings';
 import { ToastProvider } from './components/Toast';
 
 // --- Business Context ---
@@ -122,6 +123,12 @@ const AppContent = () => {
         <Route path="/expenses" element={
           <ProtectedRoute>
             {activeBusiness ? <Expenses /> : <Navigate to="/onboarding" />}
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/tax-settings" element={
+          <ProtectedRoute>
+            {activeBusiness ? <TaxSettings /> : <Navigate to="/onboarding" />}
           </ProtectedRoute>
         } />
       </Routes>
