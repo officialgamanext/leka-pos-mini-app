@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Receipt, History, User, Bell, Search, ChevronLeft, BarChart3 } from 'lucide-react';
 import { useBusiness } from '../App';
+import PWAInstall from './PWAInstall';
 import '../styles/AppLayout.css';
 
 const navItems = [
@@ -19,6 +20,7 @@ const AppLayout = ({ children, backPath }) => {
 
   return (
     <div className="app-layout">
+      <PWAInstall />
 
       {/* ── Header ── */}
       <header className="app-header">

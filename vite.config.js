@@ -55,7 +55,7 @@ export default defineConfig({
         name: 'Leka POS',
         short_name: 'Leka POS',
         description: 'Leka Point of Sale — fast billing for your business',
-        theme_color: '#3379A7',
+        theme_color: '#5F259F',
         background_color: '#EFF4F8',
         display: 'standalone',        // Full-screen, no browser chrome
         orientation: 'portrait',
@@ -79,7 +79,7 @@ export default defineConfig({
 
       // Dev options — enable PWA in development for testing
       devOptions: {
-        enabled: false,   // set to true temporarily to test SW in dev
+        enabled: true,   // set to true temporarily to test SW in dev
         type: 'module',
       },
     }),
