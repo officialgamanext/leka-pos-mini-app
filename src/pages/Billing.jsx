@@ -212,7 +212,7 @@ const Billing = () => {
                 key={item.id}
                 className={`card bl-product-card ${cartMap[item.id] ? 'selected' : ''}`}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => addToCart(item)}
+                onClick={() => !cartMap[item.id] && addToCart(item)}
               >
                 {cartMap[item.id] && (
                   <span className="bl-cart-badge">{cartMap[item.id]}</span>
@@ -226,6 +226,24 @@ const Billing = () => {
                 </div>
                 <p className="bl-product-name">{item.name}</p>
                 <p className="bl-product-price">₹{item.price}</p>
+                
+                {cartMap[item.id] && (
+                  <div className="bl-card-qty-controls" onClick={e => e.stopPropagation()}>
+                    <button 
+                      className="bl-card-qty-btn"
+                      onClick={() => updateQty(item.id, -1)}
+                    >
+                      <Minus size={14} />
+                    </button>
+                    <span className="bl-card-qty-val">{cartMap[item.id]}</span>
+                    <button 
+                      className="bl-card-qty-btn"
+                      onClick={() => updateQty(item.id, 1)}
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>

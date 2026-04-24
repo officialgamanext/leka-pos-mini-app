@@ -105,7 +105,7 @@
 }
 
 .bl-product-name {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 2px;
@@ -113,10 +113,51 @@
 }
 
 .bl-product-price {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  opacity: 0.8;
+  padding: 0 8px;
+  margin-bottom: 4px;
+}
+
+.bl-card-qty-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  margin-top: 4px;
+  animation: slideDown 0.2s ease-out;
+}
+
+.bl-card-qty-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1.5px solid var(--primary);
+  background: white;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.bl-card-qty-btn:active {
+  background: var(--primary);
+  color: white;
+}
+
+.bl-card-qty-val {
   font-size: 12px;
   font-weight: 800;
   color: var(--primary);
-  padding: 0 8px;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Cart indicator badge on card */
