@@ -1,70 +1,219 @@
 /* ─── Products Page ──────────────────────────────────────────── */
 
-.pr-page { animation: fadeUp .35s ease-out both; padding-bottom: 80px; }
+.pr-page {
+  animation: fadeUp .35s ease-out both;
+  padding-bottom: 80px;
+}
 
 /* Tab switcher */
 .pr-tabs {
-  display: flex; background: var(--surface);
-  border: 1px solid var(--border); border-radius: var(--r-md);
-  padding: 4px; gap: 4px; margin-bottom: 16px;
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 16px;
   box-shadow: var(--shadow-xs);
 }
+
 .pr-tab {
-  flex: 1; height: 36px; border: none; border-radius: 10px;
-  font-size: 13px; font-weight: 700; background: transparent;
-  color: var(--text-sub); transition: all .2s;
+  flex: 1;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  background: transparent;
+  color: var(--text-sub);
+  transition: all .2s;
 }
-.pr-tab.active { background: var(--primary); color: #fff; box-shadow: 0 2px 10px rgba(51,121,167,.3); }
+
+.pr-tab.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(51, 121, 167, .3);
+}
 
 /* List (for categories) */
-.pr-list { display: flex; flex-direction: column; gap: 8px; }
-.pr-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; }
-.pr-row-left { display: flex; align-items: center; gap: 12px; }
-.pr-icon-box { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-.pr-cat-icon { background: var(--surface-alt); color: var(--text-sub); }
-.pr-name { font-size: 14px; font-weight: 700; }
+.pr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.pr-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pr-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pr-cat-icon {
+  background: var(--surface-alt);
+  color: var(--text-sub);
+}
+
+.pr-name {
+  font-size: 14px;
+  font-weight: 700;
+}
 
 /* Grid (for items, matching Billing) */
-.pr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.pr-product-card { padding: 12px; position: relative; overflow: hidden; }
-.pr-product-thumb {
-  width: 100%; aspect-ratio: 1 / 0.85;
-  background: var(--primary-light);
-  border-radius: var(--r-md); margin-bottom: 8px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--primary); overflow: hidden;
+.pr-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
-.pr-product-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.pr-product-name  { font-size: 11px; font-weight: 700; line-height: 1.2; margin-bottom: 2px; }
-.pr-product-price { font-size: 12px; font-weight: 800; color: var(--primary); }
-.pr-product-sub   { font-size: 9px; color: var(--text-sub); margin-top: 2px; }
+
+.pr-product-card {
+  padding: 0;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 10px;
+}
+
+.pr-product-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 0.85;
+  background: var(--primary-light);
+  border-radius: var(--r-md);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  overflow: hidden;
+}
+
+.pr-product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.pr-product-name {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  padding: 0 8px;
+}
+
+.pr-product-price {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--primary);
+  padding: 0 8px;
+}
+
+.pr-product-sub {
+  font-size: 9px;
+  color: var(--text-sub);
+  padding: 0 8px;
+  margin-top: 2px;
+}
 
 /* Modal Image Upload */
 .pr-img-upload-box {
-  width: 100%; height: 110px;
-  border: 1.5px dashed var(--primary); border-radius: var(--r-md);
-  background: var(--primary-light); color: var(--primary);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-  cursor: pointer; position: relative; overflow: hidden;
+  width: 100%;
+  height: 110px;
+  border: 1.5px dashed var(--primary);
+  border-radius: var(--r-md);
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
-.pr-img-upload-box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; }
+
+.pr-img-upload-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
 
 /* FAB */
 .pr-fab {
-  position: fixed; right: 18px; bottom: calc(70px + var(--safe-bottom));
-  width: 50px; height: 50px; border-radius: 25px;
-  background: var(--primary); color: white; border: none;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 6px 22px rgba(51,121,167,.45); z-index: 50; transition: transform .18s;
+  position: fixed;
+  right: 18px;
+  bottom: calc(70px + var(--safe-bottom));
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 22px rgba(51, 121, 167, .45);
+  z-index: 50;
+  transition: transform .18s;
 }
-.pr-fab:active { transform: scale(0.9); }
+
+.pr-fab:active {
+  transform: scale(0.9);
+}
 
 /* Empty state */
-.pr-empty { text-align: center; padding: 60px 20px; color: var(--text-sub); }
-.pr-empty-icon { opacity: .15; margin-bottom: 12px; }
+.pr-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-sub);
+}
+
+.pr-empty-icon {
+  opacity: .15;
+  margin-bottom: 12px;
+}
 
 /* Modal internals */
-.pr-form { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
-.input-icon-wrap { position: relative; }
-.input-pfx-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); pointer-events: none; }
-.has-pfx { padding-left: 36px; }
+.pr-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.input-icon-wrap {
+  position: relative;
+}
+
+.input-pfx-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-sub);
+  pointer-events: none;
+}
+
+.has-pfx {
+  padding-left: 36px;
+}

@@ -26,7 +26,14 @@ const Products = () => {
 
   const [showModal,    setShowModal]    = useState(false);
   const [modalType,    setModalType]    = useState('item');
-  const [newItem,      setNewItem]      = useState({ name: '', price: '', categoryId: '', imageUrl: '' });
+  const [newItem,      setNewItem]      = useState({ 
+    name: '', 
+    price: '', 
+    categoryId: '', 
+    imageUrl: '',
+    unitType: 'FIXED', // FIXED or VARIABLE
+    unitName: 'pcs'    // pcs, kg, g, ltr, etc.
+  });
   const [newCatName,   setNewCatName]   = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -50,7 +57,14 @@ const Products = () => {
   const openModal = (type) => { setModalType(type); setShowModal(true); };
   const closeModal = () => { 
     setShowModal(false); 
-    setNewItem({ name:'', price:'', categoryId:'', imageUrl:'' }); 
+    setNewItem({ 
+      name: '', 
+      price: '', 
+      categoryId: '', 
+      imageUrl: '', 
+      unitType: 'FIXED', 
+      unitName: 'pcs' 
+    }); 
     setNewCatName(''); 
   };
 
@@ -76,7 +90,9 @@ const Products = () => {
           name: newItem.name, 
           price: Number(newItem.price), 
           categoryId: newItem.categoryId || null,
-          imageUrl: newItem.imageUrl || null
+          imageUrl: newItem.imageUrl || null,
+          unitType: newItem.unitType,
+          unitName: newItem.unitName
         };
         await catalogApi.createItem(activeBusiness.id, payload, sessionToken);
       } else {
@@ -135,7 +151,7 @@ const Products = () => {
                         )}
                       </div>
                       <p className="pr-product-name">{item.name}</p>
-                      <p className="pr-product-price">₹{item.price}</p>
+                      <p className="pr-product-price">₹{item.price}<span style={{ fontSize:10, opacity:0.6, fontWeight:600 }}>/{item.unitName || (item.unitType === 'VARIABLE' ? 'kg' : 'pcs')}</span></p>
                       <p className="pr-product-sub">{catName}</p>
                     </motion.div>
                   )
@@ -226,6 +242,22 @@ const Products = () => {
                                 <option value="">General</option>
                                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                               </select>
+                            </div>
+                          </div>
+
+                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                            <div>
+                              <label className="input-label">Unit Type</label>
+                              <select className="input-field" value={newItem.unitType}
+                                onChange={e => setNewItem({ ...newItem, unitType: e.target.value, unitName: e.target.value === 'FIXED' ? 'pcs' : 'kg' })}>
+                                <option value="FIXED">Piece (Fixed)</option>
+                                <option value="VARIABLE">Weight/Volume (Variable)</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="input-label">Unit Name</label>
+                              <input required className="input-field" placeholder="e.g. kg, pcs, ltr"
+                                value={newItem.unitName} onChange={e => setNewItem({ ...newItem, unitName: e.target.value })} />
                             </div>
                           </div>
                         </>

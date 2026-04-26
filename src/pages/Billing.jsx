@@ -6,7 +6,7 @@ import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { useToast } from '../components/Toast';
 import { billsApi, apiCall } from '../api/client';
-import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package, Banknote, CreditCard, QrCode, ReceiptText } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package, Banknote, CreditCard, QrCode, ReceiptText, Trash } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isPrinterConnected, printText } from '../utils/bluetooth';
 import { useSync } from '../context/SyncContext';
@@ -27,6 +27,7 @@ const Billing = () => {
   const [search, setSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState('all');
   const [paymentMode, setPaymentMode] = useState('Cash');
+  const [weightModal, setWeightModal] = useState({ show: false, item: null, value: '', amount: '' });
 
   const { isSyncing, syncNow, updatePendingCount } = useSync();
 
@@ -65,6 +66,10 @@ const Billing = () => {
   };
 
   const addToCart = (item) => {
+    if (item.unitType === 'VARIABLE') {
+      setWeightModal({ show: true, item, value: '', amount: '' });
+      return;
+    }
     setCart(prev => {
       const ex = prev.find(i => i.id === item.id);
       return ex ? prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i)
@@ -72,8 +77,46 @@ const Billing = () => {
     });
   };
 
-  const updateQty = (id, delta) => {
-    setCart(prev => prev.map(i => i.id === id ? { ...i, qty: i.qty + delta } : i).filter(i => i.qty > 0));
+  const updateQty = (id, delta, directValue = null) => {
+    setCart(prev => {
+      return prev.map(i => {
+        if (i.id === id) {
+          const newQty = directValue !== null ? directValue : i.qty + delta;
+          return { ...i, qty: newQty };
+        }
+        return i;
+      }).filter(i => i.qty > 0);
+    });
+  };
+
+  const handleWeightSubmit = (e) => {
+    e.preventDefault();
+    const val = parseFloat(weightModal.value);
+    if (isNaN(val) || val <= 0) {
+      showToast("Please enter a valid quantity", "error");
+      return;
+    }
+    
+    setCart(prev => {
+      const ex = prev.find(i => i.id === weightModal.item.id);
+      if (ex) {
+        return prev.map(i => i.id === weightModal.item.id ? { ...i, qty: val } : i);
+      }
+      return [...prev, { ...weightModal.item, qty: val }];
+    });
+    setWeightModal({ show: false, item: null, value: '', amount: '' });
+  };
+
+  const onAmountChange = (amt) => {
+    const price = weightModal.item?.price || 1;
+    const calculatedWeight = amt ? (parseFloat(amt) / price).toFixed(3) : '';
+    setWeightModal(prev => ({ ...prev, amount: amt, value: calculatedWeight }));
+  };
+
+  const onWeightChange = (wt) => {
+    const price = weightModal.item?.price || 1;
+    const calculatedAmount = wt ? (parseFloat(wt) * price).toFixed(2) : '';
+    setWeightModal(prev => ({ ...prev, value: wt, amount: calculatedAmount }));
   };
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -127,7 +170,8 @@ const Billing = () => {
         receipt += '-'.repeat(32) + '\n';
         cart.forEach(i => {
           let name = i.name.substring(0, 18).padEnd(18, ' ');
-          let qty = String(i.qty).padStart(6, ' ');
+          let qtyStr = i.unitType === 'VARIABLE' ? `${i.qty} ${i.unitName || 'kg'}` : String(i.qty);
+          let qty = qtyStr.padStart(6, ' ');
           let priceStr = (i.qty * i.price).toLocaleString('en-IN').padStart(8, ' ');
           receipt += `${name}${qty}${priceStr}\n`;
         });
@@ -217,7 +261,7 @@ const Billing = () => {
                 {cartMap[item.id] && (
                   <span className="bl-cart-badge">{cartMap[item.id]}</span>
                 )}
-                <div className="bl-product-thumb">
+                <div className="bl-product-thumb" onClick={(e) => { e.stopPropagation(); addToCart(item); }}>
                   {item.imageUrl ? (
                     <img src={item.imageUrl} alt={item.name} />
                   ) : (
@@ -225,22 +269,37 @@ const Billing = () => {
                   )}
                 </div>
                 <p className="bl-product-name">{item.name}</p>
-                <p className="bl-product-price">₹{item.price}</p>
+                <p className="bl-product-price">₹{item.price}<span style={{ fontSize:9, opacity:0.7 }}>/{item.unitName || (item.unitType === 'VARIABLE' ? 'kg' : 'pcs')}</span></p>
 
                 {cartMap[item.id] && (
                   <div className="bl-card-qty-controls" onClick={e => e.stopPropagation()}>
                     <button
                       className="bl-card-qty-btn"
-                      onClick={() => updateQty(item.id, -1)}
+                      style={{ color: item.unitType === 'VARIABLE' ? 'var(--red)' : '' }}
+                      onClick={() => {
+                        if (item.unitType === 'VARIABLE') {
+                          updateQty(item.id, 0, 0); // Remove
+                        } else {
+                          updateQty(item.id, -1);
+                        }
+                      }}
                     >
-                      <Minus size={14} />
+                      {item.unitType === 'VARIABLE' ? <Trash size={12} /> : <Minus size={14} />}
                     </button>
-                    <span className="bl-card-qty-val">{cartMap[item.id]}</span>
+                    <span className="bl-card-qty-val">
+                      {cartMap[item.id]} {item.unitType === 'VARIABLE' ? (item.unitName || 'kg') : ''}
+                    </span>
                     <button
                       className="bl-card-qty-btn"
-                      onClick={() => updateQty(item.id, 1)}
+                      onClick={() => {
+                        if (item.unitType === 'VARIABLE') {
+                          setWeightModal({ show: true, item, value: String(cartMap[item.id]), amount: (cartMap[item.id] * item.price).toFixed(2) });
+                        } else {
+                          updateQty(item.id, 1);
+                        }
+                      }}
                     >
-                      <Plus size={14} />
+                      {item.unitType === 'VARIABLE' ? <Plus size={12} /> : <Plus size={14} />}
                     </button>
                   </div>
                 )}
@@ -326,9 +385,33 @@ const Billing = () => {
                           <p className="bl-order-price">₹{i.price}</p>
                         </div>
                         <div className="bl-qty-row">
-                          <button className="bl-qty-btn" onClick={() => updateQty(i.id, -1)}><Minus size={12} /></button>
-                          <span className="bl-qty-val">{i.qty}</span>
-                          <button className="bl-qty-btn" onClick={() => updateQty(i.id, 1)}><Plus size={12} /></button>
+                          <button 
+                            className="bl-qty-btn" 
+                            onClick={() => {
+                              if (i.unitType === 'VARIABLE') {
+                                updateQty(i.id, 0, 0); // Remove
+                              } else {
+                                updateQty(i.id, -1);
+                              }
+                            }}
+                          >
+                            {i.unitType === 'VARIABLE' ? <Trash size={12} color="var(--red)" /> : <Minus size={12} />}
+                          </button>
+                          <span className="bl-qty-val">
+                            {i.qty} {i.unitType === 'VARIABLE' ? (i.unitName || 'kg') : ''}
+                          </span>
+                          <button 
+                            className="bl-qty-btn" 
+                            onClick={() => {
+                              if (i.unitType === 'VARIABLE') {
+                                setWeightModal({ show: true, item: i, value: String(i.qty), amount: (i.qty * i.price).toFixed(2) });
+                              } else {
+                                updateQty(i.id, 1);
+                              }
+                            }}
+                          >
+                            <Plus size={12} />
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -376,6 +459,79 @@ const Billing = () => {
                       {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Settle Bill'}
                     </button>
                   </div>
+                </motion.div>
+              </motion.div>
+            </ModalPortal>
+          )}
+        </AnimatePresence>
+        
+        {/* Weight Input Modal */}
+        <AnimatePresence>
+          {weightModal.show && (
+            <ModalPortal>
+              <motion.div
+                className="modal-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <motion.div
+                  className="modal-sheet"
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                >
+                  <div className="modal-head">
+                    <h2>Enter Weight ({weightModal.item?.unitName || 'kg'})</h2>
+                    <button className="modal-close" onClick={() => setWeightModal({ show: false, item: null, value: '' })}><X size={18} /></button>
+                  </div>
+                  <form onSubmit={handleWeightSubmit} className="modal-body">
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="bl-weight-input-wrap">
+                        <span className="bl-weight-label">Qty ({weightModal.item?.unitName || 'kg'})</span>
+                        <input
+                          autoFocus
+                          type="number"
+                          step="0.001"
+                          className="bl-weight-input"
+                          placeholder="0.000"
+                          value={weightModal.value}
+                          onChange={e => onWeightChange(e.target.value)}
+                        />
+                      </div>
+                      <div className="bl-weight-input-wrap">
+                        <span className="bl-weight-label">Amount (₹)</span>
+                        <input
+                          type="number"
+                          step="1"
+                          className="bl-weight-input"
+                          placeholder="0.00"
+                          value={weightModal.amount}
+                          onChange={e => onAmountChange(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <span className="bl-weight-label">Quick Presets ({weightModal.item?.unitName || 'kg'})</span>
+                    <div className="bl-weight-presets">
+                      {[0.1, 0.25, 0.5, 1, 2, 5].map(v => (
+                        <button
+                          key={v}
+                          type="button"
+                          className="bl-weight-preset-btn"
+                          onClick={() => onWeightChange(String(v))}
+                        >
+                          {v} {weightModal.item?.unitName || 'kg'}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div style={{ marginTop: 24 }}>
+                      <button type="submit" className="btn btn-primary" style={{ width: '100%', height: 46, borderRadius: 14 }}>
+                        Confirm Quantity
+                      </button>
+                    </div>
+                  </form>
                 </motion.div>
               </motion.div>
             </ModalPortal>
