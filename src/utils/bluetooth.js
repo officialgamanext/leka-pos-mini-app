@@ -121,3 +121,77 @@ export async function printText(text) {
   for (const p of parts) { out.set(p, offset); offset += p.length; }
   await sendRaw(out);
 }
+
+export async function printImage(imageUrl) {
+  if (!imageUrl || !_writeChar) return;
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = async () => {
+      try {
+        const canvas = document.createElement("canvas");
+        const maxWidth = 384;
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        width = Math.floor(width / 8) * 8;
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        const imgData = ctx.getImageData(0, 0, width, height);
+        const pixels = imgData.data;
+
+        const xL = (width / 8) % 256;
+        const xH = Math.floor((width / 8) / 256);
+        const yL = height % 256;
+        const yH = Math.floor(height / 256);
+
+        // Center align, Raster bit image command
+        const bytes = [0x1b, 0x40, 0x1b, 0x61, 0x01, 0x1D, 0x76, 0x30, 0x00, xL, xH, yL, yH];
+        
+        let byteVal = 0;
+        let bitCount = 0;
+        
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+            const r = pixels[idx];
+            const g = pixels[idx+1];
+            const b = pixels[idx+2];
+            const a = pixels[idx+3];
+            
+            const luminance = (0.299*r + 0.587*g + 0.114*b);
+            const isBlack = (a > 128 && luminance < 128) ? 1 : 0;
+            
+            byteVal = (byteVal << 1) | isBlack;
+            bitCount++;
+            
+            if (bitCount === 8) {
+              bytes.push(byteVal);
+              byteVal = 0;
+              bitCount = 0;
+            }
+          }
+        }
+        bytes.push(0x1b, 0x61, 0x00, 0x0A); // reset left align and feed
+        const out = new Uint8Array(bytes);
+        await sendRaw(out);
+        resolve(true);
+      } catch (err) {
+        console.error("Print image error:", err);
+        resolve(false);
+      }
+    };
+    img.onerror = () => {
+      console.error("Failed to load image for printing");
+      resolve(false);
+    };
+    img.src = imageUrl;
+  });
+}

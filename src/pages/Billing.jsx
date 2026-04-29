@@ -8,7 +8,7 @@ import { useToast } from '../components/Toast';
 import { billsApi, apiCall } from '../api/client';
 import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package, Banknote, CreditCard, QrCode, ReceiptText, Trash } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isPrinterConnected, printText } from '../utils/bluetooth';
+import { isPrinterConnected, printText, printImage } from '../utils/bluetooth';
 import { useSync } from '../context/SyncContext';
 import { localDb } from '../utils/localDb';
 import '../styles/Billing.css';
@@ -147,6 +147,9 @@ const Billing = () => {
 
       // 2. TRIGGER PRINT (Optional but desired in POS)
       if (isPrinterConnected()) {
+        if (activeBusiness.logoUrl) {
+          await printImage(activeBusiness.logoUrl).catch(err => console.error("Logo print error:", err));
+        }
         const center = (text, len = 32) => {
           const t = String(text || '').substring(0, len);
           const pad = Math.floor((len - t.length) / 2);

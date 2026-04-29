@@ -41,8 +41,8 @@ const Products = () => {
 
   useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
 
-  const fetchData = async () => {
-    setIsLoading(true);
+  const fetchData = async (isBackground = false) => {
+    if (!isBackground) setIsLoading(true);
     try {
       const [cats, its] = await Promise.all([
         apiCall(`/categories?businessId=${activeBusiness.id}`, {}, sessionToken),
@@ -51,7 +51,7 @@ const Products = () => {
       setCategories(Array.isArray(cats) ? cats : []);
       setItems(Array.isArray(its)  ? its  : []);
     } catch (e) { console.error(e); }
-    finally { setIsLoading(false); }
+    finally { if (!isBackground) setIsLoading(false); }
   };
 
   const openModal = (type) => { setModalType(type); setShowModal(true); };
@@ -99,7 +99,7 @@ const Products = () => {
         await catalogApi.createCategory(activeBusiness.id, newCatName, sessionToken);
       }
       closeModal();
-      fetchData();
+      fetchData(true);
     } catch (e) { console.error(e); }
     finally { setIsSubmitting(false); }
   };

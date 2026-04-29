@@ -37,6 +37,21 @@
   backdrop-filter: blur(4px);
 }
 
+.pf-logo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.pf-hero-icon:hover .pf-logo-overlay {
+  opacity: 1;
+}
+
 .pf-hero-name {
   font-size: 18px;
   font-weight: 800;

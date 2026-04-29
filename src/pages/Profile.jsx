@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import AppLayout from '../components/AppLayout';
 import ModalPortal from '../components/ModalPortal';
 import { useNavigate } from 'react-router-dom';
-import { useDescope } from '@descope/react-sdk';
+import { useDescope, useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import {
   Tag, Package, Printer, HelpCircle, LogOut,
   ChevronRight, Building2, Receipt, X, Cpu,
   Bluetooth, BluetoothOff, Check, AlertCircle,
-  Users, TrendingDown
+  Users, TrendingDown, Pencil, Trash2, Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -16,8 +16,12 @@ import {
   disconnectPrinter,
   isPrinterConnected,
   getPrinterName,
-  printText
+  printText,
+  printImage
 } from '../utils/bluetooth';
+import { compressImage } from '../utils/image';
+import { businessApi } from '../api/client';
+import { useToast } from '../components/Toast';
 import '../styles/Profile.css';
 
 const sections = (setPrinter, navigate) => [
@@ -52,15 +56,20 @@ const sections = (setPrinter, navigate) => [
 ];
 
 const Profile = () => {
-  const { logout }                         = useDescope();
-  const { activeBusiness, logoutBusiness } = useBusiness();
-  const navigate                           = useNavigate();
+  const { logout } = useDescope();
+  const { sessionToken } = useSession();
+  const { showToast } = useToast();
+  const { activeBusiness, logoutBusiness, selectBusiness } = useBusiness();
+  const navigate = useNavigate();
 
   const [printerOpen, setPrinterOpen] = useState(false);
   const [btStatus,    setBtStatus]    = useState('idle'); // idle | connecting | connected | error
   const [printerName, setPrinterName] = useState('');
   const [btError,     setBtError]     = useState('');
   const [testStatus,  setTestStatus]  = useState('');
+  
+  const fileInputRef = useRef(null);
+  const [isUpdatingLogo, setIsUpdatingLogo] = useState(false);
 
   const handleLogout = () => { logoutBusiness(); logout(); navigate('/login'); };
   const closePrinter = () => setPrinterOpen(false);
@@ -88,6 +97,9 @@ const Profile = () => {
   const handleTestPrint = useCallback(async () => {
     setTestStatus('printing');
     try {
+      if (activeBusiness?.logoUrl) {
+        await printImage(activeBusiness.logoUrl);
+      }
       await printText(
         `\n  === LEKA POS ===\n\n  Test Print\n  ${new Date().toLocaleString()}\n\n  Printer OK!\n\n`
       );
@@ -97,7 +109,41 @@ const Profile = () => {
       setTestStatus('error');
       setTimeout(() => setTestStatus(''), 3000);
     }
-  }, []);
+  }, [activeBusiness]);
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUpdatingLogo(true);
+      const base64 = await compressImage(file, 300);
+      const res = await businessApi.update(activeBusiness.id, { logoUrl: base64 }, sessionToken);
+      selectBusiness({ ...activeBusiness, logoUrl: res.updates.logoUrl });
+      showToast('Logo updated successfully', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to update logo', 'error');
+    } finally {
+      setIsUpdatingLogo(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleLogoDelete = async (e) => {
+    e.stopPropagation();
+    if (!window.confirm("Remove business logo?")) return;
+    try {
+      setIsUpdatingLogo(true);
+      await businessApi.update(activeBusiness.id, { logoUrl: null }, sessionToken);
+      selectBusiness({ ...activeBusiness, logoUrl: null });
+      showToast('Logo removed', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to remove logo', 'error');
+    } finally {
+      setIsUpdatingLogo(false);
+    }
+  };
 
   const isConnected = btStatus === 'connected';
 
@@ -107,10 +153,38 @@ const Profile = () => {
 
         {/* Hero */}
         <div className="pf-hero">
-          <div className="pf-hero-icon"><Building2 size={26} /></div>
+          <div 
+            className="pf-hero-icon" 
+            style={{ position: 'relative', cursor: 'pointer', overflow: 'hidden' }}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {isUpdatingLogo ? (
+              <Loader2 className="spin" size={24} />
+            ) : activeBusiness?.logoUrl ? (
+              <>
+                <img src={activeBusiness.logoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div className="pf-logo-overlay">
+                  <Pencil size={14} color="#fff" />
+                </div>
+              </>
+            ) : (
+              <Building2 size={26} />
+            )}
+            <input type="file" ref={fileInputRef} onChange={handleLogoUpload} accept="image/*" style={{ display: 'none' }} />
+          </div>
           <div>
             <p className="pf-hero-name">{activeBusiness?.name || 'My Business'}</p>
             <p className="pf-hero-sub">Active workspace</p>
+          </div>
+          <div style={{ marginLeft: 'auto' }}>
+            {activeBusiness?.logoUrl && !isUpdatingLogo && (
+              <button 
+                onClick={handleLogoDelete} 
+                style={{ background: 'rgba(255,255,255,0.2)', border: 'none', width: 32, height: 32, borderRadius: 8, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
           </div>
           <div className="pf-hero-bg"><Building2 size={110} /></div>
         </div>
