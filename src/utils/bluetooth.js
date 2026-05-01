@@ -2,10 +2,6 @@
  * bluetooth.js — Web Bluetooth API for ESC/POS thermal printers
  * Works on: Android Chrome, Windows/Mac Chrome/Edge
  * Note: iOS Safari does not support Web Bluetooth regardless of approach.
- *
- * Common BLE printer service UUIDs:
- *   000018f0-... (Generic Serial, most common)
- *   e7810a71-... (Xprinter, GOOJPRT, Epoch)
  */
 
 const PRINTER_SERVICES = [
@@ -25,7 +21,7 @@ const WRITE_CHARS = [
 let _writeChar = null;
 let _name      = null;
 
-export async function connectPrinter() {
+async function connectPrinter() {
   if (!navigator.bluetooth) {
     throw new Error(
       'Bluetooth is not supported in this browser.\n' +
@@ -40,7 +36,6 @@ export async function connectPrinter() {
       optionalServices: PRINTER_SERVICES,
     });
   } catch (_) {
-    // Fallback: let user pick from all BLE devices
     device = await navigator.bluetooth.requestDevice({
       acceptAllDevices: true,
       optionalServices: PRINTER_SERVICES,
@@ -71,7 +66,7 @@ export async function connectPrinter() {
 
   if (!_writeChar) {
     server.disconnect();
-    throw new Error('Connected but no writable characteristic found. Is this an ESC/POS printer?');
+    throw new Error('Connected but no writable characteristic found.');
   }
 
   device.addEventListener('gattserverdisconnected', () => {
@@ -82,15 +77,18 @@ export async function connectPrinter() {
   return { name: _name };
 }
 
-export async function disconnectPrinter() {
+async function disconnectPrinter() {
+  if (_writeChar?.service?.device?.gatt?.connected) {
+    _writeChar.service.device.gatt.disconnect();
+  }
   _writeChar = null;
   _name      = null;
 }
 
-export const isPrinterConnected = () => !!_writeChar;
-export const getPrinterName     = () => _name;
+const isPrinterConnected = () => !!_writeChar;
+const getPrinterName     = () => _name;
 
-export async function sendRaw(data) {
+async function sendRaw(data) {
   if (!_writeChar) throw new Error('No printer connected');
   const chunkSize = 128;
   for (let i = 0; i < data.length; i += chunkSize) {
@@ -104,7 +102,7 @@ export async function sendRaw(data) {
   }
 }
 
-export async function printText(text) {
+async function printText(text) {
   const enc   = new TextEncoder();
   const ESC   = 0x1b;
   const GS    = 0x1d;
@@ -122,7 +120,7 @@ export async function printText(text) {
   await sendRaw(out);
 }
 
-export async function printImage(imageUrl) {
+async function printImage(imageUrl) {
   if (!imageUrl || !_writeChar) return;
   return new Promise((resolve) => {
     const img = new Image();
@@ -152,7 +150,6 @@ export async function printImage(imageUrl) {
         const yL = height % 256;
         const yH = Math.floor(height / 256);
 
-        // Center align, Raster bit image command
         const bytes = [0x1b, 0x40, 0x1b, 0x61, 0x01, 0x1D, 0x76, 0x30, 0x00, xL, xH, yL, yH];
         
         let byteVal = 0;
@@ -179,7 +176,7 @@ export async function printImage(imageUrl) {
             }
           }
         }
-        bytes.push(0x1b, 0x61, 0x00, 0x0A); // reset left align and feed
+        bytes.push(0x1b, 0x61, 0x00, 0x0A);
         const out = new Uint8Array(bytes);
         await sendRaw(out);
         resolve(true);
@@ -189,9 +186,19 @@ export async function printImage(imageUrl) {
       }
     };
     img.onerror = () => {
-      console.error("Failed to load image for printing");
+      console.error("Failed to load image");
       resolve(false);
     };
     img.src = imageUrl;
   });
 }
+
+export {
+  connectPrinter,
+  disconnectPrinter,
+  isPrinterConnected,
+  getPrinterName,
+  sendRaw,
+  printText,
+  printImage
+};

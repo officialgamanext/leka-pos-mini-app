@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import AppLayout from '../components/AppLayout';
 import ModalPortal from '../components/ModalPortal';
@@ -6,9 +6,14 @@ import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { useToast } from '../components/Toast';
 import { billsApi, apiCall } from '../api/client';
-import { Search, ShoppingCart, Plus, Minus, Loader2, ChevronRight, X, Receipt, Package, Banknote, CreditCard, QrCode, ReceiptText, Trash } from 'lucide-react';
+import { 
+  Search, ShoppingCart, Plus, Minus, Loader2, 
+  ChevronRight, X, Receipt, Package, Banknote, 
+  CreditCard, QrCode, ReceiptText, Trash,
+  Bluetooth, BluetoothOff
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isPrinterConnected, printText, printImage } from '../utils/bluetooth';
+import { isPrinterConnected, printText, printImage, getPrinterName, connectPrinter } from '../utils/bluetooth';
 import { useSync } from '../context/SyncContext';
 import { localDb } from '../utils/localDb';
 import '../styles/Billing.css';
@@ -28,6 +33,9 @@ const Billing = () => {
   const [selectedCat, setSelectedCat] = useState('all');
   const [paymentMode, setPaymentMode] = useState('Cash');
   const [weightModal, setWeightModal] = useState({ show: false, item: null, value: '', amount: '' });
+  
+  // Printer state for re-rendering
+  const [btStatus, setBtStatus] = useState(isPrinterConnected() ? 'connected' : 'idle');
 
   const { isSyncing, syncNow, updatePendingCount } = useSync();
 
@@ -117,6 +125,18 @@ const Billing = () => {
     const price = weightModal.item?.price || 1;
     const calculatedAmount = wt ? (parseFloat(wt) * price).toFixed(2) : '';
     setWeightModal(prev => ({ ...prev, value: wt, amount: calculatedAmount }));
+  };
+
+  const handleConnect = async () => {
+    setBtStatus('connecting');
+    try {
+      await connectPrinter();
+      setBtStatus('connected');
+      showToast('Printer connected successfully', 'success');
+    } catch (err) {
+      setBtStatus('idle');
+      showToast(err.message || 'Connection failed', 'error');
+    }
   };
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -454,6 +474,40 @@ const Billing = () => {
                       <span className="bl-grand-label" style={{ fontSize: 13 }}>Grand Total</span>
                       <span className="bl-grand-val">₹{total.toLocaleString('en-IN')}</span>
                     </div>
+                  </div>
+
+                  <div style={{ padding: '0 20px', marginBottom: 15 }}>
+                    {btStatus !== 'connected' ? (
+                      <div style={{ 
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', 
+                        background: '#FFF5F5', border: '1px solid #FED7D7', borderRadius: 12,
+                        color: '#C53030', fontSize: 12, fontWeight: 600
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <BluetoothOff size={16} />
+                          <span>{btStatus === 'connecting' ? 'Searching...' : 'Printer disconnected'}</span>
+                        </div>
+                        <button 
+                          onClick={handleConnect}
+                          disabled={btStatus === 'connecting'}
+                          style={{ 
+                            background: '#C53030', color: '#fff', border: 'none', padding: '6px 12px', 
+                            borderRadius: 8, fontSize: 11, fontWeight: 800, cursor: 'pointer'
+                          }}
+                        >
+                          {btStatus === 'connecting' ? <Loader2 size={12} className="spin" /> : 'Connect'}
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ 
+                        display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', 
+                        background: '#F0FFF4', border: '1px solid #C6F6D5', borderRadius: 12,
+                        color: '#2F855A', fontSize: 12, fontWeight: 600
+                      }}>
+                        <Bluetooth size={16} />
+                        <span>Printer Ready: {getPrinterName()}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="modal-foot">
