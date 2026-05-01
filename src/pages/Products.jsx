@@ -42,6 +42,7 @@ const Products = () => {
   useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
 
   const fetchData = async (isBackground = false) => {
+    if (!activeBusiness?.id) return;
     if (!isBackground) setIsLoading(true);
     try {
       const [cats, its] = await Promise.all([
@@ -50,7 +51,10 @@ const Products = () => {
       ]);
       setCategories(Array.isArray(cats) ? cats : []);
       setItems(Array.isArray(its)  ? its  : []);
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+      console.error(e);
+      showToast(e.message || 'Failed to load products', 'error');
+    }
     finally { if (!isBackground) setIsLoading(false); }
   };
 
@@ -83,6 +87,7 @@ const Products = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!activeBusiness?.id) return;
     setIsSubmitting(true);
     try {
       if (modalType === 'item') {
@@ -95,12 +100,18 @@ const Products = () => {
           unitName: newItem.unitName
         };
         await catalogApi.createItem(activeBusiness.id, payload, sessionToken);
+        showToast('Item added successfully');
       } else {
         await catalogApi.createCategory(activeBusiness.id, newCatName, sessionToken);
+        showToast('Category added successfully');
       }
       closeModal();
-      fetchData(true);
-    } catch (e) { console.error(e); }
+      // Small delay to ensure DB consistency before refresh
+      setTimeout(() => fetchData(true), 500);
+    } catch (e) { 
+      console.error(e);
+      showToast(e.message || 'Failed to save', 'error');
+    }
     finally { setIsSubmitting(false); }
   };
 

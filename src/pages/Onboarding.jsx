@@ -40,8 +40,8 @@ const Onboarding = () => {
     if (!bizName.trim()) return;
     setIsSubmitting(true);
     try {
-      const nb = await businessApi.create(bizName.trim(), sessionToken);
-      setBusinesses(prev => [...prev, nb]);
+      await businessApi.create(bizName.trim(), sessionToken);
+      await fetchBusinesses();
       setShowCreate(false);
       setBizName('');
       showToast('Business created successfully');
