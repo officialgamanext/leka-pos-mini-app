@@ -477,7 +477,7 @@ const Billing = () => {
                   </div>
 
                   <div style={{ padding: '0 20px', marginBottom: 15 }}>
-                    {btStatus !== 'connected' ? (
+                    {btStatus !== 'connected' && (
                       <div style={{ 
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', 
                         background: '#FFF5F5', border: '1px solid #FED7D7', borderRadius: 12,
@@ -497,15 +497,6 @@ const Billing = () => {
                         >
                           {btStatus === 'connecting' ? <Loader2 size={12} className="spin" /> : 'Connect'}
                         </button>
-                      </div>
-                    ) : (
-                      <div style={{ 
-                        display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', 
-                        background: '#F0FFF4', border: '1px solid #C6F6D5', borderRadius: 12,
-                        color: '#2F855A', fontSize: 12, fontWeight: 600
-                      }}>
-                        <Bluetooth size={16} />
-                        <span>Printer Ready: {getPrinterName()}</span>
                       </div>
                     )}
                   </div>
