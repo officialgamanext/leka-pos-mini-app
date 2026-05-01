@@ -6,9 +6,10 @@ import { useSession } from '@descope/react-sdk';
 import { useBusiness } from '../App';
 import { useToast } from '../components/Toast';
 import { catalogApi, apiCall } from '../api/client';
-import { Plus, Tag, Package, Loader2, MoreVertical, X, IndianRupee, ImagePlus } from 'lucide-react';
+import { Plus, Tag, Package, Loader2, MoreVertical, X, IndianRupee, ImagePlus, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { compressImage } from '../utils/image';
+import CustomSelect from '../components/CustomSelect';
 import '../styles/Products.css';
 
 const Products = () => {
@@ -197,94 +198,122 @@ const Products = () => {
                   transition={{ type: 'spring', damping: 28, stiffness: 300 }} className="modal-sheet">
                   <div className="modal-drag-bar" />
                   <div className="modal-head">
-                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                      <div className="logo-box" style={{ background:'var(--primary-light)', color:'var(--primary)' }}>
-                        {modalType === 'item' ? <Package size={16} /> : <Tag size={16} />}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div className="logo-box" style={{ background: 'var(--primary-light)', color: 'var(--primary)', width: 44, height: 44, borderRadius: 14 }}>
+                        {modalType === 'item' ? <Package size={20} /> : <Tag size={20} />}
                       </div>
-                      <h2>Add {modalType === 'item' ? 'Item' : 'Category'}</h2>
+                      <div>
+                        <h2 style={{ fontSize: 18, fontWeight: 800 }}>Add {modalType === 'item' ? 'Product' : 'Category'}</h2>
+                        <p style={{ fontSize: 12, color: 'var(--text-sub)' }}>{modalType === 'item' ? 'Create a new item for your catalog' : 'Organize your products with categories'}</p>
+                      </div>
                     </div>
-                    <button className="modal-close" onClick={closeModal}><X size={18} /></button>
+                    <button className="modal-close" onClick={closeModal} style={{ width: 36, height: 36, borderRadius: 12 }}><X size={20} /></button>
                   </div>
 
                   <form onSubmit={handleSave}>
-                    <div className="pr-form">
-                      {modalType === 'item' ? (
-                        <>
-                          <div 
-                            className="pr-img-upload-box" 
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            {newItem.imageUrl ? (
-                              <img src={newItem.imageUrl} alt="Preview" />
-                            ) : (
-                              <>
-                                <ImagePlus size={24} />
-                                <span style={{ fontSize:11, fontWeight:700 }}>Choose Image (Optional)</span>
-                              </>
-                            )}
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              style={{ display: 'none' }} 
-                              ref={fileInputRef}
-                              onChange={handleImageSelect}
-                            />
-                          </div>
+                    <div className="modal-body" style={{ paddingTop: 10 }}>
+                      <div className="pr-form">
+                        {modalType === 'item' ? (
+                          <>
+                            <div 
+                              className="pr-img-upload-box" 
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              {newItem.imageUrl ? (
+                                <img src={newItem.imageUrl} alt="Preview" />
+                              ) : (
+                                <>
+                                  <ImagePlus size={24} />
+                                  <span style={{ fontSize:11, fontWeight:700 }}>Choose Image (Optional)</span>
+                                </>
+                              )}
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                style={{ display: 'none' }} 
+                                ref={fileInputRef}
+                                onChange={handleImageSelect}
+                              />
+                            </div>
 
-                          <div>
-                            <label className="input-label">Product Name *</label>
-                            <input autoFocus required className="input-field" placeholder="e.g. Cold Coffee"
-                              value={newItem.name} onChange={e => setNewItem({ ...newItem, name: e.target.value })} />
-                          </div>
-
-                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-                            <div>
-                              <label className="input-label">Price *</label>
-                              <div className="input-icon-wrap">
-                                <IndianRupee size={14} className="input-pfx-icon" />
-                                <input required type="number" min="0" step="0.01" className="input-field has-pfx" placeholder="0.00"
-                                  value={newItem.price} onChange={e => setNewItem({ ...newItem, price: e.target.value })} />
+                            <div className="form-group">
+                              <label className="form-label">Product Name</label>
+                              <div className="input-group-premium">
+                                <Package size={18} className="input-icon-left" />
+                                <input 
+                                  className="input-field-premium has-icon" 
+                                  placeholder="e.g. Tomato Rice"
+                                  value={newItem.name}
+                                  onChange={e => setNewItem({ ...newItem, name: e.target.value })}
+                                  required
+                                />
                               </div>
                             </div>
-                            <div>
-                              <label className="input-label">Category</label>
-                              <select className="input-field" value={newItem.categoryId}
-                                onChange={e => setNewItem({ ...newItem, categoryId: e.target.value })}>
-                                <option value="">General</option>
-                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                              </select>
-                            </div>
-                          </div>
 
-                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-                            <div>
-                              <label className="input-label">Unit Type</label>
-                              <select className="input-field" value={newItem.unitType}
-                                onChange={e => setNewItem({ ...newItem, unitType: e.target.value, unitName: e.target.value === 'FIXED' ? 'pcs' : 'kg' })}>
-                                <option value="FIXED">Piece (Fixed)</option>
-                                <option value="VARIABLE">Weight/Volume (Variable)</option>
-                              </select>
+                            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                              <div className="form-group">
+                                <label className="form-label">Price (₹)</label>
+                                <div className="input-group-premium">
+                                  <IndianRupee size={16} className="input-icon-left" />
+                                  <input 
+                                    className="input-field-premium has-icon" 
+                                    type="number"
+                                    placeholder="0.00"
+                                    value={newItem.price}
+                                    onChange={e => setNewItem({ ...newItem, price: e.target.value })}
+                                    required
+                                  />
+                                </div>
+                              </div>
+                              <div className="form-group">
+                                <label className="form-label">Category</label>
+                                <CustomSelect 
+                                  value={newItem.categoryId}
+                                  onChange={val => setNewItem({ ...newItem, categoryId: val })}
+                                  options={[
+                                    { value: '', label: 'General' },
+                                    ...categories.map(c => ({ value: c.id, label: c.name }))
+                                  ]}
+                                />
+                              </div>
                             </div>
-                            <div>
-                              <label className="input-label">Unit Name</label>
-                              <input required className="input-field" placeholder="e.g. kg, pcs, ltr"
-                                value={newItem.unitName} onChange={e => setNewItem({ ...newItem, unitName: e.target.value })} />
+
+                            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                              <div className="form-group">
+                                <label className="form-label">Unit Type</label>
+                                <CustomSelect 
+                                  value={newItem.unitType}
+                                  onChange={val => setNewItem({ ...newItem, unitType: val, unitName: val === 'FIXED' ? 'pcs' : 'kg' })}
+                                  options={[
+                                    { value: 'FIXED', label: 'Piece (Fixed)' },
+                                    { value: 'VARIABLE', label: 'Weight/Volume (Variable)' }
+                                  ]}
+                                />
+                              </div>
+                              <div className="form-group">
+                                <label className="form-label">Unit Name</label>
+                                <input required className="input-field-premium" placeholder="e.g. kg, pcs, ltr"
+                                  value={newItem.unitName} onChange={e => setNewItem({ ...newItem, unitName: e.target.value })} />
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="form-group">
+                            <label className="form-label">Category Name</label>
+                            <div className="input-group-premium">
+                              <Tag size={18} className="input-icon-left" />
+                              <input autoFocus required className="input-field-premium has-icon" placeholder="e.g. Beverages"
+                                value={newCatName} onChange={e => setNewCatName(e.target.value)} />
                             </div>
                           </div>
-                        </>
-                      ) : (
-                        <div>
-                          <label className="input-label">Category Name *</label>
-                          <input autoFocus required className="input-field" placeholder="e.g. Beverages"
-                            value={newCatName} onChange={e => setNewCatName(e.target.value)} />
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
 
-                    <div className="modal-foot" style={{ gridTemplateColumns:'1fr 2fr' }}>
-                      <button type="button" className="btn btn-ghost" onClick={closeModal}>Cancel</button>
-                      <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                        {isSubmitting ? <Loader2 className="spin" size={18} /> : 'Save'}
+                    <div className="modal-foot-premium">
+                      <button type="button" className="btn btn-ghost btn-premium" onClick={closeModal}>Cancel</button>
+                      <button type="submit" className="btn btn-primary btn-premium" disabled={isSubmitting}>
+                        {isSubmitting ? <Loader2 className="spin" size={20} /> : <><Save size={18} /> Save {modalType === 'item' ? 'Product' : 'Category'}</>}
                       </button>
                     </div>
                   </form>

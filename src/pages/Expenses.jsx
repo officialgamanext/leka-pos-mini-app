@@ -7,6 +7,7 @@ import { useToast } from '../components/Toast';
 import { investmentsApi } from '../api/client';
 import { TrendingDown, Plus, X, Trash2, Loader2, PieChart as PieIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomSelect from '../components/CustomSelect';
 import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -280,57 +281,46 @@ const Expenses = () => {
               <motion.div className="modal-sheet" initial={{ y:'100%' }} animate={{ y:0 }} exit={{ y:'100%' }}
                 transition={{ type:'spring', damping:28, stiffness:300 }}>
                 <div className="modal-drag-bar" />
-                <div className="modal-head">
-                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                    <div className="logo-box" style={{ background:'#FEF2F2', color:'#EF4444' }}><TrendingDown size={16} /></div>
-                    <h2>Add Expense</h2>
+                  <div className="modal-head">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div className="logo-box" style={{ background: '#FEF2F2', color: '#EF4444', width: 44, height: 44, borderRadius: 14 }}>
+                        <TrendingDown size={20} />
+                      </div>
+                      <div>
+                        <h2 style={{ fontSize: 18, fontWeight: 800 }}>Add Expense</h2>
+                        <p style={{ fontSize: 12, color: 'var(--text-sub)' }}>Track your business spending</p>
+                      </div>
+                    </div>
+                    <button className="modal-close" onClick={() => setModalOpen(false)} style={{ width: 36, height: 36, borderRadius: 12 }}><X size={20} /></button>
                   </div>
-                  <button className="modal-close" onClick={() => setModalOpen(false)}><X size={18} /></button>
-                </div>
 
-                <form className="modal-body" onSubmit={handleSubmit}>
+                <form className="modal-body" onSubmit={handleSubmit} style={{ paddingTop: 10 }}>
                   <div className="form-group">
-                    <label className="form-label">Title *</label>
-                    <input className="input-field" placeholder="e.g. Rice purchase"
+                    <label className="form-label">Expense Title *</label>
+                    <input className="input-field-premium" placeholder="e.g. Rice purchase"
                       value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} required />
                   </div>
 
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                     <div className="form-group">
                       <label className="form-label">Amount (₹) *</label>
-                      <input className="input-field" type="number" min="0" step="0.01" placeholder="0.00"
+                      <input className="input-field-premium" type="number" min="0" step="0.01" placeholder="0.00"
                         value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} required />
                     </div>
                     <div className="form-group">
                       <label className="form-label">Date</label>
-                      <input className="input-field" type="date"
+                      <input className="input-field-premium" type="date"
                         value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} />
                     </div>
                   </div>
 
-                  {/* Category picker — icon grid */}
                   <div className="form-group">
                     <label className="form-label">Category</label>
-                    <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
-                      {CATEGORIES.map(c => {
-                        const cfg = CAT_CONFIG[c];
-                        const active = form.category === c;
-                        return (
-                          <button key={c} type="button"
-                            onClick={() => setForm(p => ({ ...p, category: c }))}
-                            style={{
-                              display:'flex', flexDirection:'column', alignItems:'center', gap:4,
-                              padding:'8px 4px', borderRadius:12,
-                              border: `1.5px solid ${active ? cfg.color : 'var(--border)'}`,
-                              background: active ? `${cfg.color}15` : 'var(--surface)',
-                              cursor:'pointer', transition:'all .15s',
-                            }}>
-                            <span style={{ fontSize:18 }}>{cfg.emoji}</span>
-                            <span style={{ fontSize:9, fontWeight:700, color: active ? cfg.color : 'var(--text-sub)', lineHeight:1.2, textAlign:'center' }}>{c}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <CustomSelect 
+                      value={form.category}
+                      onChange={val => setForm(p => ({ ...p, category: val }))}
+                      options={CATEGORIES.map(c => ({ value: c, label: `${CAT_CONFIG[c]?.emoji} ${c}` }))}
+                    />
                   </div>
 
                   <div className="form-group">
@@ -345,10 +335,10 @@ const Expenses = () => {
                     </div>
                   )}
 
-                  <div className="modal-foot" style={{ gridTemplateColumns:'1fr 2fr' }}>
-                    <button type="button" className="btn btn-ghost" onClick={() => setModalOpen(false)}>Cancel</button>
-                    <button type="submit" className="btn btn-primary" style={{ background:'#EF4444', boxShadow:'0 4px 14px rgba(239,68,68,.3)' }} disabled={submitting}>
-                      {submitting ? <Loader2 size={18} className="spin" /> : <><Plus size={15} /> Add Expense</>}
+                  <div className="modal-foot-premium">
+                    <button type="button" className="btn btn-ghost btn-premium" onClick={() => setModalOpen(false)}>Cancel</button>
+                    <button type="submit" className="btn btn-primary btn-premium" style={{ background: '#EF4444', boxShadow: '0 8px 24px rgba(239,68,68,.35)' }} disabled={submitting}>
+                      {submitting ? <Loader2 size={18} className="spin" /> : <><Plus size={18} /> Add Expense</>}
                     </button>
                   </div>
                 </form>

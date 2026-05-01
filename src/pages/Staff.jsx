@@ -7,6 +7,7 @@ import { useToast } from '../components/Toast';
 import { staffApi } from '../api/client';
 import { Users, UserPlus, X, Trash2, Loader2, Shield, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomSelect from '../components/CustomSelect';
 import '../styles/StaffExpenses.css';
 
 const ROLE_COLORS = {
@@ -132,48 +133,59 @@ const Staff = () => {
               <motion.div className="modal-sheet" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                 transition={{ type: 'spring', damping: 28, stiffness: 300 }}>
                 <div className="modal-drag-bar" />
-                <div className="modal-head">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div className="logo-box" style={{ background: '#EEF2FF', color: '#6366F1' }}><UserPlus size={16} /></div>
-                    <h2>Add Staff Member</h2>
+                  <div className="modal-head">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div className="logo-box" style={{ background: 'var(--primary-light)', color: 'var(--primary)', width: 44, height: 44, borderRadius: 14 }}>
+                        <UserPlus size={20} />
+                      </div>
+                      <div>
+                        <h2 style={{ fontSize: 18, fontWeight: 800 }}>Add Staff Member</h2>
+                        <p style={{ fontSize: 12, color: 'var(--text-sub)' }}>Give access to your team members</p>
+                      </div>
+                    </div>
+                    <button className="modal-close" onClick={() => setModalOpen(false)} style={{ width: 36, height: 36, borderRadius: 12 }}><X size={20} /></button>
                   </div>
-                  <button className="modal-close" onClick={() => setModalOpen(false)}><X size={18} /></button>
-                </div>
 
-                <form className="modal-body" onSubmit={handleAdd}>
+                <form className="modal-body" onSubmit={handleAdd} style={{ paddingTop: 10 }}>
                   <div className="form-group">
                     <label className="form-label">Full Name</label>
-                    <input
-                      className="input-field"
-                      placeholder="e.g. John Doe"
-                      value={form.name}
-                      onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                      required
-                    />
+                    <div className="input-group-premium">
+                      <User size={18} className="input-icon-left" />
+                      <input
+                        className="input-field-premium has-icon"
+                        placeholder="e.g. John Doe"
+                        value={form.name}
+                        onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="form-group">
                     <label className="form-label">Mobile Number</label>
-                    <input
-                      className="input-field"
-                      type="tel"
-                      placeholder="e.g. 9876543210"
-                      value={form.mobileNumber}
-                      onChange={e => setForm(p => ({ ...p, mobileNumber: e.target.value }))}
-                      required
-                    />
+                    <div className="input-group-premium">
+                      <Shield size={18} className="input-icon-left" />
+                      <input
+                        className="input-field-premium has-icon"
+                        type="tel"
+                        placeholder="e.g. 9876543210"
+                        value={form.mobileNumber}
+                        onChange={e => setForm(p => ({ ...p, mobileNumber: e.target.value }))}
+                        required
+                      />
+                    </div>
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group" style={{ marginBottom: 30 }}>
                     <label className="form-label">Role</label>
-                    <select
-                      className="input-field"
+                    <CustomSelect 
                       value={form.role}
-                      onChange={e => setForm(p => ({ ...p, role: e.target.value }))}
-                    >
-                      <option value="staff">Staff</option>
-                      <option value="manager">Manager</option>
-                    </select>
+                      onChange={val => setForm(p => ({ ...p, role: val }))}
+                      options={[
+                        { value: 'staff', label: 'Staff' },
+                        { value: 'manager', label: 'Manager' }
+                      ]}
+                    />
                   </div>
 
                   {error && (
@@ -182,10 +194,10 @@ const Staff = () => {
                     </div>
                   )}
 
-                  <div className="modal-foot" style={{ gridTemplateColumns: '1fr 2fr' }}>
-                    <button type="button" className="btn btn-ghost" onClick={() => setModalOpen(false)}>Cancel</button>
-                    <button type="submit" className="btn btn-primary" style={{ background: '#6366F1', boxShadow: '0 4px 14px rgba(99,102,241,.3)' }} disabled={submitting}>
-                      {submitting ? <Loader2 size={18} className="spin" /> : <><UserPlus size={15} /> Add Staff</>}
+                  <div className="modal-foot-premium">
+                    <button type="button" className="btn btn-ghost btn-premium" onClick={() => setModalOpen(false)}>Cancel</button>
+                    <button type="submit" className="btn btn-primary btn-premium" style={{ background: '#6366F1', boxShadow: '0 8px 24px rgba(99,102,241,.35)' }} disabled={submitting}>
+                      {submitting ? <Loader2 size={18} className="spin" /> : <><UserPlus size={18} /> Add Staff</>}
                     </button>
                   </div>
                 </form>
