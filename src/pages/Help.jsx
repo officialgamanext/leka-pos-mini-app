@@ -5,10 +5,34 @@ import { motion } from 'framer-motion';
 
 const Help = () => {
   const contactMethods = [
-    { icon: <Phone size={20} />, label: 'Call Support', val: '+91 98765 43210', color: '#10B981' },
-    { icon: <MessageSquare size={20} />, label: 'WhatsApp Support', val: 'Chat with us', color: '#25D366' },
-    { icon: <Mail size={20} />, label: 'Email Support', val: 'support@lekapos.com', color: '#EF4444' },
-    { icon: <Globe size={20} />, label: 'Visit Website', val: 'www.lekapos.com', color: '#5F259F' },
+    { 
+      icon: <Phone size={20} />, 
+      label: 'Call Support', 
+      val: '+91 62812 88314', 
+      color: '#10B981',
+      action: () => window.open('tel:+916281288314')
+    },
+    { 
+      icon: <MessageSquare size={20} />, 
+      label: 'WhatsApp Support', 
+      val: '+91 62812 88314', 
+      color: '#25D366',
+      action: () => window.open('https://wa.me/916281288314')
+    },
+    { 
+      icon: <Mail size={20} />, 
+      label: 'Email Support', 
+      val: 'official.gamanext@gmail.com', 
+      color: '#EF4444',
+      action: () => window.open('mailto:official.gamanext@gmail.com')
+    },
+    { 
+      icon: <Globe size={20} />, 
+      label: 'Visit Website', 
+      val: 'www.gamanext.com', 
+      color: '#5F259F',
+      action: () => window.open('https://www.gamanext.com')
+    },
   ];
 
   return (
@@ -30,9 +54,10 @@ const Help = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.1 }}
               className="card"
-              style={{ padding: '16px', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '16px' }}
+              onClick={m.action}
+              style={{ padding: '16px', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}
             >
-              <div style={{ color: m.color }}>{m.icon}</div>
+              <div style={{ color: m.color, display: 'flex' }}>{m.icon}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '14px', fontWeight: '700' }}>{m.label}</div>
                 <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{m.val}</div>
@@ -44,7 +69,7 @@ const Help = () => {
 
         <div className="card" style={{ marginTop: '32px', background: 'var(--primary-light)', border: 'none', padding: '20px', textAlign: 'center' }}>
           <p style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '600' }}>
-            Version 1.0.0 (Mini POS)
+            Version 1.1.0 (Powered by GamaNext)
           </p>
         </div>
       </div>
