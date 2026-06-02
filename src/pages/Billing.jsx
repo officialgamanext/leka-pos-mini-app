@@ -33,6 +33,7 @@ const Billing = () => {
   const [selectedCat, setSelectedCat] = useState('all');
   const [paymentMode, setPaymentMode] = useState('Cash');
   const [weightModal, setWeightModal] = useState({ show: false, item: null, value: '', amount: '' });
+  const [discountInput, setDiscountInput] = useState('');
   
   // Printer state for re-rendering
   const [btStatus, setBtStatus] = useState(isPrinterConnected() ? 'connected' : 'idle');
@@ -40,6 +41,12 @@ const Billing = () => {
   const { isSyncing, syncNow, updatePendingCount } = useSync();
 
   useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
+
+  useEffect(() => {
+    if (cart.length === 0) {
+      setDiscountInput('');
+    }
+  }, [cart]);
 
   const fetchData = async () => {
     // 1. Try to load from LocalDB first (Fast!)
@@ -139,10 +146,28 @@ const Billing = () => {
     }
   };
 
+  const handleDiscountChange = (e) => {
+    const val = e.target.value;
+    if (val === '') {
+      setDiscountInput('');
+      return;
+    }
+    const num = parseFloat(val);
+    if (isNaN(num) || num < 0) return;
+    
+    const maxDiscount = subtotal + gstAmount;
+    if (num > maxDiscount) {
+      setDiscountInput(String(maxDiscount));
+    } else {
+      setDiscountInput(val);
+    }
+  };
+
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const gstRate = activeBusiness?.gstEnabled ? Number(activeBusiness?.gstPercentage || 0) : 0;
   const gstAmount = subtotal * (gstRate / 100);
-  const total = subtotal + gstAmount;
+  const discountVal = parseFloat(discountInput) || 0;
+  const total = Math.max(0, subtotal + gstAmount - discountVal);
 
   const checkout = async () => {
     setIsSubmitting(true);
@@ -158,6 +183,7 @@ const Billing = () => {
         subtotal,
         gstRate,
         gstAmount,
+        discount: discountVal,
         total,
         paymentMode
       };
@@ -203,6 +229,9 @@ const Billing = () => {
         if (gstRate > 0) {
           receipt += alignLR(`GST (${gstRate}%):`, gstAmount.toLocaleString('en-IN')) + '\n';
         }
+        if (discountVal > 0) {
+          receipt += alignLR('Discount:', `-${discountVal.toLocaleString('en-IN')}`) + '\n';
+        }
         receipt += alignLR('GRAND TOTAL:', total.toLocaleString('en-IN')) + '\n';
         receipt += alignLR('Payment Mode:', paymentMode) + '\n';
         receipt += '-'.repeat(32) + '\n';
@@ -212,6 +241,7 @@ const Billing = () => {
 
       // 3. UI RESET (Instantly)
       setCart([]);
+      setDiscountInput('');
       setShowCheckout(false);
       showToast('Bill Saved Locally!', 'success');
 
@@ -451,6 +481,18 @@ const Billing = () => {
                         <span style={{ fontSize: 13, fontWeight: 700 }}>+ ₹{gstAmount.toLocaleString('en-IN')}</span>
                       </div>
                     )}
+                    <div className="bl-total-row">
+                      <span style={{ fontSize: 12, color: 'var(--text-sub)', fontWeight: 600 }}>Discount (₹)</span>
+                      <input 
+                        type="number"
+                        className="bl-discount-input"
+                        placeholder="0"
+                        min="0"
+                        max={subtotal + gstAmount}
+                        value={discountInput}
+                        onChange={handleDiscountChange}
+                      />
+                    </div>
                     <div className="bl-total-row" style={{ marginTop: 12, marginBottom: 12 }}>
                       <div style={{ display: 'flex', gap: 6, width: '100%' }}>
                         {['Cash', 'UPI', 'Card'].map(m => (

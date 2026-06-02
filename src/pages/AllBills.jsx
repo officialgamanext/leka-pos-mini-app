@@ -220,6 +220,11 @@ const AllBills = () => {
                       + ₹{Number(bill.gstAmount).toLocaleString('en-IN')} GST
                     </p>
                   )}
+                  {bill.discount > 0 && (
+                    <p style={{ fontSize: 10, color: '#EF4444', fontWeight: 700 }}>
+                      - ₹{Number(bill.discount).toLocaleString('en-IN')} Disc
+                    </p>
+                  )}
                   <p className="ab-bill-items">{bill.items?.length || 0} item{bill.items?.length !== 1 ? 's' : ''}</p>
                 </div>
 
