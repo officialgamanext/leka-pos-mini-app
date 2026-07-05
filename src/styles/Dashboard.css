@@ -256,3 +256,87 @@
   color: var(--primary);
   text-align: right;
 }
+
+/* ─── Responsive Media Queries ────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .db-page {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .db-range-chips {
+    grid-column: span 2;
+  }
+
+  .db-revenue-card {
+    grid-column: span 2;
+    margin-bottom: 0;
+  }
+
+  .db-stats-row {
+    grid-column: span 2;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .db-stats-row.payment-method-grid {
+    grid-column: span 2;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .db-chart-card {
+    grid-column: span 1;
+  }
+
+  .db-sales-card {
+    grid-column: span 1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .db-page {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .db-range-chips {
+    grid-column: span 3;
+  }
+
+  .db-revenue-card {
+    grid-column: span 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .db-stats-row {
+    grid-column: span 1;
+    grid-template-columns: repeat(2, 1fr);
+    height: 100%;
+  }
+
+  .db-stats-row .db-stat-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .db-stats-row.payment-method-grid {
+    grid-column: span 1;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .db-chart-card {
+    grid-column: span 1.5;
+  }
+
+  .db-sales-card {
+    grid-column: span 1.5;
+  }
+}

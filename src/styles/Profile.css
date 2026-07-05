@@ -167,3 +167,11 @@
 
 .pf-info-icon { color: var(--primary); margin-top: 1px; flex-shrink: 0; }
 .pf-info-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+
+@media (min-width: 768px) {
+  .pf-page {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+

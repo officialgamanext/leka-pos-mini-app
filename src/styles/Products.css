@@ -5,6 +5,22 @@
   padding-bottom: 80px;
 }
 
+.pr-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.pr-add-btn-desktop {
+  width: auto !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  font-size: 13px !important;
+  border-radius: 10px !important;
+}
+
 /* Tab switcher */
 .pr-tabs {
   display: flex;
@@ -13,8 +29,9 @@
   border-radius: var(--r-md);
   padding: 4px;
   gap: 4px;
-  margin-bottom: 16px;
   box-shadow: var(--shadow-xs);
+  flex: 1;
+  max-width: 320px;
 }
 
 .pr-tab {
@@ -27,12 +44,13 @@
   background: transparent;
   color: var(--text-sub);
   transition: all .2s;
+  cursor: pointer;
 }
 
 .pr-tab.active {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(51, 121, 167, .3);
+  box-shadow: 0 2px 10px rgba(95, 37, 159, .2);
 }
 
 /* List (for categories) */
@@ -80,6 +98,29 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
+
+@media (min-width: 768px) {
+  .pr-page {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .pr-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 16px;
+  }
+  .pr-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pr-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 
 .pr-product-card {
   padding: 0;

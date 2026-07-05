@@ -56,7 +56,7 @@
   color: white;
 }
 
-/* Product Grid */
+/* Product Grid (Mobile defaults) */
 .bl-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -71,7 +71,6 @@
   transition: transform .15s, border-color .2s, background .2s;
   position: relative;
   overflow: hidden;
-  /* border: 1.5px solid transparent; */
   border-radius: 10px;
 }
 
@@ -94,7 +93,6 @@
   justify-content: center;
   color: var(--primary);
   margin-bottom: 8px;
-  /* decreased margin to fit tighter cards */
   overflow: hidden;
 }
 
@@ -177,14 +175,13 @@
   justify-content: center;
 }
 
-/* Floating cart bar */
+/* Floating cart bar (Mobile Only) */
 .bl-cart-bar {
   position: fixed;
   left: 14px;
   right: 14px;
   bottom: calc(85px + var(--safe-bottom));
   z-index: 30;
-  /* above content, above nav */
 }
 
 .bl-cart-btn {
@@ -236,7 +233,7 @@
   font-weight: 800;
 }
 
-/* Checkout modal */
+/* Checkout lists */
 .bl-order-list {
   flex: 1;
   overflow-y: auto;
@@ -244,6 +241,14 @@
   flex-direction: column;
   gap: 8px;
   margin-bottom: 14px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
 }
 
 .bl-order-item {
@@ -409,4 +414,167 @@
 .bl-discount-input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-fade);
+}
+
+/* ─── Tablet & Desktop Split-Screen POS View ─────────────────── */
+
+.bl-page-container {
+  height: 100%;
+}
+
+.bl-page-container.mode-desktop {
+  overflow: hidden;
+}
+
+.bl-split-viewport {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  height: calc(100vh - 120px);
+  overflow: hidden;
+}
+
+@media (min-width: 1200px) {
+  .bl-split-viewport {
+    grid-template-columns: 1fr 400px;
+    gap: 24px;
+  }
+}
+
+/* Left catalog pane */
+.bl-catalog-column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 6px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(95, 37, 159, 0.1);
+    border-radius: 4px;
+  }
+}
+
+.bl-page-container.mode-desktop .bl-grid {
+  grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  padding-bottom: 30px;
+}
+
+@media (min-width: 1024px) {
+  .bl-page-container.mode-desktop .bl-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}
+
+/* Right cart panel sidebar */
+.bl-cart-column {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.bl-cart-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+.bl-cart-column-header h2 {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.bl-clear-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: #FFF5F5;
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 850;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bl-clear-btn:hover {
+  background: var(--red);
+  color: white;
+}
+
+.bl-cart-interactive-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.bl-cart-interactive-box .bl-order-list {
+  flex: 1;
+  margin-bottom: 14px;
+  overflow-y: auto;
+}
+
+.bl-cart-actions {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.settle-btn-desktop {
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 4px 18px rgba(95, 37, 159, 0.3);
+}
+
+/* Empty cart state */
+.bl-empty-cart-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.empty-cart-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--surface-alt);
+  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+}
+
+.bl-empty-cart-state h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.bl-empty-cart-state p {
+  font-size: 11px;
+  color: var(--text-sub);
+  max-width: 200px;
+  line-height: 1.5;
 }

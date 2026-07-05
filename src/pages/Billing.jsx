@@ -37,8 +37,15 @@ const Billing = () => {
   
   // Printer state for re-rendering
   const [btStatus, setBtStatus] = useState(isPrinterConnected() ? 'connected' : 'idle');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const { isSyncing, syncNow, updatePendingCount } = useSync();
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
 
@@ -263,299 +270,372 @@ const Billing = () => {
   });
   const cartMap = Object.fromEntries(cart.map(i => [i.id, i.qty]));
 
-  return (
-    <AppLayout>
-      <div className="bl-page">
-
-        {/* Search */}
-        <div className="bl-search-wrap">
-          <Search size={16} className="bl-search-icon" />
-          <input
-            className="input-field bl-search-input"
-            placeholder="Search items…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
-
-        {/* Category Chips */}
-        <div className="bl-cat-chips">
-          <button
-            className={`bl-cat-chip ${selectedCat === 'all' ? 'active' : ''}`}
-            onClick={() => setSelectedCat('all')}
-          >
-            All Items
-          </button>
-          {categories.map(c => (
-            <button
-              key={c.id}
-              className={`bl-cat-chip ${selectedCat === c.id ? 'active' : ''}`}
-              onClick={() => setSelectedCat(c.id)}
+  // Shared inner render fragments to avoid code duplication
+  const renderCartItemsList = () => (
+    <div className="bl-order-list">
+      {cart.map(i => (
+        <div key={i.id} className="card bl-order-item">
+          <div className="bl-order-icon" style={{ overflow: 'hidden' }}>
+            {i.imageUrl ? (
+              <img src={i.imageUrl} alt={i.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <Package size={17} />
+            )}
+          </div>
+          <div style={{ flex: 1 }}>
+            <p className="bl-order-name">{i.name}</p>
+            <p className="bl-order-price">₹{i.price}</p>
+          </div>
+          <div className="bl-qty-row">
+            <button 
+              className="bl-qty-btn" 
+              onClick={() => {
+                if (i.unitType === 'VARIABLE') {
+                  updateQty(i.id, 0, 0); // Remove
+                } else {
+                  updateQty(i.id, -1);
+                }
+              }}
             >
-              {c.name}
+              {i.unitType === 'VARIABLE' ? <Trash size={12} color="var(--red)" /> : <Minus size={12} />}
+            </button>
+            <span className="bl-qty-val">
+              {i.qty} {i.unitType === 'VARIABLE' ? (i.unitName || 'kg') : ''}
+            </span>
+            <button 
+              className="bl-qty-btn" 
+              onClick={() => {
+                if (i.unitType === 'VARIABLE') {
+                  setWeightModal({ show: true, item: i, value: String(i.qty), amount: (i.qty * i.price).toFixed(2) });
+                } else {
+                  updateQty(i.id, 1);
+                }
+              }}
+            >
+              <Plus size={12} />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderTotalsPanel = () => (
+    <div className="bl-total-box">
+      <div className="bl-total-row">
+        <span style={{ fontSize: 12, color: 'var(--text-sub)', fontWeight: 600 }}>Subtotal</span>
+        <span style={{ fontSize: 13, fontWeight: 700 }}>₹{subtotal.toLocaleString('en-IN')}</span>
+      </div>
+      {gstRate > 0 && (
+        <div className="bl-total-row">
+          <span style={{ fontSize: 12, color: 'var(--text-sub)', fontWeight: 600 }}>GST ({gstRate}%)</span>
+          <span style={{ fontSize: 13, fontWeight: 700 }}>+ ₹{gstAmount.toLocaleString('en-IN')}</span>
+        </div>
+      )}
+      <div className="bl-total-row">
+        <span style={{ fontSize: 12, color: 'var(--text-sub)', fontWeight: 600 }}>Discount (₹)</span>
+        <input 
+          type="number"
+          className="bl-discount-input"
+          placeholder="0"
+          min="0"
+          max={subtotal + gstAmount}
+          value={discountInput}
+          onChange={handleDiscountChange}
+        />
+      </div>
+      <div className="bl-total-row" style={{ marginTop: 12, marginBottom: 12 }}>
+        <div style={{ display: 'flex', gap: 6, width: '100%' }}>
+          {['Cash', 'UPI', 'Card'].map(m => (
+            <button
+              key={m}
+              onClick={() => setPaymentMode(m)}
+              style={{
+                flex: 1, padding: '8px', borderRadius: '8px',
+                border: `1.5px solid ${paymentMode === m ? 'var(--primary)' : 'var(--border)'}`,
+                background: paymentMode === m ? 'var(--primary-light)' : 'transparent',
+                color: paymentMode === m ? 'var(--primary)' : 'var(--text-sub)',
+                fontWeight: 700, fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
+              }}
+            >
+              {m === 'Cash' ? <Banknote size={14} /> : m === 'UPI' ? <QrCode size={14} /> : <CreditCard size={14} />} {m}
             </button>
           ))}
         </div>
+      </div>
+      <div className="bl-total-row">
+        <span className="bl-grand-label" style={{ fontSize: 13 }}>Grand Total</span>
+        <span className="bl-grand-val">₹{total.toLocaleString('en-IN')}</span>
+      </div>
+    </div>
+  );
 
-        {/* Product grid */}
-        {isLoading ? (
-          <div className="text-center" style={{ padding: 40 }}>
-            <Loader2 className="spin" size={26} color="var(--primary)" />
+  const renderPrinterStatus = () => (
+    <div style={{ padding: isMobile ? '0 20px' : '0', marginBottom: 15 }}>
+      {btStatus !== 'connected' && (
+        <div style={{ 
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', 
+          background: '#FFF5F5', border: '1px solid #FED7D7', borderRadius: 12,
+          color: '#C53030', fontSize: 12, fontWeight: 600
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BluetoothOff size={16} />
+            <span>{btStatus === 'connecting' ? 'Searching...' : 'Printer disconnected'}</span>
           </div>
-        ) : (
-          <div className="bl-grid">
-            {filtered.map(item => (
-              <motion.div
-                key={item.id}
-                className={`card bl-product-card ${cartMap[item.id] ? 'selected' : ''}`}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => !cartMap[item.id] && addToCart(item)}
-              >
-                {cartMap[item.id] && (
-                  <span className="bl-cart-badge">{cartMap[item.id]}</span>
+          <button 
+            onClick={handleConnect}
+            disabled={btStatus === 'connecting'}
+            style={{ 
+              background: '#C53030', color: '#fff', border: 'none', padding: '6px 12px', 
+              borderRadius: 8, fontSize: 11, fontWeight: 800, cursor: 'pointer'
+            }}
+          >
+            {btStatus === 'connecting' ? <Loader2 size={12} className="spin" /> : 'Connect'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderCatalogContent = () => (
+    <>
+      {/* Search */}
+      <div className="bl-search-wrap">
+        <Search size={16} className="bl-search-icon" />
+        <input
+          className="input-field bl-search-input"
+          placeholder="Search items…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* Category Chips */}
+      <div className="bl-cat-chips">
+        <button
+          className={`bl-cat-chip ${selectedCat === 'all' ? 'active' : ''}`}
+          onClick={() => setSelectedCat('all')}
+        >
+          All Items
+        </button>
+        {categories.map(c => (
+          <button
+            key={c.id}
+            className={`bl-cat-chip ${selectedCat === c.id ? 'active' : ''}`}
+            onClick={() => setSelectedCat(c.id)}
+          >
+            {c.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Product grid */}
+      {isLoading ? (
+        <div className="text-center" style={{ padding: 40 }}>
+          <Loader2 className="spin" size={26} color="var(--primary)" />
+        </div>
+      ) : (
+        <div className="bl-grid">
+          {filtered.map(item => (
+            <motion.div
+              key={item.id}
+              className={`card bl-product-card ${cartMap[item.id] ? 'selected' : ''}`}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => !cartMap[item.id] && addToCart(item)}
+            >
+              {cartMap[item.id] && (
+                <span className="bl-cart-badge">{cartMap[item.id]}</span>
+              )}
+              <div className="bl-product-thumb" onClick={(e) => { e.stopPropagation(); addToCart(item); }}>
+                {item.imageUrl ? (
+                  <img src={item.imageUrl} alt={item.name} />
+                ) : (
+                  <Package size={26} opacity={0.45} />
                 )}
-                <div className="bl-product-thumb" onClick={(e) => { e.stopPropagation(); addToCart(item); }}>
-                  {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={item.name} />
-                  ) : (
-                    <Package size={26} opacity={0.45} />
-                  )}
+              </div>
+              <p className="bl-product-name">{item.name}</p>
+              <p className="bl-product-price">₹{item.price}<span style={{ fontSize:9, opacity:0.7 }}>/{item.unitName || (item.unitType === 'VARIABLE' ? 'kg' : 'pcs')}</span></p>
+
+              {cartMap[item.id] && (
+                <div className="bl-card-qty-controls" onClick={e => e.stopPropagation()}>
+                  <button
+                    className="bl-card-qty-btn"
+                    style={{ color: item.unitType === 'VARIABLE' ? 'var(--red)' : '' }}
+                    onClick={() => {
+                      if (item.unitType === 'VARIABLE') {
+                        updateQty(item.id, 0, 0); // Remove
+                      } else {
+                        updateQty(item.id, -1);
+                      }
+                    }}
+                  >
+                    {item.unitType === 'VARIABLE' ? <Trash size={12} /> : <Minus size={14} />}
+                  </button>
+                  <span className="bl-card-qty-val">
+                    {cartMap[item.id]} {item.unitType === 'VARIABLE' ? (item.unitName || 'kg') : ''}
+                  </span>
+                  <button
+                    className="bl-card-qty-btn"
+                    onClick={() => {
+                      if (item.unitType === 'VARIABLE') {
+                        setWeightModal({ show: true, item, value: String(cartMap[item.id]), amount: (cartMap[item.id] * item.price).toFixed(2) });
+                      } else {
+                        updateQty(item.id, 1);
+                      }
+                    }}
+                  >
+                    {item.unitType === 'VARIABLE' ? <Plus size={12} /> : <Plus size={14} />}
+                  </button>
                 </div>
-                <p className="bl-product-name">{item.name}</p>
-                <p className="bl-product-price">₹{item.price}<span style={{ fontSize:9, opacity:0.7 }}>/{item.unitName || (item.unitType === 'VARIABLE' ? 'kg' : 'pcs')}</span></p>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </>
+  );
 
-                {cartMap[item.id] && (
-                  <div className="bl-card-qty-controls" onClick={e => e.stopPropagation()}>
-                    <button
-                      className="bl-card-qty-btn"
-                      style={{ color: item.unitType === 'VARIABLE' ? 'var(--red)' : '' }}
-                      onClick={() => {
-                        if (item.unitType === 'VARIABLE') {
-                          updateQty(item.id, 0, 0); // Remove
-                        } else {
-                          updateQty(item.id, -1);
-                        }
-                      }}
-                    >
-                      {item.unitType === 'VARIABLE' ? <Trash size={12} /> : <Minus size={14} />}
+  return (
+    <AppLayout>
+      <div className={`bl-page-container ${isMobile ? 'mode-mobile' : 'mode-desktop'}`}>
+        {isMobile ? (
+          <div className="bl-page">
+            {renderCatalogContent()}
+
+            {/* Floating cart bar - portaled to body to escape transform context */}
+            {createPortal(
+              <AnimatePresence>
+                {cart.length > 0 && (
+                  <motion.div
+                    className="bl-cart-bar"
+                    initial={{ y: 80, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 80, opacity: 0 }}
+                    transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+                  >
+                    <button className="bl-cart-btn" onClick={() => setShowCheckout(true)}>
+                      <div className="bl-cart-left">
+                        <div className="bl-cart-count-box">
+                          <ShoppingCart size={16} />
+                        </div>
+                        <div>
+                          <div className="bl-cart-count">{cart.length} ITEMS</div>
+                          <div className="bl-cart-total">₹{total.toLocaleString('en-IN')}</div>
+                        </div>
+                      </div>
+                      <div className="bl-cart-cta">Checkout <ChevronRight size={16} /></div>
                     </button>
-                    <span className="bl-card-qty-val">
-                      {cartMap[item.id]} {item.unitType === 'VARIABLE' ? (item.unitName || 'kg') : ''}
-                    </span>
-                    <button
-                      className="bl-card-qty-btn"
-                      onClick={() => {
-                        if (item.unitType === 'VARIABLE') {
-                          setWeightModal({ show: true, item, value: String(cartMap[item.id]), amount: (cartMap[item.id] * item.price).toFixed(2) });
-                        } else {
-                          updateQty(item.id, 1);
-                        }
-                      }}
-                    >
-                      {item.unitType === 'VARIABLE' ? <Plus size={12} /> : <Plus size={14} />}
-                    </button>
-                  </div>
+                  </motion.div>
                 )}
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-
-        {/* Floating cart bar - portaled to body to escape transform context */}
-        {createPortal(
-          <AnimatePresence>
-            {cart.length > 0 && (
-              <motion.div
-                className="bl-cart-bar"
-                initial={{ y: 80, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 80, opacity: 0 }}
-                transition={{ type: 'spring', damping: 24, stiffness: 280 }}
-              >
-                <button className="bl-cart-btn" onClick={() => setShowCheckout(true)}>
-                  <div className="bl-cart-left">
-                    <div className="bl-cart-count-box">
-                      <ShoppingCart size={16} />
-                    </div>
-                    <div>
-                      <div className="bl-cart-count">{cart.length} ITEMS</div>
-                      <div className="bl-cart-total">₹{total.toLocaleString('en-IN')}</div>
-                    </div>
-                  </div>
-                  <div className="bl-cart-cta">Checkout <ChevronRight size={16} /></div>
-                </button>
-              </motion.div>
+              </AnimatePresence>,
+              document.body
             )}
-          </AnimatePresence>,
-          document.body
-        )}
 
-        {/* Checkout Modal — rendered at body level via Portal */}
-        <AnimatePresence>
-          {showCheckout && (
-            <ModalPortal>
-              <motion.div
-                key="bl-overlay"
-                className="modal-overlay"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={e => e.target === e.currentTarget && setShowCheckout(false)}
-              >
-                <motion.div
-                  key="bl-sheet"
-                  className="modal-sheet"
-                  initial={{ y: '100%' }}
-                  animate={{ y: 0 }}
-                  exit={{ y: '100%' }}
-                  transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-                >
-                  <div className="modal-drag-bar" />
+            {/* Checkout Modal — rendered at body level via Portal */}
+            <AnimatePresence>
+              {showCheckout && (
+                <ModalPortal>
+                  <motion.div
+                    key="bl-overlay"
+                    className="modal-overlay"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={e => e.target === e.currentTarget && setShowCheckout(false)}
+                  >
+                    <motion.div
+                      key="bl-sheet"
+                      className="modal-sheet"
+                      initial={{ y: '100%' }}
+                      animate={{ y: 0 }}
+                      exit={{ y: '100%' }}
+                      transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+                    >
+                      <div className="modal-drag-bar" />
 
-                  <div className="modal-head">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div className="logo-box" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
-                        <ReceiptText size={16} />
-                      </div>
-                      <h2>Order Summary</h2>
-                    </div>
-                    <button className="modal-close" onClick={() => setShowCheckout(false)}><X size={18} /></button>
-                  </div>
-
-                  <div className="bl-order-list modal-body">
-                    {cart.map(i => (
-                      <div key={i.id} className="card bl-order-item">
-                        <div className="bl-order-icon" style={{ overflow: 'hidden' }}>
-                          {i.imageUrl ? (
-                            <img src={i.imageUrl} alt={i.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          ) : (
-                            <Package size={17} />
-                          )}
+                      <div className="modal-head">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div className="logo-box" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
+                            <ReceiptText size={16} />
+                          </div>
+                          <h2>Order Summary</h2>
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <p className="bl-order-name">{i.name}</p>
-                          <p className="bl-order-price">₹{i.price}</p>
-                        </div>
-                        <div className="bl-qty-row">
-                          <button 
-                            className="bl-qty-btn" 
-                            onClick={() => {
-                              if (i.unitType === 'VARIABLE') {
-                                updateQty(i.id, 0, 0); // Remove
-                              } else {
-                                updateQty(i.id, -1);
-                              }
-                            }}
-                          >
-                            {i.unitType === 'VARIABLE' ? <Trash size={12} color="var(--red)" /> : <Minus size={12} />}
-                          </button>
-                          <span className="bl-qty-val">
-                            {i.qty} {i.unitType === 'VARIABLE' ? (i.unitName || 'kg') : ''}
-                          </span>
-                          <button 
-                            className="bl-qty-btn" 
-                            onClick={() => {
-                              if (i.unitType === 'VARIABLE') {
-                                setWeightModal({ show: true, item: i, value: String(i.qty), amount: (i.qty * i.price).toFixed(2) });
-                              } else {
-                                updateQty(i.id, 1);
-                              }
-                            }}
-                          >
-                            <Plus size={12} />
-                          </button>
-                        </div>
+                        <button className="modal-close" onClick={() => setShowCheckout(false)}><X size={18} /></button>
                       </div>
-                    ))}
-                  </div>
 
-                  <div className="bl-total-box">
-                    <div className="bl-total-row">
-                      <span style={{ fontSize: 12, color: 'var(--text-sub)', fontWeight: 600 }}>Subtotal</span>
-                      <span style={{ fontSize: 13, fontWeight: 700 }}>₹{subtotal.toLocaleString('en-IN')}</span>
-                    </div>
-                    {gstRate > 0 && (
-                      <div className="bl-total-row">
-                        <span style={{ fontSize: 12, color: 'var(--text-sub)', fontWeight: 600 }}>GST ({gstRate}%)</span>
-                        <span style={{ fontSize: 13, fontWeight: 700 }}>+ ₹{gstAmount.toLocaleString('en-IN')}</span>
-                      </div>
-                    )}
-                    <div className="bl-total-row">
-                      <span style={{ fontSize: 12, color: 'var(--text-sub)', fontWeight: 600 }}>Discount (₹)</span>
-                      <input 
-                        type="number"
-                        className="bl-discount-input"
-                        placeholder="0"
-                        min="0"
-                        max={subtotal + gstAmount}
-                        value={discountInput}
-                        onChange={handleDiscountChange}
-                      />
-                    </div>
-                    <div className="bl-total-row" style={{ marginTop: 12, marginBottom: 12 }}>
-                      <div style={{ display: 'flex', gap: 6, width: '100%' }}>
-                        {['Cash', 'UPI', 'Card'].map(m => (
-                          <button
-                            key={m}
-                            onClick={() => setPaymentMode(m)}
-                            style={{
-                              flex: 1, padding: '8px', borderRadius: '8px',
-                              border: `1.5px solid ${paymentMode === m ? 'var(--primary)' : 'var(--border)'}`,
-                              background: paymentMode === m ? 'var(--primary-light)' : 'transparent',
-                              color: paymentMode === m ? 'var(--primary)' : 'var(--text-sub)',
-                              fontWeight: 700, fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
-                            }}
-                          >
-                            {m === 'Cash' ? <Banknote size={14} /> : m === 'UPI' ? <QrCode size={14} /> : <CreditCard size={14} />} {m}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="bl-total-row">
-                      <span className="bl-grand-label" style={{ fontSize: 13 }}>Grand Total</span>
-                      <span className="bl-grand-val">₹{total.toLocaleString('en-IN')}</span>
-                    </div>
-                  </div>
+                      {renderCartItemsList()}
 
-                  <div style={{ padding: '0 20px', marginBottom: 15 }}>
-                    {btStatus !== 'connected' && (
-                      <div style={{ 
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', 
-                        background: '#FFF5F5', border: '1px solid #FED7D7', borderRadius: 12,
-                        color: '#C53030', fontSize: 12, fontWeight: 600
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <BluetoothOff size={16} />
-                          <span>{btStatus === 'connecting' ? 'Searching...' : 'Printer disconnected'}</span>
-                        </div>
-                        <button 
-                          onClick={handleConnect}
-                          disabled={btStatus === 'connecting'}
-                          style={{ 
-                            background: '#C53030', color: '#fff', border: 'none', padding: '6px 12px', 
-                            borderRadius: 8, fontSize: 11, fontWeight: 800, cursor: 'pointer'
-                          }}
-                        >
-                          {btStatus === 'connecting' ? <Loader2 size={12} className="spin" /> : 'Connect'}
+                      {renderTotalsPanel()}
+
+                      {renderPrinterStatus()}
+
+                      <div className="modal-foot">
+                        <button className="btn btn-ghost" onClick={() => setShowCheckout(false)}>Cancel</button>
+                        <button className="btn btn-primary" onClick={checkout} disabled={isSubmitting}>
+                          {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Settle Bill'}
                         </button>
                       </div>
-                    )}
-                  </div>
+                    </motion.div>
+                  </motion.div>
+                </ModalPortal>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : (
+          /* Desktop Split-Screen POS layout */
+          <div className="bl-split-viewport">
+            {/* Left Catalog Pane */}
+            <div className="bl-catalog-column">
+              {renderCatalogContent()}
+            </div>
 
-                  <div className="modal-foot">
-                    <button className="btn btn-ghost" onClick={() => setShowCheckout(false)}>Cancel</button>
-                    <button className="btn btn-primary" onClick={checkout} disabled={isSubmitting}>
-                      {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Settle Bill'}
+            {/* Right Cart Sidebar Pane */}
+            <div className="bl-cart-column">
+              <div className="bl-cart-column-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div className="logo-box" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
+                    <ReceiptText size={16} />
+                  </div>
+                  <h2>Active Order</h2>
+                </div>
+                {cart.length > 0 && (
+                  <button 
+                    className="bl-clear-btn" 
+                    onClick={() => {
+                      if (window.confirm('Clear active order?')) setCart([]);
+                    }}
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
+
+              {cart.length === 0 ? (
+                <div className="bl-empty-cart-state">
+                  <div className="empty-cart-circle">
+                    <ShoppingCart size={32} />
+                  </div>
+                  <h3>Your cart is empty</h3>
+                  <p>Choose products from the inventory catalog on the left to start billing.</p>
+                </div>
+              ) : (
+                <div className="bl-cart-interactive-box">
+                  {renderCartItemsList()}
+                  {renderTotalsPanel()}
+                  {renderPrinterStatus()}
+                  
+                  <div className="bl-cart-actions">
+                    <button className="btn btn-primary settle-btn-desktop" onClick={checkout} disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="spin" size={17} /> : 'Settle & Print Invoice'}
                     </button>
                   </div>
-                </motion.div>
-              </motion.div>
-            </ModalPortal>
-          )}
-        </AnimatePresence>
-        
-        {/* Weight Input Modal */}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Weight Input Modal (Active on both Mobile and Desktop) */}
         <AnimatePresence>
           {weightModal.show && (
             <ModalPortal>
@@ -570,6 +650,7 @@ const Billing = () => {
                   initial={{ y: '100%' }}
                   animate={{ y: 0 }}
                   exit={{ y: '100%' }}
+                  style={{ maxWidth: '500px', margin: '0 auto', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
                 >
                   <div className="modal-head">
                     <h2>Enter Weight ({weightModal.item?.unitName || 'kg'})</h2>
@@ -627,7 +708,6 @@ const Billing = () => {
             </ModalPortal>
           )}
         </AnimatePresence>
-
       </div>
     </AppLayout>
   );

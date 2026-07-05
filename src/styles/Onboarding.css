@@ -3,8 +3,15 @@
 .ob-page {
   min-height: 100dvh;
   background: var(--bg);
-  padding: 0 20px 40px;
   animation: fadeUp .45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.ob-card-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 0 20px 40px;
 }
 
 /* Hero Section */
@@ -61,6 +68,7 @@
   font-weight: 700;
   transition: all 0.2s;
   box-shadow: var(--shadow-xs);
+  cursor: pointer;
 }
 
 .ob-logout-btn:active { transform: scale(0.95); background: #fff5f5; }
@@ -190,6 +198,7 @@
   gap: 10px;
   transition: all 0.25s;
   backdrop-filter: blur(4px);
+  cursor: pointer;
 }
 
 .ob-add-btn:hover {
@@ -204,4 +213,40 @@
   padding: 2px 8px;
   border-radius: 8px;
   margin-left: 2px;
+}
+
+/* ─── Responsive Media Queries ────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .ob-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #cbd5e1; /* cool grey screen outer background */
+  }
+
+  .ob-card-container {
+    width: 420px;
+    height: 720px;
+    min-height: auto;
+    max-height: 92dvh;
+    border-radius: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    overflow-y: auto;
+    padding: 0 20px 32px;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(95, 37, 159, 0.1);
+      border-radius: 4px;
+    }
+  }
+
+  .ob-hero {
+    padding: 32px 0 24px;
+  }
 }

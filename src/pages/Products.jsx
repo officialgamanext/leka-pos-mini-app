@@ -37,8 +37,15 @@ const Products = () => {
   });
   const [newCatName,   setNewCatName]   = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobile,     setIsMobile]     = useState(window.innerWidth < 768);
   
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => { fetchData(); }, [sessionToken, activeBusiness]);
 
@@ -120,14 +127,21 @@ const Products = () => {
     <AppLayout title="Products">
       <div className="pr-page">
 
-        {/* Tabs */}
-        <div className="pr-tabs">
-          <button className={`pr-tab${activeTab === 'items' ? ' active' : ''}`} onClick={() => setActiveTab('items')}>
-            Items ({items.length})
-          </button>
-          <button className={`pr-tab${activeTab === 'categories' ? ' active' : ''}`} onClick={() => setActiveTab('categories')}>
-            Categories ({categories.length})
-          </button>
+        {/* Tabs and Actions Row */}
+        <div className="pr-header-row">
+          <div className="pr-tabs">
+            <button className={`pr-tab${activeTab === 'items' ? ' active' : ''}`} onClick={() => setActiveTab('items')}>
+              Items ({items.length})
+            </button>
+            <button className={`pr-tab${activeTab === 'categories' ? ' active' : ''}`} onClick={() => setActiveTab('categories')}>
+              Categories ({categories.length})
+            </button>
+          </div>
+          {!isMobile && (
+            <button className="btn btn-primary pr-add-btn-desktop" onClick={() => openModal(activeTab === 'items' ? 'item' : 'category')}>
+              <Plus size={16} /> Add {activeTab === 'items' ? 'Product' : 'Category'}
+            </button>
+          )}
         </div>
 
         {/* List / Grid */}
@@ -180,8 +194,8 @@ const Products = () => {
           </div>
         )}
 
-        {/* FAB */}
-        {createPortal(
+        {/* FAB (Mobile Only) */}
+        {isMobile && createPortal(
           <button className="pr-fab" onClick={() => openModal(activeTab === 'items' ? 'item' : 'category')}>
             <Plus size={24} />
           </button>,

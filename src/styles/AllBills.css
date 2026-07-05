@@ -136,3 +136,25 @@
 /* Empty state */
 .ab-empty { text-align: center; padding: 60px 20px; color: var(--text-sub); }
 .ab-empty-icon { opacity: .12; margin-bottom: 12px; }
+
+@media (min-width: 768px) {
+  .ab-page {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .ab-filters {
+    justify-content: flex-start;
+  }
+  .ab-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ab-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+

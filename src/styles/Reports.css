@@ -108,3 +108,11 @@
 .rp-rank-1 { background: #FEF3C7; color: #D97706; }
 .rp-rank-2 { background: #F3F4F6; color: #6B7280; }
 .rp-rank-3 { background: #FFEDD5; color: #C2410C; }
+
+@media (min-width: 768px) {
+  .rp-page {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+}
+
