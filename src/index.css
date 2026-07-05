@@ -242,6 +242,24 @@ p {
   flex-shrink: 0;
 }
 
+@media (min-width: 768px) {
+  .modal-overlay {
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-sheet {
+    width: 480px;
+    border-radius: var(--r-xl);
+    max-height: 85vh;
+  }
+  
+  .modal-drag-bar {
+    display: none;
+  }
+}
+
+
 /* ─── Animations ─────────────────────────────────────────────── */
 @keyframes fadeUp {
   from {

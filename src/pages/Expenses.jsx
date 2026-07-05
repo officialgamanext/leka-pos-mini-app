@@ -369,8 +369,8 @@ const Expenses = () => {
               onClick={e => e.target === e.currentTarget && setModalOpen(false)}>
               <motion.div className="modal-sheet" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                 transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-                style={{ maxWidth: '500px', margin: '0 auto', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
               >
+
                 <div className="modal-drag-bar" />
                 <div className="modal-head">
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
